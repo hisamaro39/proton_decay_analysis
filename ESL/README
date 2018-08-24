@@ -1,0 +1,102 @@
+///////////////////////////////////
+//
+//  EventSelectionLikelihoods 
+//
+//  20141118 rvw
+///////////////////////////////////
+
+   This module is designed to encapusalte the behavior
+of likelihood selection functions used to separate 
+particular event samples in the ATMPD analysis. Further 
+it is intended to provide an intercace to these functions
+provided an ATMPD ROOTuple has been loaded into a 
+DataManager object (see $ATMPD_ROOT/src/analysis/Osc3++/tools ).
+
+////////////////////////////////////
+//
+//  Library 
+//
+////////////////////////////////////
+
+compile: 
+  > gmake lib 
+
+
+Library: libeventselectionll.a
+
+Depends on: 
+    -losctools  -losc3ppcore
+
+These libraries should also be linked into any executable 
+with to -leventselectionll.
+
+The systematic error  ($ATMD_ROOT/src/analysis/syserr.database ) and
+OscNtupleBuilder librariers ($ATMD_ROOT/src/analysis/OscNtupleBuilder) 
+are examples of software that rely on this library 
+
+////////////////////////////////////
+//
+//  Library Members
+//
+////////////////////////////////////
+
+LikelihoodManager.*
+
+   - Class for managing and interfacing to LikelihoodReturn objects
+   - On instantiation can be used to remotely attain event-by-event 
+     values of the relevant likelihoods
+   - One likelihood for the Multi-Ring Multi-GeV e-like sample exists
+   - One likelihood for the Pi0 Selection likelihood also exists
+
+LikelihoodReturn.*
+   - Base class for retrieving likelihood distributions for each
+     varable in the likelihood computation. 
+
+mrmgeLikelihood.*
+   - Derived class of LikelihoodReturn
+   - Provides steering for production of the likelihood function used 
+     to create the ATMPD Multi-Ring Multi-GeV e-like sample  (parent 
+     sample for nue-like and nuebar-like samples)
+
+nuebarLikelihood.*
+   - Derived class of LikelihoodReturn
+   - Provides steering for production of the likelihood function used 
+     to create the ATMPD Multi-Ring Multi-GeV nue-like and 
+     nuebar like samples 
+
+Pi0Likelihood.*
+   - Derived class of LikelihoodReturn
+   - Provides steering for production of Pi0 likelihood function 
+     used to create the Sub-GeV Single-Ring Pi0 sample
+
+
+////////////////////////////////////
+//
+//  executables for building likelihoods
+//
+////////////////////////////////////
+
+build_pi0likelihood.cc
+build_mgmrelikelihood.cc
+build_nuebarlikelihood.cc
+
+Each of these executables has the following usage:
+
+ > ./build_pi0likelihood skx card cpu ncpus 
+    where: 
+           skx   = [ sk1, sk2, sk3, sk4 ] 
+           card  = Input card file 
+           cpu   = number of this cpu [0, ncpus -1] 
+           ncpus = total number of cpus used to process
+
+Note that the nuebar likelihood can only be built after the 
+likelihood from the build_mgmrelikelihood process exists
+
+
+
+//////////////////////////
+//  Questions or comments go to Roger
+//
+//  raw@suketto.icrr.u-tokyo.ac.jp
+//
+
