@@ -1,0 +1,291 @@
+////////////////////////////////////////////
+//
+//  OscNtupleBuilder
+//
+//
+//////////////////////////////////////////
+
+ 
+Introduction -
+
+   This module is designed to replace the version of 
+fillnt used to create ntuples used by the various SK
+oscillation analyses. These ntuples contain condensed
+information and additinioal variables without most of 
+the variables packaged by the official fillnt. As a 
+result these ntuples are generally faster for processing
+and allow layers of obfuscation (ie event classification,
+which is messy) to be removed from analysis software.
+Ideally, the variables in these ntuples (ROOTuples) 
+could be added as a part of the official fillnt rountine.
+This should be done on the next overhaul of that routine.
+
+   The current module is written entirely in C++ with a 
+few access calls to external fortran routines, namely
+the honda fluxes etc. Since the collaboration is moving
+gradually towards modern tools and C++/ROOT offers many
+powerful features this seemed like the natural choice.
+
+   A routine to convert the ROOT output trees into PAW
+still ntuples will be added during the transition 
+period.
+
+
+////////////////////////////////////////
+///
+//   Compilation
+///
+/////////////////////////////
+
+Compilation is done via the SKOFL/ATMPD libraries 
+so be sure to prepare the appropriate environment
+beforehand
+
+for example:
+
+source /skofl/env.csh
+source /usr/local/atmpd-trunk/env.csh
+
+Once this is done compiling can be done in the 
+module directory with the command
+
+> gmake
+
+This will build the main executeable, 
+build_osc_ntuple
+
+> gmake build_osc_ntuple is also acceptable 
+
+
+
+////////////////////////////////////////
+///
+//   run time
+///
+/////////////////////////////
+
+To run the software several files need to be 
+prepared in advance:
+
+
+Likelihood files for multi-ring multi-gev e-like 
+and Pi0-like selections
+
+multi-ring multi-gev likelihood can be found under:
+$(ATMPD_ROOT)/src/analysis/mmelikelihood/
+
+Pi0 likelihood stuff can be found under:
+ xxxxx 
+
+
+Additionally you will need to prepare root files from
+which to extract the oscillation ntuple information. 
+This will most likely involve converting official 
+ntuples to root via a script like:
+
+
+#!/bin/sh
+
+# convert all hbook files in this directory to root
+# don't mess up the size of hbook ntuple
+# (don't treat int in hbook as Char_t )
+
+qq=`pwd`;
+echo $qq;
+
+list=`ls *hbk`;
+for file in $list
+do
+    out=${file/hbk/root}
+    if [ ! -e $out ] ; then
+    h2root ${file} ${out} 1 1 0 8000 0;
+    fi
+done
+
+
+official ntuples can be found at:
+/disk01/atmpd4/sk*_dst/
+or
+/disk01/atmpd5/sk*_dst/
+
+/////////////////////////////////////
+///  NB that these ntuples will
+///  need additional processing BEFOR
+///  they can be used with this module
+///  Variables for the L-over-E analysis
+///  must be added. This is done using 
+///  $(ATMPD_ROOT)/src/analysis/loe/fillnt
+///  
+///  Please consult the documentation theirin
+///////////////////////////////////////////
+
+
+Information for each of these files will be added to an 
+input card supplied to the program. 
+
+
+/////
+// About card files:
+///
+
+The card files are based on 
+$(ATMPD_ROOT)/src/analysis/Osc3++/tools/CardReader*
+The file itself is just a text file, blank lines or
+lines that begin with "#" will not be processed.
+
+All other lines follow the format,
+<key>    <data>
+
+
+See Sample.card:
+
+#  The software knows to load the likelihood infromation
+#  by looking at these keys:
+#
+# input likelihoods
+mgmreLikelihood "/net/sukatmd1/work22/raw/import/mmelikelihood/root/likelihood.root"
+Pi0Likelihood   "/net/sukatmd1/work22/raw/osc.ntuple/ntuple/include/likelihood_pi0.root"
+
+
+# the "fcmc" corresponds to the mode in which 
+# build_osc_ntuple is run. The software knows to look 
+# for variables tagged with fcmc 
+#
+# output file names
+output_fcmc   "test.mar.2010.fcmc.sk1.root"
+
+# input data files
+#
+# tree_* specifies the name of the tree found 
+# in the corresponding files. This is used for 
+# building the chain of ROOT files for processing
+tree_fcmc "h1"
+
+##
+# file_<mode>* corresponds to input files for 
+# <mode>. 
+file_fcmc_std "/home/raw/osc.ntuple/fcmc*root"
+file_fcmc_tau "/home/raw/osc.ntuple/tau*root"
+
+# Note that wild cards are OK ^^^^^^, as 
+# are multiple entries so long as the 
+# key names are different. Ie, something like:
+#
+# file_pcmc_1 "pcmc.001.root"
+# file_pcmc_2 "pcmc.002.root"
+# file_pcmc_3 "pcmc.003.root"
+# file_pcmc_4 "pcmc.004.root"
+#
+# would also be fine
+
+
+////////////
+///  Neut flux files
+///////////
+
+The neut flux routines rely on rflist information to access
+tabular data. Currently the user must supply this information
+
+In your shell ( or shell script for batch jobs! )
+simply set your RFLIST variable to point to the 
+list provided with this module (neut.rflist) or 
+your own 
+
+setenv RFLIST neut.rflist
+
+
+////////////
+///  Energy Reconstruction (Added on 2017 Nov by Yuji Okajima)
+///////////
+
+The Neutrino energy can be reconstructed based on the tagged neutron and
+decay electron multiplicities.
+When three extra arguments is set on the execution, the energy reconstruction process is executed.
+
+Extra Arguments
+
+separation_setfile:
+Text file for the definition of energy reconstruction group.
+This file define the group ID of each subsamples.
+Input 2 lines of numbers in this file, Subsample ID (left) and group ID (right).
+Subsample ID is defined based on (enum osc_types) written in osc_types.h
+
+Current group ID criteria is:
+0:  Single-ring elike samples
+1:  Single-ring mulike samples
+2:  Multi-ring elike samples
+3:  Multi-ring mulike samples
+
+If you want to change this criteria, some fitting settings in the "Energy_recon::make_table()" have to be modified.
+(lepton mass, single-ring/multi-ring, fitting function, and so on)
+
+funcread_io:
+The recontruction function can be defined by both reading external file and generating from input file itself. 
+You can select which read or generate by setting funcread_io is true or false.
+When the reconstruction function is generated, the function can be stored in the external file.
+
+func_file:
+Set the name of the external file to input (output) reconstruction function.
+
+/////////////////
+///  running
+////////////////
+
+ -- Usage: 
+ > ./build_osc_ntuple skx mode card cpu ncpus separation_setfile funcread_io func_file 
+    where: 
+           skx   = [ sk1, sk2, sk3 , sk4 ] 
+           mode  = [ fcdt, pcdt, umdt, fcmc, pcmc, ummc, tau ] 
+           card  = Input card file 
+           cpu   = number of this cpu [0, ncpus -1] 
+           ncpus = total number of cpus used to process
+	   
+	   ###Extra arguments to reconstruct energy###
+	   separation_setfile = reconstruction function group correspondence table file
+	   funcread_io = Read reconstruction function (true) or make function from input ntuple itself (false)
+	   func_file = reconstruction function input file (funcread_io: true)
+	   	       reconstruction function output file (funcread_io: false)
+	   ###########################################     		
+
+mode - specifies what tag the card variables are labelled under
+       and which event classification scheme should be used
+
+For Batch Mode:
+
+Example processing sk1 fc data using 100 cpus 
+
+the 54th process would be:
+./build_osc_ntuple sk1 fcdt Sample.card 53 100
+
+the resulting output file will automatically have 
+"53" appended to the output file name specified in 
+the input card.
+
+
+For NON-Batch Mode:
+./build_osc_ntuple sk1 fcdt Sample.card 0 1
+
+Example processing sk1 fc data with energy reconstruction
+./build_osc_ntuple sk1 fcdt Sample.card 0 1 Separation_set.txt true Rec_Func/apr16MC.sk1_func.root
+
+
+/////////////////////////////////
+/////
+////  problems, suggestions to: 
+////  raw22@phy.duke.edu
+///// 
+////////////////////////////////
+
+
+
+20100312 rvw
+20171129 modified by Y.Okajima
+
+
+
+
+
+
+
+
+
