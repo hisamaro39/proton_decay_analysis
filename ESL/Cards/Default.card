@@ -1,0 +1,34 @@
+#
+# Default.card
+# 20100511 rvw
+#
+# The card files are based on 
+# $(ATMPD_ROOT)/src/analysis/Osc3++/tools/CardReader*
+# The file itself is just a text file, blank lines or
+# lines that begin with "#" will not be processed.
+# 
+# All other lines follow the format,
+# <key>    <data>
+
+
+#  The software knows to load the likelihood infromation
+#  by looking at these keys:
+#
+# input likelihoods
+#mgmreLikelihood     "/net/sukatmd1/work20/maggie/OscNtupleBuilder_tau/EventSelectionLikelihoods/ll/likelihood_sk1.root"
+mgmreLikelihood_sk2 "/usr/local/atmpd-trunk/src/analysis/EventSelectionLikelihoods/ll/likelihood_sk2.root"
+mgmreLikelihood_sk3 "/usr/local/atmpd-trunk/src/analysis/EventSelectionLikelihoods/ll/likelihood_sk3.root"
+
+
+#Pi0Likelihood       "/usr/local/atmpd-trunk/src/analysis/EventSelectionLikelihoods/ll/likelihood_pi0.root"
+Pi0Likelihood_sk2   "/usr/local/atmpd-trunk/src/analysis/EventSelectionLikelihoods/ll/likelihood_pi0_sk2.root"
+Pi0Likelihood_sk3   "/usr/local/atmpd-trunk/src/analysis/EventSelectionLikelihoods/ll/likelihood_pi0_sk3.root"
+
+
+# input likelihoods
+mgmreLikelihood  "/disk/usr3/raw/Development/atmpd-trunk/src/analysis/OscNtupleBuilder/likelihoods/skmeeting.201405/likelihood_sk4_11d_prmslg_fine.root"
+Pi0Likelihood    "/disk/usr3/raw/Development/atmpd-trunk/src/analysis/OscNtupleBuilder/likelihoods/skmeeting.201405/likelihood_pi0_sk4_11d.root"
+nuebarLikelihood "/disk/usr3/raw/Development/atmpd-trunk/src/analysis/OscNtupleBuilder/likelihoods/skmeeting.201405/likelihood_sk4_13a_nuebar.root"
+
+
+# End of Card

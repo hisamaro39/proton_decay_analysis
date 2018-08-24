@@ -1,0 +1,36 @@
+#
+# Default.card
+# 20100511 rvw
+#
+# The card files are based on 
+# $(ATMPD_ROOT)/src/analysis/Osc3++/tools/CardReader*
+# The file itself is just a text file, blank lines or
+# lines that begin with "#" will not be processed.
+# 
+# All other lines follow the format,
+# <key>    <data>
+
+
+#  The software knows to load the likelihood infromation
+#  by looking at these keys:
+#
+# input likelihoods
+mgmreLikelihood     "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk1.root"
+mgmreLikelihood_sk2 "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk2.root"
+mgmreLikelihood_sk3 "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk3_jan11.root"
+mgmreLikelihood_sk4 "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk4.root"
+
+
+Pi0Likelihood       "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_pi0.root"
+Pi0Likelihood_sk2   "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_pi0_sk2.root"
+Pi0Likelihood_sk3   "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_pi0_sk3.root"
+Pi0Likelihood_sk4   "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_pi0_sk4.root"
+
+nuebarLikelihood     "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk1_nuebar.root"
+nuebarLikelihood_sk2 "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk2_nuebar.root"
+nuebarLikelihood_sk3 "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk3_nuebar.root"
+nuebarLikelihood_sk4 "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk4_nuebar.root"
+
+numuLikelihood_sk4   "/net/sukatmd1/work20/maggie/OscNtupleBuilder_nuebar2/EventSelectionLikelihoods/ll/likelihood_sk4_numu.root"
+
+# End of Card

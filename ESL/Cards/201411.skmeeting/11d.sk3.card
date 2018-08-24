@@ -1,0 +1,27 @@
+# The card files are based on 
+# $(ATMPD_ROOT)/src/analysis/Osc3++/tools/CardReader*
+# The file itself is just a text file, blank lines or
+# lines that begin with "#" will not be processed.
+# 
+# All other lines follow the format,
+# <key>    <data>
+
+
+tree_fcmc         "h1"
+file_fcmc         "/disk/atmpd4/sk3_dst/oct11/fc_mc/ntuple/nov11sk3.reduc.1*.root"
+
+#11d Tau MC
+tree_tau          "h1"
+file_tau_std     "/disk/atmpd4/sk3_dst/oct14/tau_mc/fc_mc/ntuple/*root"
+
+#sk3_11d Data
+tree_fcdt         "h1"
+file_fcdt         "/disk/atmpd4/sk3_dst/oct11/fc_dst/ntuple/apfit.*.root"
+
+output_pi0likelihood "pi0_likelihood_sk3_11d.root"
+output_mgmrelikelihood "mgmre_likelihood_sk3_11d.root"
+output_nuebarlikelihood "nuebar_likelihood_sk3_11d.root"
+
+
+#input
+input_mgmreLikelihood  "/disk/usr3/raw/shared/likelihoods/201411.skmeeting/mgmre_likelihood_sk3_11d.root"
