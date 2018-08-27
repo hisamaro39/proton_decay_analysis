@@ -2,12 +2,12 @@
 void show_cut_flow(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt"};
   //input & mode
-  int input_type=3;
-  int mode_type=3;
+  int input_type=1;
+  int mode_type=1;
   //cut pattern
-  int nring=1;//0:2ring 1:3ring 2:4ring
-  int nmulike=3;//# of mulike ring
-  int nmichel=3;//# of michel electron
+  int nring=0;//0:2ring 1:3ring 2:4ring
+  int nmulike=0;//# of mulike ring
+  int nmichel=0;//# of michel electron
 
   TFile *input = TFile::Open(Form("../output/%s.sk4.mode_%s.root",type[input_type].c_str(),type[mode_type].c_str()));
   TH1* this_hist = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d",nring,nmulike,nmichel));  

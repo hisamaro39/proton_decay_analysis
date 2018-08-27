@@ -799,7 +799,7 @@ void OscNtupleManager::Process_pepi(){
     pass_cut[3][0]=true;
   }
 
-  if(ndcy(0)==0){ // michel (decay) electron cut
+  if(nDecayE==0){ // michel (decay) electron cut
     pass_cut[4][0]=true;
   }
 
@@ -863,7 +863,6 @@ void OscNtupleManager::Process_pepi(){
 }
 
 void OscNtupleManager::Process_pmupi(){
-  std::cout << "ndcy/GetDecayE=" << ndcy(0) << "/" << llm->GetDecayE() << std::endl;
 
   TLorentzVector vec_mu, vec_pi0;
   int n_true_pi0=0,n_true_piplus_piminus=0,n_true_proton=0;
@@ -978,7 +977,7 @@ void OscNtupleManager::Process_pmupi(){
     pass_cut[3][0]=true;
   }
 
-  if(ndcy(0)==1){ // michel (decay) electron cut
+  if(nDecayE==1){ // michel (decay) electron cut
     pass_cut[4][0]=true;
   }
 
@@ -1207,10 +1206,10 @@ void OscNtupleManager::Process_peee(){
   if(n_mulike==3) pass_cut[3][3]=true;
 
   // michel (decay) electron cut
-  if(ndcy(0)==0) pass_cut[4][0]=true;
-  if(ndcy(0)==1) pass_cut[4][1]=true;
-  if(ndcy(0)==2) pass_cut[4][2]=true;
-  if(ndcy(0)==3) pass_cut[4][3]=true;
+  if(nDecayE==0) pass_cut[4][0]=true;
+  if(nDecayE==1) pass_cut[4][1]=true;
+  if(nDecayE==2) pass_cut[4][2]=true;
+  if(nDecayE==3) pass_cut[4][3]=true;
 
   vector<TLorentzVector> e_cand;
   e_cand.clear();
@@ -1343,10 +1342,10 @@ void OscNtupleManager::Process_pmumumu(){
   if(n_mulike==3) pass_cut[3][3]=true;
 
   // michel (decay) electron cut
-  if(ndcy(0)==0) pass_cut[4][0]=true;
-  if(ndcy(0)==1) pass_cut[4][1]=true;
-  if(ndcy(0)==2) pass_cut[4][2]=true;
-  if(ndcy(0)==3) pass_cut[4][3]=true;
+  if(nDecayE==0) pass_cut[4][0]=true;
+  if(nDecayE==1) pass_cut[4][1]=true;
+  if(nDecayE==2) pass_cut[4][2]=true;
+  if(nDecayE==3) pass_cut[4][3]=true;
 
   vector<TLorentzVector> mu_cand;
   mu_cand.clear();
@@ -1434,10 +1433,10 @@ void OscNtupleManager::Process_pemumu(){
   if(n_mulike==3) pass_cut[3][3]=true;
 
   // michel (decay) electron cut
-  if(ndcy(0)==0) pass_cut[4][0]=true;
-  if(ndcy(0)==1) pass_cut[4][1]=true;
-  if(ndcy(0)==2) pass_cut[4][2]=true;
-  if(ndcy(0)==3) pass_cut[4][3]=true;
+  if(nDecayE==0) pass_cut[4][0]=true;
+  if(nDecayE==1) pass_cut[4][1]=true;
+  if(nDecayE==2) pass_cut[4][2]=true;
+  if(nDecayE==3) pass_cut[4][3]=true;
 
 
   vector<TLorentzVector> mu_cand;
@@ -1522,10 +1521,10 @@ void OscNtupleManager::Process_pmuee(){
   if(n_mulike==3) pass_cut[3][3]=true;
 
   // michel (decay) electron cut
-  if(ndcy(0)==0) pass_cut[4][0]=true;
-  if(ndcy(0)==1) pass_cut[4][1]=true;
-  if(ndcy(0)==2) pass_cut[4][2]=true;
-  if(ndcy(0)==3) pass_cut[4][3]=true;
+  if(nDecayE==0) pass_cut[4][0]=true;
+  if(nDecayE==1) pass_cut[4][1]=true;
+  if(nDecayE==2) pass_cut[4][2]=true;
+  if(nDecayE==3) pass_cut[4][3]=true;
 
   vector<TLorentzVector> e_cand;
   TLorentzVector mu_cand;
@@ -1567,7 +1566,6 @@ void OscNtupleManager::ZeroStructure()
 {
 
   os->Zero();
-  nDecayE = 0;
   event_type=-1;
   nRing = nring(0);
   nPar = npar(0);
@@ -1579,13 +1577,19 @@ void OscNtupleManager::ZeroStructure()
   all_ring_mass=0.;
   all_ring_mom=0.;
 
+  //coutn e-like ring
   n_elike=0;
   for(int r=0;r<nRing;r++)
     if(ip(r)==2) n_elike++;
 
+  //count mu-like ring
   n_mulike=0;
   for(int r=0;r<nRing;r++) 
     if(ip(r)==3) n_mulike++;
+
+  //count decay electron
+  float llelectron = llm->GetMGMRELikelihood();
+  nDecayE    = llm->GetDecayE();  // must be called after llBuild
 
   for(int c=0;c<10;c++) 
     for(int c2=0;c2<4;c2++)
@@ -2429,7 +2433,7 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
   m_hSvc.h1D(Form("nRing_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(nRing,live_time_weight);
   m_hSvc.h1D(Form("nElikeRing_nring%d_cut%d_nring%d_mulike%d_michel%d",nRing,c,r,mu,p),"","")->Fill(n_elike,live_time_weight);
   m_hSvc.h1D(Form("nMulikeRing_nring%d_cut%d_nring%d_mulike%d_michel%d",nRing,c,r,mu,p),"","")->Fill(n_mulike,live_time_weight);
-  m_hSvc.h1D(Form("n_michel_electron_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(ndcy(0),live_time_weight);
+  m_hSvc.h1D(Form("n_michel_electron_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(nDecayE,live_time_weight);
   //apply oscillation
   m_hSvc.h1D(Form("distance_to_wall_weight_osc_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(wall(0),live_time_weight*osc_weight);
   m_hSvc.h1D(Form("visible_energy_weight_osc_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(evis(0),live_time_weight*osc_weight);
@@ -2437,7 +2441,7 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
   m_hSvc.h1D(Form("nRing_weight_osc_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(nRing,live_time_weight*osc_weight);
   m_hSvc.h1D(Form("nElikeRing_nring%d_weight_osc_cut%d_nring%d_mulike%d_michel%d",nRing,c,r,mu,p),"","")->Fill(n_elike,live_time_weight*osc_weight);
   m_hSvc.h1D(Form("nMulikeRing_nring%d_weight_osc_cut%d_nring%d_mulike%d_michel%d",nRing,c,r,mu,p),"","")->Fill(n_mulike,live_time_weight*osc_weight);
-  m_hSvc.h1D(Form("n_michel_electron_weight_osc_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(ndcy(0),live_time_weight*osc_weight);
+  m_hSvc.h1D(Form("n_michel_electron_weight_osc_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(nDecayE,live_time_weight*osc_weight);
   if(n_elike>=2) {
     m_hSvc.h1D(Form("mass_pi0_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(closest_mass_pi0_reco,live_time_weight);
     m_hSvc.h1D(Form("mass_pi0_reco_weight_osc_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(closest_mass_pi0_reco,live_time_weight*osc_weight);
