@@ -1,0 +1,105 @@
+LIBBASE	= neutflux
+
+VER	 = 5.0.0
+NUCEVER  = 1.9
+NUCCVER  = 1.0.0
+
+TAG	=
+
+MACHINEDIR = Linux_pc
+COREDIR = ../neutcore/${MACHINEDIR}
+#ifdef ICHI_KILO
+	TAG = .kt
+#endif
+
+LIBALIAS = $(LIBBASE)$(TAG)
+LIBNAME = $(LIBALIAS)_$(VER)
+ 
+XCOMM ------------------------------------------------------
+XCOMM Define Object Files
+XCOMM ------------------------------------------------------
+
+FLO = 	fnflufx.o fnhonfx03.o fnhonfx06.o neflux.o nerdnebk.o \
+	fnflufx03.o fnhonfx_1d.o neflxgai.o nenauflx.o \
+	dnels2.o fngaifx.o fnnucl.o neflxhon.o neprodhgt_h3d.o \
+	nernneut.o fnbarfx.o fnhdfxh_1d.o fnspicrs.o neflxhon_1d.o \
+	nerdbes.o nernnudg.o nerdfsibk.o \
+	fnbarfx03.o fnhdfxl.o negaiflx.o nerdflu.o nernnudh.o \
+	fnbesfx.o fnhdfxl_1d.o negvcd.o nerdgai.o nernnudh_1d.o \
+	fnbsfxl.o fnhdfxm.o nebaseline_h3d.o nehonflx.o nerdhon.o \
+	fnbsfxm.o fnhdfxm_1d.o necardvc.o neleeflx.o nerdhon_1d.o \
+	fnfdfx.o fnhonfx.o neevrate.o nemake.o \
+	nerdlee.o \
+	fnfidmas.o fnhonfx01.o nefint.o nemkevnt.o nerdnau.o rnneue.o \
+	necardap.o nemknebk.o grndmq.o nevectap.o neventap.o \
+	nemkmodelbk.o rnpos_wtrtnk.o rnpos_wtr.o nemkfsibk.o
+UPM =   vector3.o chk_mu_upmu.o chk_nu_upmu.o dirtrans.o hrange.o dxde.o \
+	rnpos_rck.o
+
+
+POBJS = ${COREDIR}/structm.o ${COREDIR}/pdfset.o \
+	${COREDIR}/grv94di.o ${COREDIR}/grv98_lo.o
+
+#ifdef UPMU_RCK
+FORTRANDEFINES += -DUPMU_RCK -DUPMU
+#endif
+
+#ifdef UPMU
+OBJS = $(FLO) $(UPM)
+#else
+OBJS = $(FLO)
+#endif
+
+
+XCOMM ------------------------------------------------------
+XCOMM Build Library
+XCOMM ------------------------------------------------------
+
+NormalLibraryTarget($(LIBNAME),$(OBJS))
+InstallLibrary($(LIBNAME),$(LIBDIR))
+InstallLibraryAlias($(LIBNAME),$(LIBALIAS),$(LIBDIR))
+
+XCOMM ------------------------------------------------------
+XCOMM Link Libraries
+XCOMM ------------------------------------------------------
+
+LIBDIRS = -L${COREDIR} -L./${MACHINEDIR} \
+	-L../nuccorspl/${MACHINEDIR} -L../nuceff/${MACHINEDIR} \
+	-L../partnuck/${MACHINEDIR} -L../skmcsvc/${MACHINEDIR}
+
+#ifdef UPMU
+MCLIB = ${LIBDIRS} -lneutcore_${VER} -lneutflux_${VER} -lneutcore_${VER} -lnuceff_${NUCEVER} -lnuccorrspl_${NUCCVER} -lpartnuck_${VER} -lskmcsvc_${VER} -lgeom -lmon -ltauola \
+ numerical_recipes/libnumrec2.a 
+#else
+MCLIB = ${LIBDIRS} -lneutcore_${VER} -lneutflux_${VER} -lneutcore_${VER} -lnuceff_${NUCEVER} -lnuccorrspl_${NUCCVER} -lpartnuck_${VER} -lskmcsvc_${VER} -lgeom -lmon -ltauola 
+#endif
+
+IOLIB = -lskrd -lzbs -lsklib -llibrary -liolib $(SITE_LIBRARIES)
+
+XCOMM ------------------------------------------------------
+XCOMM Install any include directories
+XCOMM ------------------------------------------------------
+
+InstallInclude(gaisser.h,$(FORTRAN_INCDIR))
+InstallInclude(hondaflx.h,$(FORTRAN_INCDIR))
+InstallInclude(bessflx.h,$(FORTRAN_INCDIR))
+InstallInclude(flukaflx.h,$(FORTRAN_INCDIR))
+InstallInclude(nesolact.h,$(FORTRAN_INCDIR))
+/* InstallInclude(rscons.h,$(FORTRAN_INCDIR)) */
+/* InstallInclude(mcgenpar.h,$(FORTRAN_INCDIR)) */
+InstallInclude(posinnuc.h,$(FORTRAN_INCDIR)) 
+InstallInclude(neutparams.h,$(FORTRAN_INCDIR)) 
+InstallInclude(necardap.h,$(FORTRAN_INCDIR)) 
+/* InstallInclude(discrs.h,$(FORTRAN_INCDIR)) */
+
+XCOMM ------------------------------------------------------
+XCOMM Make programs.
+XCOMM ------------------------------------------------------
+
+INCLUDES = -I${CERN}/${CERN_LEVEL}/include
+FortranProgramTarget(neut,neut.o ${OBJS} , ${POBJS} , \
+        ${MCLIB} ${IOLIB} ${CERN}/${CERN_LEVEL}/lib/libjetset74.a \
+        ${CERN}/${CERN_LEVEL}/lib/libpdflib804.a \
+        `cernlib jetset74 photos202 mathlib packlib kernlib`,)
+
+InstallProgram(neut,$(BINDIR))
