@@ -62,6 +62,7 @@ class OscNtupleManager
     void MakeBasicPlot(int cut, int nring, int nmulike, int nmichel);
     void MakeCutFlow();
     void MakeCutFlowValidate();//for epi & mupi
+    void MakeValidationPlot();//mainly truth plot
     
     void Process(int seed=0, int blossom =-1);
     void SetMode( std::string mode ) { process_mode = mode ; }
@@ -72,6 +73,8 @@ class OscNtupleManager
     void SetLiveTimeWeight(float w) {live_time_weight = w;}
 
     bool SetEventType( std::string mode , int &type);
+
+    bool SetTrueMode( int &true_mode);
   
     //void WriteOutputFile();
     void WriteTree();
@@ -105,6 +108,8 @@ class OscNtupleManager
     void    UseFiTQun( bool x ) { kUseFiTQun = x ; }
     void    UseTauNN( bool x )  { kUseTauNN  = x ; }
     void    DebugMode( bool x )  { kDebugMode  = x ; }
+    void    CheckBkg( bool x )  { kCheckBkg  = x ; }
+    void    AllHist( bool x )  { kAllHist  = x ; }
     void    MakeNtuple( bool x )  { kMakeNtuple  = x ; }
 
     void FillNtuple();
@@ -127,15 +132,18 @@ class OscNtupleManager
     float CalcDrRingVector2(int id_ring, int id_vector2);
     float CalcDrVector2Vector2(int id1_vector2, int id2_vector2);
     float CalcDrVectorVector(int id1_vector, int id2_vector);
+    float CalcOpeningAngle(int id, float mom);//0:electron 1:muon
 
     int GetParType(int ring_id);
 
-    bool pass_cut[10][4];
+    bool pass_cut[11][4];
     float closest_mass_pi0_reco,total_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom;
     float weight,mc_weight,osc_weight;
-    int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type;
+    int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type,nNeutron,true_mode;
+    int n_elike_pattern,n_elike_angle,n_mulike_pattern,n_mulike_angle;
     bool is_free_proton;
     int n_free_proton;
+    float expected_3ring_events_electron,expected_3ring_events_muon;
     //count p->eee event type
     int n_eee,n_eeeg,n_eeep,n_eeen,n_eeegp,n_eeenp,n_eeegn;
     //count p->epi event type
@@ -163,6 +171,7 @@ class OscNtupleManager
     void Process_pmumumu();
     void Process_pemumu();
     void Process_pmuee();
+    void Process_peemu();
     TLorentzVector GetTLorentzVectorVector(int index);
     TLorentzVector GetTLorentzVectorVector2(int index);
     TLorentzVector GetTLorentzVectorRing(int index, int type);
@@ -212,6 +221,7 @@ class OscNtupleManager
   float ptot[3];
   unsigned int   nhitac_cut[4];
   float potot_cut[4];
+  int graph_point,graph_point_2;
  
 
   // Private Access to tree elements
@@ -244,6 +254,9 @@ class OscNtupleManager
   TypeWrapper<UInt_t>  iorg; 
   TypeWrapper<Float_t> pos;
   TypeWrapper<Float_t> posv;
+  TypeWrapper<Float_t> ang;
+  TypeWrapper<Float_t> ange;
+  TypeWrapper<Float_t> angm;
   TypeWrapper<Float_t> amom;
   TypeWrapper<Float_t> amome;
   TypeWrapper<Float_t> amomm;
@@ -277,6 +290,8 @@ class OscNtupleManager
   TypeWrapper<Float_t> flxh06;
   TypeWrapper<Float_t> flxh11;
 
+  TypeWrapper<Float_t> oscwgt;
+
   // fiTQun related
   TypeWrapper<Float_t> fqpi0nll;
   TypeWrapper<Float_t> fq1rnll;
@@ -286,6 +301,8 @@ class OscNtupleManager
   bool kUseFiTQun;
   bool kUseTauNN;
   bool kDebugMode;
+  bool kCheckBkg;
+  bool kAllHist;
   bool kMakeNtuple;
 
   //Tau_NN related

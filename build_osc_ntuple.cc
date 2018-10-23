@@ -6,13 +6,12 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TSystem.h"
-
 #include "tools/DataManager.h"
 #include "tools/CardReader.h"
 #include "src/OscNtupleManager.h"
 #include "tools/TypeWrapper.h"
-
 #include "core/FileRecord.h"
+
 
 TChain * CheckAndBuildChain(  CardReader *, std::string );
 
@@ -70,12 +69,11 @@ int main( int argc, char * argv[] )
    CardReader * MasterCard = new CardReader( card.c_str() );
 
    std::string output_file,output_ntuple;
-   if(use_batch) output_file = "output_batch/" + input + "_" + mode + "/" + "file/" + input + "." + sk_era + "." + "mode_" + mode + "." + this_cpu_str + ".root";
+   if(use_batch) output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "." + this_cpu_str + ".root";
    else {
      output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + ".root";
      output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
    }
-   
 
    int kUseFiTQun = -1;
    MasterCard->GetKey( "use_fitqun",  kUseFiTQun );
@@ -83,13 +81,20 @@ int main( int argc, char * argv[] )
    MasterCard->GetKey( "use_taunn", kUseTauNN);
    int kDebugMode = -1;
    MasterCard->GetKey( "debug_mode", kDebugMode);
+   int kCheckBkg = -1;
+   MasterCard->GetKey( "check_bkg", kCheckBkg);
+   int kAllHist = -1;
+   MasterCard->GetKey( "all_hist", kAllHist);
    int kMakeNtuple = -1;
    MasterCard->GetKey( "make_ntuple", kMakeNtuple);
    if(kMakeNtuple) output_file = "output/temp.root";
    else output_ntuple = "output/temp.root";
+   if(!kAllHist) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_validation.root";
+   if(kCheckBkg) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_check_bkg.root";
+   if(kDebugMode) output_file = "output/temp.root";
    std::cout << "output file is " << output_file << std::endl;
    std::cout << "output ntuple is " << output_ntuple << std::endl;
-
+   
    float live_time_fcmc=-1, live_time_fcdt=-1;
    MasterCard->GetKey( "live_time_fcmc", live_time_fcmc);
    MasterCard->GetKey( "live_time_fcdt", live_time_fcdt);
@@ -112,7 +117,6 @@ int main( int argc, char * argv[] )
                      nEntries : seed + int( nEntries / tot_cpus ) );
    if ( this_cpu == tot_cpus - 1 ) blossom = nEntries;
 
-
    // Use DataManager to automagically read 
    // in and load all of the Branch information 
    std::cout << "Use DataManager" << std::endl;
@@ -130,6 +134,7 @@ int main( int argc, char * argv[] )
    std::cout << " mode       : " << mode << std::endl;
    std::cout << " kUseFiTQun : " << kUseFiTQun << std::endl;
    std::cout << " kUseTauNN : " << kUseTauNN << std::endl;
+   std::cout << " kAllHist : " << kAllHist << std::endl;
 
    om->SetMode( mode  );
    om->SetInput( input  );
@@ -138,6 +143,8 @@ int main( int argc, char * argv[] )
    om->UseFiTQun(  (kUseFiTQun == 1 ? true : false ) );
    om->UseTauNN( (kUseTauNN == 1 ? true : false ) );
    om->DebugMode( (kDebugMode == 1 ? true : false ) );
+   om->CheckBkg( (kCheckBkg == 1 ? true : false ) );
+   om->AllHist( (kAllHist == 1 ? true : false ) );
    om->MakeNtuple( (kMakeNtuple == 1 ? true : false ) );
    om->SetInputTree( lchain );
    om->SetLiveTimeWeight(weight_live_time);
@@ -160,7 +167,6 @@ int main( int argc, char * argv[] )
    om->Process( seed, blossom); 
    
    delete lchain;
-
 
    return 0;
 }

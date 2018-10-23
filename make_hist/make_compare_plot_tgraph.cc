@@ -11,20 +11,18 @@ void make_compare_plot_tgraph(){
   vector<int> input_type;
   hist.clear();hist_set.clear();input_type.clear();input_type_set.clear();
   //hist list
-  hist.push_back("efficiency_mom_gamma_vector_pid_elike_gamma_match_ring_only_epi0");
+  /*hist.push_back("efficiency_mom_gamma_vector_pid_elike_gamma_match_ring_only_epi0");
   hist.push_back("efficiency_mom_gamma_vector_prob_ring_angle_elike_gamma_match_ring_only_epi0");
   hist.push_back("efficiency_mom_gamma_vector_prob_hit_elike_gamma_match_ring_only_epi0");
   input_type.push_back(0);input_type.push_back(0);input_type.push_back(0);
+  hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();*/
+  hist.push_back("efficiency_true_mom_lepton_match_ring_angle_elike_p_eee");
+  hist.push_back("efficiency_true_mom_lepton_match_ring_charge_elike_p_eee");
+  input_type.push_back(0);input_type.push_back(0);
   hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
-  hist.push_back("efficiency_mom_e_vector_pid_elike_e_match_ring_only_eee");
-  hist.push_back("efficiency_mom_e_vector_prob_ring_angle_elike_e_match_ring_only_eee");
-  hist.push_back("efficiency_mom_e_vector_prob_hit_elike_e_match_ring_only_eee");
-  input_type.push_back(0);input_type.push_back(0);input_type.push_back(0);
-  hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
-  hist.push_back("efficiency_mom_mu_vector_pid_mulike_mu_match_ring_only_mumumu");
-  hist.push_back("efficiency_mom_mu_vector_prob_ring_angle_mulike_mu_match_ring_only_mumumu");
-  hist.push_back("efficiency_mom_mu_vector_prob_hit_mulike_mu_match_ring_only_mumumu");
-  input_type.push_back(0);input_type.push_back(0);input_type.push_back(0);
+  hist.push_back("efficiency_true_mom_lepton_match_ring_angle_mulike_p_mumumu");
+  hist.push_back("efficiency_true_mom_lepton_match_ring_charge_mulike_p_mumumu");
+  input_type.push_back(0);input_type.push_back(0);
   hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
 
   for(int s=0;s<hist_set.size();s++){

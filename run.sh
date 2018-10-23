@@ -2,6 +2,7 @@
 
 set input=$1
 set mode=$2
+set period=$3
 
-rm logs/log_${input}_mode_$mode
-./build_osc_ntuple sk4 $input $mode 18a_sk4.card 0 1 0 >&logs/log_${input}_mode_$mode 
+rm logs/log_${input}_mode_${mode}_$period
+./build_osc_ntuple $period $input $mode 18a_$period.card 0 1 0 >&logs/log_${input}_mode_${mode}_$period 

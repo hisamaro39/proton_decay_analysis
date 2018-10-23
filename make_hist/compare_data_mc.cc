@@ -2,6 +2,7 @@
 void compare_data_mc(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt"};
   int mode_id = 1;
+  string sk_period = "sk4";
   bool add_signal = true;
   float signal_scale = 0.03;
 
@@ -16,125 +17,56 @@ void compare_data_mc(){
   vector<int> scale,dology,input_type,mode_type,add_ratio,dorebin;
   hist.clear();hist_set.clear();scale.clear();dology.clear();dorebin.clear();input_type.clear();input_type_set.clear();add_ratio.clear();
   mode_type_set.clear();mode_type.clear();
+  vector<string> hist_name;
+  hist_name.clear();
+
+  hist_name.push_back("distance_to_wall_cut1_nring0_mulike0_michel0");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(4);
+
+  hist_name.push_back("visible_energy_cut1_nring0_mulike0_michel0");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
+
+  hist_name.push_back("nhit_OD_cut1_nring0_mulike0_michel0");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
   
-  hist.push_back("nRing_cut1_nring0_mulike0_michel0");hist.push_back("nRing_weight_osc_cut1_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("nRing_cut1_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("nRing_cut1_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
 
-  hist.push_back("nElikeRing_nring3_cut1_nring0_mulike0_michel0");hist.push_back("nElikeRing_nring3_weight_osc_cut1_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("nElikeRing_nring3_cut1_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("nElikeRing_nring3_cut1_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
 
-  hist.push_back("nElikeRing_nring2_cut1_nring0_mulike0_michel0");hist.push_back("nElikeRing_nring2_weight_osc_cut1_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("nElikeRing_nring2_cut1_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("nElikeRing_nring2_cut1_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
 
-  hist.push_back("nMulikeRing_nring3_cut1_nring0_mulike0_michel0");hist.push_back("nMulikeRing_nring3_weight_osc_cut1_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("nMulikeRing_nring3_cut1_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("nMulikeRing_nring3_cut1_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
 
-  hist.push_back("nMulikeRing_nring2_cut1_nring0_mulike0_michel0");hist.push_back("nMulikeRing_nring2_weight_osc_cut1_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("nMulikeRing_nring2_cut1_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("nMulikeRing_nring2_cut1_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
 
-  hist.push_back("n_michel_electron_cut3_nring0_mulike0_michel0");hist.push_back("n_michel_electron_weight_osc_cut3_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("n_michel_electron_cut3_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("n_michel_electron_cut3_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
 
-  hist.push_back("mass_pi0_reco_elike3_cut4_nring0_mulike0_michel0");hist.push_back("mass_pi0_reco_elike3_weight_osc_cut4_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("mass_pi0_reco_elike3_cut4_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("mass_pi0_reco_elike2_cut4_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
 
-  hist.push_back("mass_pi0_reco_elike2_cut4_nring0_mulike0_michel0");hist.push_back("mass_pi0_reco_elike2_weight_osc_cut4_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("mass_pi0_reco_elike2_cut4_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
+  hist_name.push_back("ntag_multiplicity_cut5_nring0_mulike0_michel0");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
 
-  hist.push_back("mom_proton_reco_cut5_nring0_mulike0_michel0");hist.push_back("mom_proton_reco_weight_osc_cut5_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("mom_proton_reco_cut5_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("mom_proton_reco_cut6_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(5);
 
-  hist.push_back("mass_proton_reco_cut5_nring0_mulike0_michel0");hist.push_back("mass_proton_reco_weight_osc_cut5_nring0_mulike0_michel0");
-  if(add_signal) hist.push_back("mass_proton_reco_cut5_nring0_mulike0_michel0");
-  hist_set.push_back(hist);hist.clear();
-  input_type.push_back(7);input_type.push_back(6);
-  if(add_signal) input_type.push_back(mode_id);
-  input_type_set.push_back(input_type);input_type.clear();
-  mode_type.push_back(mode_id);mode_type.push_back(mode_id);mode_type.push_back(mode_id);
-  if(add_signal) mode_type.push_back(mode_id);
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  hist_name.push_back("mass_proton_reco_cut6_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(5);
 
   TH1 *first_hist;
   TFile *input;
-  for(int s=0;s<hist_set.size();s++){
+  for(int s=0;s<hist_name.size();s++){
     float evtmax=0,evtmax_scale=0,ratio_max=0,ratio_min=99999;
-    for(int ss=0;ss<hist_set[s].size();ss++){//decide max event of the hist
-      if(ss==hist_set[s].size()-1) continue;
-      input = TFile::Open(Form("../output/%s.sk4.mode_%s.root",type[input_type_set[s].at(ss)].c_str(),type[mode_type_set[s].at(ss)].c_str()));
-      TH1* temp_hist = (TH1*) input->Get(hist_set[s].at(ss).c_str());
+    for(int ss=0;ss<2;ss++){//decide max event of the hist
+      if(ss==0) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[7].c_str(),sk_period.c_str(),type[mode_id].c_str()));//data
+      if(ss==1) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[6].c_str(),sk_period.c_str(),type[mode_id].c_str()));//MC
+      TH1* temp_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
       if(dorebin[s]) temp_hist->Rebin(dorebin[s]);
       if(temp_hist->GetMaximum() > evtmax) evtmax = temp_hist->GetMaximum();
       if(temp_hist->GetEntries() && temp_hist->GetMaximum()/temp_hist->GetEntries() > evtmax_scale) 
@@ -150,6 +82,8 @@ void compare_data_mc(){
         }
       }
     }
+    
+    //cout << "ratio min/max=" << ratio_min << "/" << ratio_max << endl;
     TCanvas *c = new TCanvas(Form("canvas%d",s),"",800,600);
     if(add_ratio[s]){
       TPad* p1 = new TPad("main","main",0.0,0.2,1.0,1.0,10,0,0);
@@ -167,9 +101,13 @@ void compare_data_mc(){
     if(dology[s]) c->SetLogy();
     string save_name = "";
     save_name = "hist/compare_data_mc_";
-    for(int h=0;h<hist_set[s].size();h++){
-      input = TFile::Open(Form("../output/%s.sk4.mode_%s.root",type[input_type_set[s].at(h)].c_str(),type[mode_type_set[s].at(h)].c_str()));
-      TH1 *this_hist = (TH1*) input->Get(hist_set[s].at(h).c_str());
+    for(int h=0;h<4;h++){
+      if(!add_signal && h==2) break;
+      if(h==0) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[7].c_str(),sk_period.c_str(),type[mode_id].c_str()));//data
+      else if(h==1) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[6].c_str(),sk_period.c_str(),type[mode_id].c_str()));//MC
+      else input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[mode_id].c_str(),sk_period.c_str(),type[mode_id].c_str()));//signal
+      TH1 *this_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
+      if(h==3) this_hist = (TH1*) input->Get(Form("%s_fp1",hist_name[s].c_str()));
       if(dorebin[s]) this_hist->Rebin(dorebin[s]);
       if(scale[s] && this_hist->GetEntries()) this_hist->Scale(1./this_hist->GetEntries());
       this_hist->SetLineWidth(2);
@@ -184,48 +122,42 @@ void compare_data_mc(){
         first_hist = this_hist;
       }
       else{
-        this_hist->SetLineColor(h+1);
-        if(h==hist_set[s].size()-1) {
+        if(h==1) this_hist->SetLineColor(2);
+        else {
           this_hist->Scale(signal_scale);
-          this_hist->SetLineColor(6);
           this_hist->SetLineStyle(2);
+          if(h==2) this_hist->SetLineColor(3);
+          if(h==3) this_hist->SetLineColor(6);
         }
         this_hist->Draw("same hist");
+        if(h>1) continue;
         TH1 *ratio_hist = (TH1*) this_hist->Clone("ratio_plot");
         ratio_hist->Divide(first_hist);
         float xmin = ratio_hist->GetBinLowEdge(1);
         float xmax = ratio_hist->GetBinLowEdge(ratio_hist->GetNbinsX())+ratio_hist->GetBinWidth(ratio_hist->GetNbinsX());
         if(add_ratio[s]){
           c->cd(2);
-          if(h==1){
-            TH1* frame;
-            frame=gPad->DrawFrame(xmin, ratio_min*0.9, xmax, ratio_max*1.1);
-            if(ratio_max<1) frame=gPad->DrawFrame(xmin, ratio_min*0.9, xmax, 1.1);
-            if(ratio_min>1) frame=gPad->DrawFrame(xmin, 0.9, xmax, ratio_max*1.1);
-            frame->GetYaxis()->SetLabelSize(0.1);
-            frame->GetXaxis()->SetLabelSize(0.2);
-            TLine *line = new TLine(xmin,1,xmax,1);
-            line->SetLineStyle(2);
-            line->SetLineWidth(2);
-            line->SetLineColor(1);
+          TH1* frame;
+          frame=gPad->DrawFrame(xmin, ratio_min*0.9, xmax, ratio_max*1.1);
+          if(ratio_max<1) frame=gPad->DrawFrame(xmin, ratio_min*0.9, xmax, 1.1);
+          if(ratio_min>1) frame=gPad->DrawFrame(xmin, 0.9, xmax, ratio_max*1.1);
+          frame->GetYaxis()->SetLabelSize(0.1);
+          frame->GetXaxis()->SetLabelSize(0.2);
+          TLine *line = new TLine(xmin,1,xmax,1);
+          line->SetLineStyle(2);
+          line->SetLineWidth(2);
+          line->SetLineColor(1);
           line->Draw();
-          }
-          if(h!=hist_set[s].size()-1) ratio_hist->Draw("same");
+          ratio_hist->Draw("same");
         }
       }
     }
-    save_name += hist_set[s].at(0);
-    save_name += "_mode_" + type[mode_type_set[s].at(0)] + "_"; 
+    save_name += hist_name[s] +  "_mode_" + type[mode_id] + "_"; 
     if(dology[s]) save_name += "logy_"; 
-    if(dorebin[s]) {
-      stringstream str;
-      str << dorebin[s];
-      save_name += "rebin" + str.str() + "_";
-    }
-    if(add_signal) save_name += "add_signal";
-    save_name += ".pdf";
+    if(add_signal) save_name += "add_signal_";
+    save_name += sk_period + ".pdf";
+    cout << "save_name = " << save_name << endl;
     c->SaveAs(save_name.c_str());
-
   }
 
 }

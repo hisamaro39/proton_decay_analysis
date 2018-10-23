@@ -9,9 +9,15 @@ void make_single_plot_tgraph(){
   vector<int> input_type;
   hist.clear();input_type.clear();
   //hist list
-  hist.push_back("efficiency_mom_e_match_ring_vector_only_eee");
-  input_type.push_back(0);
-  hist.push_back("efficiency_mom_mu_match_ring_vector_only_mumumu");
+  //hist.push_back("efficiency_true_mom_lepton_match_ring_nring3_p_eee");
+  //input_type.push_back(0);
+  //hist.push_back("efficiency_true_mom_lepton_match_ring_nring3_p_mumumu");
+  //input_type.push_back(0);
+  //hist.push_back("efficiency_true_mom_muon_match_ring_nring3_p_muee");
+  //input_type.push_back(0);
+  //hist.push_back("efficiency_true_mom_lepton_match_ring_angle_elike_nring3_p_eee");
+  //input_type.push_back(0);
+  hist.push_back("efficiency_true_mom_muon_match_ring_angle_mulike_nring3_p_muee");
   input_type.push_back(0);
 
   for(int h=0;h<hist.size();h++){

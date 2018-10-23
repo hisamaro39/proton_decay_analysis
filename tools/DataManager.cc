@@ -293,7 +293,6 @@ void DataManager::SetAllBranches( int verbose )
 
    SetAllBranches( _ttree, verbose );
 
-    
    if( ListOfFriends )
    {
       std::cout << "DataManager::SetAllBranches Adding branches from "
