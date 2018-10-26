@@ -76,13 +76,31 @@ void make_compare_plot_th1(){
   mode_type.push_back(5);mode_type.push_back(6);
   add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);use_validation.push_back(1);
   hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
-  mode_type_set.push_back(mode_type);mode_type.clear();*/
+  mode_type_set.push_back(mode_type);mode_type.clear();
 
   hist.push_back("nMulikeRing_angle_nring3_trueDecayE0");
   hist.push_back("nMulikeRing_angle_nring3_trueDecayE1");
   input_type.push_back(6);input_type.push_back(6);  
   mode_type.push_back(6);mode_type.push_back(6);
   add_ratio.push_back(0);scale.push_back(1);dology.push_back(0);use_validation.push_back(1);
+  hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();*/
+
+  hist.push_back("true_mom_1st_lepton_fp0");
+  hist.push_back("true_mom_2nd_lepton_fp0");
+  hist.push_back("true_mom_3rd_lepton_fp0");
+  input_type.push_back(5);input_type.push_back(5);input_type.push_back(5);  
+  mode_type.push_back(5);mode_type.push_back(5);mode_type.push_back(5);
+  add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);use_validation.push_back(1);
+  hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  hist.push_back("true_mass_1st_2nd_fp1");
+  hist.push_back("true_mass_2nd_3rd_fp1");
+  hist.push_back("true_mass_3rd_1st_fp1");
+  input_type.push_back(5);input_type.push_back(5);input_type.push_back(5);  
+  mode_type.push_back(5);mode_type.push_back(5);mode_type.push_back(5);
+  add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);use_validation.push_back(1);
   hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 

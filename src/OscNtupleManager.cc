@@ -182,9 +182,6 @@ void OscNtupleManager::CreateHist()
     m_hSvc.create1D("true_mom_muon","",40,0,800);
     m_hSvc.create1D("true_mom_electron","",40,0,800);
     m_hSvc.create1D("true_mom_gamma","",40,0,800);
-    m_hSvc.create1D("true_mom_1st_lepton","",40,0,800);
-    m_hSvc.create1D("true_mom_2nd_lepton","",40,0,800);
-    m_hSvc.create1D("true_mom_3rd_lepton","",40,0,800);
     for(int p=0;p<6;p++){
       m_hSvc.create1D(Form("diff_opening_angle_mom%d_%d",100*p,100+100*p),"",80,-10,10);
       m_hSvc.create1D(Form("diff_opening_angle_muon_mom%d_%d",100*p,100+100*p),"",80,-10,10);
@@ -230,6 +227,16 @@ void OscNtupleManager::CreateHist()
       m_hSvc.create1D(Form("total_gamma_true_mom_fp%d",f),"",100,0,1000);
       m_hSvc.create2D(Form("total_true_mass_1st_lepton_mom_fp%d",f),"",125,0,1250,100,0,800);
       m_hSvc.create2D(Form("total_true_mom_1st_lepton_mom_fp%d",f),"",100,0,1000,100,0,800);
+      m_hSvc.create1D(Form("true_mom_1st_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_mom_2nd_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_mom_3rd_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_energy_1st_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_energy_2nd_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_energy_3rd_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_mass_1st_2nd_fp%d",f),"",50,0,1250);
+      m_hSvc.create1D(Form("true_mass_2nd_3rd_fp%d",f),"",50,0,1250);
+      m_hSvc.create1D(Form("true_mass_3rd_1st_fp%d",f),"",50,0,1250);
+      m_hSvc.createGraph(Form("true_mass_1st_2nd_vs_2nd_3rd_fp%d",f),"");
 
     }
   }
@@ -1962,8 +1969,8 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
 
 void OscNtupleManager::MakeValidationPlot(){
 
-  if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){}//FC & FC cut
-  else return;
+  //if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){}//FC & FC cut
+  //else return;
 
   m_hSvc.graph("tgraph_test","","")->SetPoint(graph_point,graph_point,graph_point);
 
@@ -2132,6 +2139,12 @@ void OscNtupleManager::MakeValidationPlot(){
       //cout << "Fill!!" << endl;
     }
   }
+  TLorentzVector first_lep = GetTLorentzVectorVector(1);
+  TLorentzVector second_lep = GetTLorentzVectorVector(2);
+  TLorentzVector third_lep = GetTLorentzVectorVector(3);
+  float mass_1st_2nd = (first_lep + second_lep).M();
+  float mass_2nd_3rd = (second_lep + third_lep).M();
+  float mass_3rd_1st = (third_lep + first_lep).M();
   float total_true_mass = total_true_vec.M();
   float total_true_mom = total_true_vec.P();
   float residual_total_mass = (total_mass-total_true_mass)/total_true_mass;
@@ -2145,9 +2158,16 @@ void OscNtupleManager::MakeValidationPlot(){
   m_hSvc.h1D("residual_total_mom","","")->Fill(residual_total_mom);
   m_hSvc.h1D(Form("residual_total_mass_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(residual_total_mass);
   m_hSvc.h1D(Form("residual_total_mom_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(residual_total_mom);
-  m_hSvc.h1D("true_mom_1st_lepton","","")->Fill(pmomv(1));
-  m_hSvc.h1D("true_mom_2nd_lepton","","")->Fill(pmomv(2));
-  m_hSvc.h1D("true_mom_3rd_lepton","","")->Fill(pmomv(3));
+  m_hSvc.h1D(Form("true_mom_1st_lepton_fp%d",is_free_proton),"","")->Fill(pmomv(1));
+  m_hSvc.h1D(Form("true_mom_2nd_lepton_fp%d",is_free_proton),"","")->Fill(pmomv(2));
+  m_hSvc.h1D(Form("true_mom_3rd_lepton_fp%d",is_free_proton),"","")->Fill(pmomv(3));
+  m_hSvc.h1D(Form("true_energy_1st_lepton_fp%d",is_free_proton),"","")->Fill(CalcEnergyVector(1));
+  m_hSvc.h1D(Form("true_energy_2nd_lepton_fp%d",is_free_proton),"","")->Fill(CalcEnergyVector(2));
+  m_hSvc.h1D(Form("true_energy_3rd_lepton_fp%d",is_free_proton),"","")->Fill(CalcEnergyVector(3));
+  m_hSvc.h1D(Form("true_mass_1st_2nd_fp%d",is_free_proton),"","")->Fill(mass_1st_2nd);
+  m_hSvc.h1D(Form("true_mass_2nd_3rd_fp%d",is_free_proton),"","")->Fill(mass_2nd_3rd);
+  m_hSvc.h1D(Form("true_mass_3rd_1st_fp%d",is_free_proton),"","")->Fill(mass_3rd_1st);
+  m_hSvc.graph(Form("true_mass_1st_2nd_vs_2nd_3rd_fp%d",is_free_proton),"","")->SetPoint(graph_point,mass_1st_2nd,mass_2nd_3rd);
   //cout << "total true vec mass/mom=" << total_true_vec.M() << "/" << total_true_vec.P() << endl;
   //cout << "final id min/mid/max=" << min_mom_id << "/" << mid_mom_id << "/" << max_mom_id << endl;
   //cout << "final mom min/mid/max=" << min_mom << "/" << mid_mom << "/" << max_mom << endl;
@@ -2300,4 +2320,13 @@ float OscNtupleManager::CalcOpeningAngle(int id, float mom){//0:electron 1:muon
   float angle = theta*180/3.14159;
   return angle;
 
+}
+
+float OscNtupleManager::CalcEnergyVector(int id){
+  float mass=0.;
+  if(ipv(id)==1) mass = 0;//gamma
+  if(ipv(id)==2 || ipv(id)==3) mass = 0.511;//MeV
+  if(ipv(id)==5 || ipv(id)==6) mass = 105.7;//MeV
+  float energy = sqrt(pmomv(id)*pmomv(id) + mass*mass);
+  return energy;
 }

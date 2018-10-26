@@ -133,6 +133,7 @@ class OscNtupleManager
     float CalcDrVector2Vector2(int id1_vector2, int id2_vector2);
     float CalcDrVectorVector(int id1_vector, int id2_vector);
     float CalcOpeningAngle(int id, float mom);//0:electron 1:muon
+    float CalcEnergyVector(int id);
 
     int GetParType(int ring_id);
 
