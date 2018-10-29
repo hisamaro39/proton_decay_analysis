@@ -49,7 +49,6 @@ OscNtupleManager::OscNtupleManager( DataManager * dman , CardReader * cr , int s
 }
 
 
-
 void OscNtupleManager::Initialize() 
 {
 
@@ -1072,8 +1071,7 @@ void OscNtupleManager::ZeroStructure()
   nDecayE    = llm->GetDecayE();  // must be called after llBuild
 
   //neutron tagging
-  //temporal
-  if( (process_input=="fcmc" || process_input=="fcdt") && skgen==3) nNeutron = ntag_nn(0);//only for sk4
+  if(skgen == SK4) nNeutron = ntag_nn(0);//only for sk4
   else nNeutron = 0;
 
   for(int c=0;c<10;c++) 
@@ -1862,9 +1860,6 @@ void OscNtupleManager::MakeOscillationPlot(){
         m_hSvc.h1D(Form("zenith_angle_type%d_mom%d_%d_osc",interaction_type,range_momentum[m],range_momentum[m+1]),"","")->Fill(zenith_angle,weight*osc_weight);
       }
     }
-    //std::cout << "multi ring event?" << std::endl;
-    //std::cout << "nring=" << nring(0) << std::endl;
-
   }
 }
 
