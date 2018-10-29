@@ -4,17 +4,22 @@ void show_cut_flow(){
   //input & mode
   int input_type=7;
   int mode_type=0;
-  int period=4;
+  int period=3;
   int fp= (input_type<7)? 1 : 0;
   //cut pattern
   int nring=2;//0:2ring 1:3ring 2:4ring
   int nmulike=0;//# of mulike ring
   int nmichel=0;//# of michel electron
+  float scale = 3118.45/2867.19;
 
   TH1 *this_hist,*this_hist_free;
   TFile *input = TFile::Open(Form("../output/%s.sk%d.mode_%s.root",type[input_type].c_str(),period,type[mode_type].c_str()));
   this_hist = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d",nring,nmulike,nmichel));  
-  if(fp==1) this_hist_free = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d_fp1",nring,nmulike,nmichel));  
+  this_hist->Scale(scale);
+  if(fp==1) {
+    this_hist_free = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d_fp1",nring,nmulike,nmichel));  
+    this_hist_free->Scale(scale);
+  }
   int nbins = this_hist->GetNbinsX();
   float first_yield = this_hist->GetBinContent(1);
   float first_yield_err = this_hist->GetBinError(1);
@@ -38,7 +43,7 @@ void show_cut_flow(){
       << " yield. " << this_yield << " +- " << this_yield_err << "evt" << endl;
     //if(b==7) continue;
     previous_yield = this_yield;
-    if(b>6){
+    if(b==7 || b==8){
       total_eff+=eff;
       total_yield+=this_yield;
       total_eff_free+=eff_free;
