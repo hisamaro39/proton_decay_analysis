@@ -574,7 +574,6 @@ void OscNtupleManager::Process_pepi(){
   if(nRing==3 && closest_mass_pi0_reco>85 && closest_mass_pi0_reco<185) pass_cut[5][0]=true;
   if(nRing==2) pass_cut[5][0]=true;
 
-  if(nNeutron==0) pass_cut[6][0]=true;
 
   TLorentzVector total_vec;
   if(n_elike_pattern==3) total_vec = egamma_cand[0] + egamma_cand[1] + egamma_cand[2];
@@ -582,11 +581,13 @@ void OscNtupleManager::Process_pepi(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
-    pass_cut[7][0]=true;
+    pass_cut[6][0]=true;
   }
   if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
-    pass_cut[8][0]=true;
+    pass_cut[7][0]=true;
   }
+
+  if(nNeutron==0) pass_cut[8][0]=true;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -660,7 +661,6 @@ void OscNtupleManager::Process_pmupi(){
   if(nRing==3 && closest_mass_pi0_reco>85 && closest_mass_pi0_reco<185) pass_cut[5][0]=true;
   if(nRing==2) pass_cut[5][0]=true;
 
-  if(nNeutron==0) pass_cut[6][0]=true;
 
   TLorentzVector total_vec;
   if(n_elike_pattern==2) total_vec = gamma_cand[0] + gamma_cand[1] + mu_cand;
@@ -668,11 +668,13 @@ void OscNtupleManager::Process_pmupi(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
-    pass_cut[7][0]=true;
+    pass_cut[6][0]=true;
   }
   if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
-    pass_cut[8][0]=true;
+    pass_cut[7][0]=true;
   }
+
+  if(nNeutron==0) pass_cut[8][0]=true;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -725,7 +727,6 @@ void OscNtupleManager::Process_peee(){
 
   pass_cut[5][0] = true;//no pi0 selection
 
-  if(nNeutron==0) pass_cut[6][0]=true;
 
   TLorentzVector total_vec;
   if(n_elike_angle==3) total_vec = e_cand[0] + e_cand[1] + e_cand[2];
@@ -733,11 +734,13 @@ void OscNtupleManager::Process_peee(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
-    pass_cut[7][0]=true;
+    pass_cut[6][0]=true;
   }
   if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
-    pass_cut[8][0]=true;
+    pass_cut[7][0]=true;
   }
+
+  if(nNeutron==0) pass_cut[8][0]=true;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -787,7 +790,6 @@ void OscNtupleManager::Process_pmumumu(){
 
   pass_cut[5][0]=true;//no pi0 mass cut
 
-  if(nNeutron==0) pass_cut[6][0]=true;
 
   TLorentzVector total_vec;
   if(n_mulike_angle==3) total_vec = mu_cand[0] + mu_cand[1] + mu_cand[2];
@@ -795,11 +797,13 @@ void OscNtupleManager::Process_pmumumu(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
-    pass_cut[7][0]=true;
+    pass_cut[6][0]=true;
   }
   if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
-    pass_cut[8][0]=true;
+    pass_cut[7][0]=true;
   }
+
+  if(nNeutron==0) pass_cut[8][0]=true;
 
   TLorentzVector all_ring_vec,all_mulike_vec;
   for(int r=0;r<nRing;r++){
@@ -864,7 +868,6 @@ void OscNtupleManager::Process_pemumu(){
 
   pass_cut[5][0]=true;//no pi0 mass cut
 
-  if(nNeutron==0) pass_cut[6][0]=true;
 
   TLorentzVector total_vec;
   if(n_mulike_angle==2) total_vec = mu_cand[0] + mu_cand[1] + e_cand;
@@ -872,11 +875,13 @@ void OscNtupleManager::Process_pemumu(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
-    pass_cut[7][0]=true;
+    pass_cut[6][0]=true;
   }
   if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
-    pass_cut[8][0]=true;
+    pass_cut[7][0]=true;
   }
+
+  if(nNeutron==0) pass_cut[8][0]=true;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -931,7 +936,6 @@ void OscNtupleManager::Process_pmuee(){
 
   pass_cut[5][0]=true;//no pi0 mass cut
 
-  if(nNeutron==0) pass_cut[6][0]=true;
 
   TLorentzVector total_vec;
   if(n_elike_angle==2) total_vec = e_cand[0] + e_cand[1] + mu_cand;
@@ -939,11 +943,13 @@ void OscNtupleManager::Process_pmuee(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
-    pass_cut[7][0]=true;
+    pass_cut[6][0]=true;
   }
   if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
-    pass_cut[8][0]=true;
+    pass_cut[7][0]=true;
   }
+
+  if(nNeutron==0) pass_cut[8][0]=true;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -998,7 +1004,6 @@ void OscNtupleManager::Process_peemu(){
 
   pass_cut[5][0]=true;//no pi0 mass cut
 
-  if(nNeutron==0) pass_cut[6][0]=true;
 
   TLorentzVector total_vec;
   if(n_elike_angle==2) total_vec = e_cand[0] + e_cand[1] + mu_cand;
@@ -1006,11 +1011,13 @@ void OscNtupleManager::Process_peemu(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
-    pass_cut[7][0]=true;
+    pass_cut[6][0]=true;
   }
   if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
-    pass_cut[8][0]=true;
+    pass_cut[7][0]=true;
   }
+
+  if(nNeutron==0) pass_cut[8][0]=true;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -1066,9 +1073,8 @@ void OscNtupleManager::ZeroStructure()
 
   //neutron tagging
   //temporal
-  //if( (process_input=="fcmc" || process_input=="fcdt") && skgen==3) nNeutron = ntag_nn(0);//only for sk4
-  //else nNeutron = 0;
-  nNeutron = 0;
+  if( (process_input=="fcmc" || process_input=="fcdt") && skgen==3) nNeutron = ntag_nn(0);//only for sk4
+  else nNeutron = 0;
 
   for(int c=0;c<10;c++) 
     for(int c2=0;c2<4;c2++)
@@ -1867,18 +1873,16 @@ void OscNtupleManager::MakeCutFlow(){
   for(int r=0;r<3;r++){// # of ring
     for(int mu=0;mu<2;mu++){// # of mu-like ring
       for(int m=0;m<2;m++){//# of michel electron
-        for(int c=0;c<11;c++){//cut
-          //std::cout << "r/mu/m/c=" << r << "/" << mu << "/" << m << "/" << c << std::endl;
-          //if(c!=2 && c!=3 && c!=4) std::cout << "pass_cut=" << pass_cut[c][0] << std::endl;
-          //else if(c==2) std::cout << "pass_cut=" << pass_cut[c][r] << std::endl;
-          //else if(c==3) std::cout << "pass_cut=" << pass_cut[c][mu] << std::endl;
-          //else if(c==4) std::cout << "pass_cut=" << pass_cut[c][m] << std::endl;
-          if(c<7){
+        for(int c=0;c<8;c++){//cut
+          if(c<6){
             if(!pass_cut[c][0] && c!=2 && c!=3 && c!=4)  break;
             if((!pass_cut[c][r] && c==2) || (!pass_cut[c][mu] && c==3) || (!pass_cut[c][m] && c==4) ) break;
+            MakeBasicPlot(c,r,mu,m);
           }
-          else if(!pass_cut[c][0]) continue; 
-          MakeBasicPlot(c,r,mu,m);
+          else if(pass_cut[c][0]) {
+            MakeBasicPlot(c,r,mu,m);
+            if(pass_cut[8][0]) MakeBasicPlot(c+2,r,mu,m);//neutron tagging
+          }
         }
       }
     }
