@@ -34,7 +34,7 @@ void LikelihoodHelper::LoadWrappers()
 
 bool LikelihoodHelper::FCFVCut()
 {
-  int nhitac_cut[] = { 10, 16, 16, 16 };
+  unsigned int nhitac_cut[] = { 16, 10, 16, 16 };
 
   bool kPass = false ;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] )
@@ -79,13 +79,11 @@ int LikelihoodHelper::muedcyBuild(  )
    {
       if(skgen ==3) //for SK4 only
       {
-          if(etime(i)<0.1) continue;
+          if( etype(i)!=1 && etype(i)!=2) continue;
 	  lmuedcy++;
       }
       else
       {
-          if(  evis(0) <  1330.0 && etime(i) < 0.1 ) continue;
-          if(  evis(0) >= 1330.0 && etime(i) < 1.2 ) continue;
           if(  etime(i) > 0.8    && etime(i) < 1.2 ) continue;
 
           if( etype(i) == 1 && ehit(i) >= ehit_cut_1[skgen] && egood(i) > 0.5 )

@@ -116,6 +116,7 @@ void mgmreLikelihood::LoadWrappers()
 
 float mgmreLikelihood::llBuild( )
 {
+  std::cout << "mgmreLikelihood::llBuild" << std::endl;
     float ll = 0.;
 
 

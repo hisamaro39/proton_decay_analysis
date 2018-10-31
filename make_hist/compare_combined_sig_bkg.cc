@@ -1,6 +1,6 @@
 #include <vector>
 void compare_combined_sig_bkg(){
-  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt"};
+  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","p_emumu","fcmc","fcdt"};
   int mode_id = 2;
   int nring=2;//for no combine
   int mulike=0;

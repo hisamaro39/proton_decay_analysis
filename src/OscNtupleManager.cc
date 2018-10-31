@@ -55,8 +55,8 @@ void OscNtupleManager::Initialize()
   os = new outputOscStructure;
   llm->SetDataManager( dm );
 
-  nhitac_cut[0] =  10; 
-  nhitac_cut[1] =  16; 
+  nhitac_cut[0] =  16; 
+  nhitac_cut[1] =  10; 
   nhitac_cut[2] =  16; 
   nhitac_cut[3] =  16; 
 
