@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
-my $REF_FILE = "/disk01/usr5/matanaka/proton_decay/skdetsim-v13p90_dec17";
-my $OUTPUT_FILE = "/disk01/usr5/matanaka/proton_decay/samples";
-my $INPUT_FILE = "/disk01/usr5/matanaka/proton_decay/atmpd_17a/src/analysis/ndecay";
+my $REF_FILE = "/disk02/usr5/matanaka/proton_decay/skdetsim-v13p90_dec17";
+my $OUTPUT_FILE = "/disk02/usr5/matanaka/proton_decay/samples";
+my $INPUT_FILE = "/disk02/usr5/matanaka/proton_decay/atmpd_17a/src/analysis/ndecay";
 {
   my $RUN_NUM_BEGIN=$ARGV[0];
   my $RUN_NUM_END=$ARGV[1];
