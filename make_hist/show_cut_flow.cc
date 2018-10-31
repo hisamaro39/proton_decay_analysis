@@ -2,7 +2,7 @@
 void show_cut_flow(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","p_eemu","fcmc","fcdt"};
   //input & mode
-  int input_type=0;
+  int input_type=7;
   int mode_type=0;
   int period=3;
   int fp= (input_type<7)? 1 : 0;

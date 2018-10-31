@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-my $REF_FILE = "/disk01/usr5/matanaka/proton_decay/Analysis";
-my $OUTPUT_FILE = "/disk01/usr5/matanaka/proton_decay/Analysis/output_batch";
+my $REF_FILE = "/disk02/usr6/matanaka/proton_decay/proton_decay_analysis";
+my $OUTPUT_FILE = "/disk02/usr6/matanaka/proton_decay/proton_decay_analysis/output_batch";
 {
 
   my $refArray = @ARGV;

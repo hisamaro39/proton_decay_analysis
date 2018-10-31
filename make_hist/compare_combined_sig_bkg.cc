@@ -1,10 +1,10 @@
 #include <vector>
 void compare_combined_sig_bkg(){
-  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt"};
-  int mode_id = 2;
+  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","p_eemu","fcmc","fcdt"};
+  int mode_id = 6;
   int nring=2;//for no combine
-  int mulike=0;
-  int michel=0;
+  int mulike=1;
+  int michel=1;
   string sk_period = "sk4";
 
   int range_momentum[] = {100,250,400,630,1000,2500,5000,10000,100000};
@@ -17,33 +17,36 @@ void compare_combined_sig_bkg(){
   vector<string> sig_name,sig_name_2,bkg_name,bkg_name_2,hist_name;
   sig_name.clear();sig_name_2.clear();bkg_name.clear();bkg_name_2.clear();hist_name.clear();
   
-  /*hist_name.push_back("nRing_cut1");
+  hist_name.push_back("nRing_cut1");
   dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
-  hist_name.push_back("nElikeRing_angle_nring3_cut1");
-  dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
-
-  hist_name.push_back("nElikeRing_angle_nring2_cut1");
-  dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
-
-  //hist_name.push_back("nMulikeRing_angle_nring3_cut1");
+  //hist_name.push_back("nElikeRing_angle_nring3_cut1");
   //dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
-  //hist_name.push_back("nMulikeRing_angle_nring2_cut1");
+  //hist_name.push_back("nElikeRing_angle_nring2_cut1");
   //dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
+  
+  hist_name.push_back("nMulikeRing_angle_nring3_cut1");
+  dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
-  hist_name.push_back("n_michel_electron_cut1");
-  dology.push_back(0);dorebin.push_back(0);combine.push_back(1);*/
+  hist_name.push_back("nMulikeRing_angle_nring2_cut1");
+  dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
+
+  hist_name.push_back("n_michel_electron_cut3");
+  dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
   hist_name.push_back("mom_proton_reco_cut4");
   dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
 
-  //hist_name.push_back("mass_proton_reco_cut4");
-  //dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
+  hist_name.push_back("mass_proton_reco_cut4");
+  dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
+
+  hist_name.push_back("ntag_multiplicity_cut4");
+  dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
   TH1 *first_hist;
   TFile *input_bkg = TFile::Open(Form("../output/fcmc.%s.mode_%s.root",sk_period.c_str(),type[mode_id].c_str()));//bkg
-  TFile *input_sig = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[mode_id].c_str(),sk_period.c_str(),type[mode_id].c_str()));//sig
+  TFile *input_sig = TFile::Open(Form("/home/matanaka/disk01_usr5/proton_decay/Analysis/output/%s.%s.mode_%s.root",type[mode_id].c_str(),sk_period.c_str(),type[mode_id].c_str()));//sig
 
   for(int s=0;s<hist_name.size();s++){
     TH1* sig_1 = (TH1*) input_sig->Get(Form("%s_nring0_mulike%d_michel%d",hist_name[s].c_str(),mulike,michel));
