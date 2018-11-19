@@ -34,7 +34,7 @@ void LikelihoodHelper::LoadWrappers()
 
 bool LikelihoodHelper::FCFVCut()
 {
-  unsigned int nhitac_cut[] = { 16, 10, 16, 16 };
+  unsigned int nhitac_cut[] = { 10, 16, 16, 16 };
 
   bool kPass = false ;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] )

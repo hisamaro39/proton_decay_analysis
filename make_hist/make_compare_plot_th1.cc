@@ -86,7 +86,7 @@ void make_compare_plot_th1(){
   hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();*/
 
-  hist.push_back("true_mom_1st_lepton_fp0");
+  /*hist.push_back("true_mom_1st_lepton_fp0");
   hist.push_back("true_mom_2nd_lepton_fp0");
   hist.push_back("true_mom_3rd_lepton_fp0");
   input_type.push_back(5);input_type.push_back(5);input_type.push_back(5);  
@@ -102,7 +102,7 @@ void make_compare_plot_th1(){
   mode_type.push_back(5);mode_type.push_back(5);mode_type.push_back(5);
   add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);use_validation.push_back(1);
   hist_set.push_back(hist);hist.clear();input_type_set.push_back(input_type);input_type.clear();
-  mode_type_set.push_back(mode_type);mode_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();*/
 
   /*hist.push_back("residual_total_mass_nring3_mulike0");
   hist.push_back("residual_total_mass_nring3_mulike1");
@@ -316,13 +316,29 @@ void make_compare_plot_th1(){
   mode_type.push_back(5);mode_type.push_back(5);
   add_ratio.push_back(0);scale.push_back(0);
   hist_set.push_back(hist);dology.push_back(1);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();*/
+
+  hist.push_back("mass_proton_reco_cut3_nring2_mulike0_michel0_type0_mode_pos22");
+  hist.push_back("mass_proton_reco_cut3_nring2_mulike1_michel1_type1_mode_pos22");
+  input_type.push_back(7);input_type.push_back(7);
+  mode_type.push_back(2);mode_type.push_back(5);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(0);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
-  hist.push_back("mass_proton_reco_cut3_nring1_mulike3_michel0");
-  hist.push_back("mass_proton_reco_weight_osc_cut3_nring1_mulike3_michel0");
-  input_type.push_back(6);input_type.push_back(3);
-  mode_type.push_back(3);mode_type.push_back(3);
-  add_ratio.push_back(0);scale.push_back(0);
+  /*hist.push_back("mass_proton_reco_cut4_nring2_mulike0_michel0");
+  hist.push_back("mass_proton_reco_cut4_nring2_mulike1_michel1");
+  input_type.push_back(7);input_type.push_back(7);
+  mode_type.push_back(2);mode_type.push_back(5);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(0);
+  hist_set.push_back(hist);dology.push_back(1);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  hist.push_back("mom_proton_reco_cut4_nring2_mulike0_michel0");
+  hist.push_back("mom_proton_reco_cut4_nring2_mulike1_michel1");
+  input_type.push_back(7);input_type.push_back(7);
+  mode_type.push_back(2);mode_type.push_back(5);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(0);
   hist_set.push_back(hist);dology.push_back(1);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
@@ -351,7 +367,7 @@ void make_compare_plot_th1(){
     float very_small_evtmax = 99;
     for(int ss=0;ss<hist_set[s].size();ss++){//decide max event of the hist
       if(use_validation[s]) input = TFile::Open(Form("../output/%s.sk4.mode_%s_validation.root",type[input_type_set[s].at(ss)].c_str(),type[mode_type_set[s].at(ss)].c_str()));
-      else input = TFile::Open(Form("../output/%s.sk4.mode_%s.root",type[input_type_set[s].at(ss)].c_str(),type[mode_type_set[s].at(ss)].c_str()));
+      else input = TFile::Open(Form("../output/%s.sk4.mode_%s_check_bkg.root",type[input_type_set[s].at(ss)].c_str(),type[mode_type_set[s].at(ss)].c_str()));
       TH1* temp_hist = (TH1*) input->Get(hist_set[s].at(ss).c_str());
       if(temp_hist->GetMaximum() > evtmax) evtmax = temp_hist->GetMaximum();
       if(temp_hist->GetEntries() && temp_hist->GetMaximum()/temp_hist->Integral() > evtmax_scale){ 
@@ -387,7 +403,7 @@ void make_compare_plot_th1(){
     save_name = "hist/compare_";
     for(int h=0;h<hist_set[s].size();h++){
       if(use_validation[s]) input = TFile::Open(Form("../output/%s.sk4.mode_%s_validation.root",type[input_type_set[s].at(h)].c_str(),type[mode_type_set[s].at(h)].c_str()));
-      else input = TFile::Open(Form("../output/%s.sk4.mode_%s.root",type[input_type_set[s].at(h)].c_str(),type[mode_type_set[s].at(h)].c_str()));
+      else input = TFile::Open(Form("../output/%s.sk4.mode_%s_check_bkg.root",type[input_type_set[s].at(h)].c_str(),type[mode_type_set[s].at(h)].c_str()));
       TH1* this_hist = (TH1*) input->Get(hist_set[s].at(h).c_str());
       if(scale[s] && this_hist->GetEntries()) this_hist->Scale(1./this_hist->Integral());
       this_hist->SetLineWidth(2);
@@ -398,7 +414,7 @@ void make_compare_plot_th1(){
         if(dology[s]){
           if(scale[s]) this_hist->GetYaxis()->SetRangeUser(evtmin_scale,evtmax_scale*1.2);
           else {
-            this_hist->GetYaxis()->SetRangeUser(1,evtmax*1.2);
+            this_hist->GetYaxis()->SetRangeUser(0.001,evtmax*1.2);
             if(very_small_evtmax<1) this_hist->GetYaxis()->SetRangeUser(very_small_evtmax*0.01,evtmax*1.2);
           }
         }
@@ -434,7 +450,7 @@ void make_compare_plot_th1(){
       save_name += "_" + type[input_type_set[s].at(h)] + "_" + type[input_type_set[s].at(h)];
     }
     save_name += ".pdf";
-    c->SaveAs(save_name.c_str());
+    //c->SaveAs(save_name.c_str());
     //c->SaveAs("hist/temp.pdf");
 
   }

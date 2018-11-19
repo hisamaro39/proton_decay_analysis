@@ -68,12 +68,6 @@ int main( int argc, char * argv[] )
    // load in all the data from the input card
    CardReader * MasterCard = new CardReader( card.c_str() );
 
-   std::string output_file,output_ntuple;
-   if(use_batch) output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "." + this_cpu_str + ".root";
-   else {
-     output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + ".root";
-     output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
-   }
 
    int kUseFiTQun = -1;
    MasterCard->GetKey( "use_fitqun",  kUseFiTQun );
@@ -87,14 +81,22 @@ int main( int argc, char * argv[] )
    MasterCard->GetKey( "all_hist", kAllHist);
    int kMakeNtuple = -1;
    MasterCard->GetKey( "make_ntuple", kMakeNtuple);
-   if(kMakeNtuple) output_file = "output/temp.root";
-   else output_ntuple = "output/temp.root";
-   if(!kAllHist) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_validation.root";
-   if(kCheckBkg) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_check_bkg.root";
-   if(kDebugMode) output_file = "output/temp.root";
+   std::string output_file,output_ntuple;
+   if(use_batch) {
+     if(kCheckBkg) output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "_check_bkg." + this_cpu_str + ".root";
+     else output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "." + this_cpu_str + ".root";
+   }
+   else {
+     output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + ".root";
+     output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
+     if(!kAllHist) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_validation.root";
+     if(kCheckBkg) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_check_bkg.root";
+     if(kDebugMode) output_file = "output/temp.root";
+     if(kMakeNtuple) output_file = "output/temp.root";
+     else output_ntuple = "output/temp.root";
+   }
    std::cout << "output file is " << output_file << std::endl;
    std::cout << "output ntuple is " << output_ntuple << std::endl;
-   
 
    float live_time_fcmc=-1, live_time_fcdt=-1;
    MasterCard->GetKey( "live_time_fcmc", live_time_fcmc);
@@ -117,6 +119,7 @@ int main( int argc, char * argv[] )
    blossom = ( seed+ int( nEntries / tot_cpus ) >= nEntries ? 
                      nEntries : seed + int( nEntries / tot_cpus ) );
    if ( this_cpu == tot_cpus - 1 ) blossom = nEntries;
+
 
    // Use DataManager to automagically read 
    // in and load all of the Branch information 
@@ -150,6 +153,7 @@ int main( int argc, char * argv[] )
    om->SetInputTree( lchain );
    om->SetLiveTimeWeight(weight_live_time);
    
+
    // automatically add suffix to  
    // specified output file string in case 
    // we are processed in batch mode

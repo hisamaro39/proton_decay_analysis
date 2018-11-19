@@ -15,7 +15,7 @@ my $OUTPUT_FILE = "/disk02/usr6/matanaka/proton_decay/proton_decay_analysis/outp
   my $INPUT=$ARGV[1];
   my $MODE=$ARGV[2];
   my $period=$ARGV[3];
-  my $CARD_NAME="./18a_${period}.card";
+  my $CARD_NAME="./Card/18a_${period}_batch.card";
   $m=$RUN_NUM_BEGIN;
 
   print "Input is ", $INPUT, "\n";

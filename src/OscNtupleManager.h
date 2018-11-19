@@ -137,8 +137,9 @@ class OscNtupleManager
 
     int GetParType(int ring_id);
 
-    bool pass_cut[11][4];
-    float closest_mass_pi0_reco,total_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom;
+    int r_max,mu_max,m_max;
+    bool pass_cut[11][5];
+    float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom;
     float weight,mc_weight,osc_weight;
     int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type,nNeutron,true_mode;
     int n_elike_pattern,n_elike_angle,n_mulike_pattern,n_mulike_angle;
@@ -221,6 +222,8 @@ class OscNtupleManager
   int   nDecayE ; 
   float ptot[3];
   unsigned int   nhitac_cut[4];
+  unsigned int ehit_cut_1[4];
+  unsigned int ehit_cut_2[4];
   float potot_cut[4];
   int graph_point,graph_point_2;
  
@@ -232,6 +235,10 @@ class OscNtupleManager
   TypeWrapper<Int_t> ntag_mctruth_nn;
   //------------------------------
     
+  TypeWrapper<Int_t>  nev;
+  TypeWrapper<Int_t>  nsub;
+  TypeWrapper<Int_t>  date;
+  TypeWrapper<Int_t>  time;
   TypeWrapper<Float_t> pnu;
   TypeWrapper<Float_t> dirnu;
   TypeWrapper<Int_t>   ipnu;
@@ -245,6 +252,7 @@ class OscNtupleManager
   TypeWrapper<Int_t>   npar;
   TypeWrapper<Int_t>   npar2;
   TypeWrapper<UInt_t>  nhitac;
+  TypeWrapper<UInt_t>  nsube;
   TypeWrapper<UInt_t>  ndcy;
   TypeWrapper<UInt_t>  ngate;
   TypeWrapper<UInt_t>  nbye;
@@ -271,6 +279,11 @@ class OscNtupleManager
   TypeWrapper<Float_t> msdir;
   TypeWrapper<Int_t> catpc;
   TypeWrapper<Int_t> catpc_qrat_corrected;
+  TypeWrapper<Int_t> nmue;
+  TypeWrapper<UInt_t> etype;
+  TypeWrapper<Float_t> ehit;
+  TypeWrapper<Float_t> etime;
+  TypeWrapper<Float_t> egood;
 
   TypeWrapper<Float_t> wallv;
   TypeWrapper<Float_t> wallv2;
