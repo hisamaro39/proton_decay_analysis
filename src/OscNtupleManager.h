@@ -111,8 +111,13 @@ class OscNtupleManager
     void    CheckBkg( bool x )  { kCheckBkg  = x ; }
     void    AllHist( bool x )  { kAllHist  = x ; }
     void    MakeNtuple( bool x )  { kMakeNtuple  = x ; }
+    void    FermiMotion( bool x ) {kFermiMotion = x; }
+    void    OutsideSR( bool x ) {kOutsideSR = x; }
+    void    SystNtag( bool x ) {kSystNtag = x; }
+    void    CorrelatedDecay( int x ) {kCorrelatedDecay = x; }
 
     void FillNtuple();
+    void MakeNtuple();
     
     void BuildEnergyFriend(int type);
     int GetZBin(float zenith, int type);
@@ -139,12 +144,17 @@ class OscNtupleManager
 
     int r_max,mu_max,m_max;
     bool pass_cut[11][5];
+    int total_with_ntag[3][2][5];
+    int lowerSR_without_ntag[3][2][5];
+    int higherSR_without_ntag[3][2][5];
+    int total;
     float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom;
     float weight,mc_weight,osc_weight;
+    int sample_num,event_num;
     int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type,nNeutron,true_mode;
     int n_elike_pattern,n_elike_angle,n_mulike_pattern,n_mulike_angle;
     bool is_free_proton;
-    int n_free_proton;
+    int n_free_proton,n_true_neutron,n_tagged_neutron_exp[11];
     float expected_3ring_events_electron,expected_3ring_events_muon;
     //count p->eee event type
     int n_eee,n_eeeg,n_eeep,n_eeen,n_eeegp,n_eeenp,n_eeegn;
@@ -174,6 +184,10 @@ class OscNtupleManager
     void Process_pemumu();
     void Process_pmuee();
     void Process_peemu();
+    void Process_single();
+    void Process_subgev_multiring();
+    void Process_subgev_onemulike();
+    void Process_subgev_oneelike();
     TLorentzVector GetTLorentzVectorVector(int index);
     TLorentzVector GetTLorentzVectorVector2(int index);
     TLorentzVector GetTLorentzVectorRing(int index, int type);
@@ -217,6 +231,30 @@ class OscNtupleManager
     float o_dir[3];
     float o_amom;
     int o_mode;
+    int o_nring;
+    int o_nmulike;
+    float o_total_mass;
+    float o_total_mom;
+    float o_dlfct;
+    float o_vertex_x;
+    float o_vertex_y;
+    float o_vertex_z;
+    float o_prob_angle[5];
+    float o_probms_e[5];
+    float o_probms_mu[5];
+    float o_prob_pattern[5];
+    float o_prmslg_e[5];
+    float o_prmslg_mu[5];
+    float o_mmom[5];
+    float o_dir_x[5];
+    float o_dir_y[5];
+    float o_dir_z[5];
+    float o_ang[5];
+    float o_ange[5];
+    float o_angm[5];
+    float o_mmom_min;
+    float o_mmom_mid;
+    float o_mmom_max;
 
   // related to event classification
   int   nDecayE ; 
@@ -251,6 +289,19 @@ class OscNtupleManager
   TypeWrapper<Int_t>   nring;
   TypeWrapper<Int_t>   npar;
   TypeWrapper<Int_t>   npar2;
+  TypeWrapper<Int_t>   Iflvc;
+  TypeWrapper<Int_t>   iprntidx;
+  TypeWrapper<Int_t>   Npvc;
+  TypeWrapper<Int_t>   Ipvc;
+  TypeWrapper<Int_t>   Iorgvc;
+  TypeWrapper<Int_t>   Ichvc;
+  TypeWrapper<Float_t>   Abspvc;
+  TypeWrapper<Float_t>   pscnd;
+  TypeWrapper<Int_t>   nscndprt;
+  TypeWrapper<Int_t>   iprtscnd;
+  TypeWrapper<Int_t>   iprntprt;
+  TypeWrapper<Int_t>   lmecscnd;
+  TypeWrapper<Int_t>   iprnttrk;
   TypeWrapper<UInt_t>  nhitac;
   TypeWrapper<UInt_t>  nsube;
   TypeWrapper<UInt_t>  ndcy;
@@ -271,6 +322,7 @@ class OscNtupleManager
   TypeWrapper<Float_t> amomm;
   TypeWrapper<Float_t> prmslg;
   TypeWrapper<Float_t> probms;
+  TypeWrapper<Float_t> Dlfct;
   TypeWrapper<Float_t> dir;
   TypeWrapper<Float_t> dirv;
   TypeWrapper<Float_t> dirv2;
@@ -285,6 +337,7 @@ class OscNtupleManager
   TypeWrapper<Float_t> etime;
   TypeWrapper<Float_t> egood;
 
+  TypeWrapper<UInt_t> hstate;
   TypeWrapper<Float_t> wallv;
   TypeWrapper<Float_t> wallv2;
   TypeWrapper<Float_t>  fit_dir;
@@ -318,6 +371,10 @@ class OscNtupleManager
   bool kCheckBkg;
   bool kAllHist;
   bool kMakeNtuple;
+  bool kFermiMotion;
+  bool kOutsideSR;
+  bool kSystNtag;
+  int kCorrelatedDecay;
 
   //Tau_NN related
   TypeWrapper<Double_t> NN_output;

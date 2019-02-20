@@ -1,10 +1,11 @@
 void show_bkg_mode(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","p_eemu","fcmc","fcdt"};
+  int pi0cut = 1;
   int mode_id = 5;
   int sk_period = 4;
   int cut_number = 7;
   //1:FC&FC 2:nRing 3:PID 4:decayE 5:pi0 mass 6:total mass&mom 7:ntag
-  int nring=2;
+  int nring=1;
   int mulike=0;
   int michel=1;
   cout << "mode: " << type[mode_id] << endl;
@@ -14,7 +15,8 @@ void show_bkg_mode(){
   gStyle->SetOptStat(0);
   gStyle->SetPalette(1);
 
-  TFile *input = TFile::Open(Form("../output/%s.sk%d.mode_%s_check_bkg.root",type[7].c_str(),sk_period,type[mode_id].c_str()));
+  if(pi0cut) input = TFile::Open(Form("../output/%s.sk%d.mode_%s_pi0cut_check_bkg.root",type[7].c_str(),sk_period,type[mode_id].c_str()));
+  else input = TFile::Open(Form("../output/%s.sk%d.mode_%s_check_bkg.root",type[7].c_str(),sk_period,type[mode_id].c_str()));
   TH1 *hist;
   int sort_type[2*2*55],sort_sign[2*2*55],sort_mode[2*2*55];
   float sort_events[2*2*55],sort_err[2*2*55];
@@ -66,6 +68,7 @@ void show_bkg_mode(){
     }
   }
   float total_ratio=0.;
+  TH1 *final_hist,*final_hist2;
   cout << "total_events=" << total_events << " +- " << sqrt(total_err_square) << endl;
   cout << "### sort result ###" << endl;
   for(int f=0;f<2*2*55;f++){
@@ -74,9 +77,28 @@ void show_bkg_mode(){
     else cout << "muon type ";
     int final_mode = (sort_sign[f]==0)? sort_mode[f] : -1*sort_mode[f];
     float ratio = 1.*sort_events[f]/total_events;
-    cout << "mode: " << final_mode;
-    cout << " events: " << sort_events[f] << " +- " << sort_err[f] << " ratio: " << ratio << endl;
+    if(sort_sign[f]==0) final_hist = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",cut_number,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+    else final_hist = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",cut_number,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+    int raw_events = final_hist->GetEntries();
+    if(cut_number==6){
+      if(sort_sign[f]==0) final_hist2 = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",cut_number+1,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+      else final_hist2 = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",cut_number+1,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+      raw_events += final_hist2->GetEntries();
+    }
+    if(cut_number==7){
+      if(sort_sign[f]==0) {
+        final_hist = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",cut_number+1,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+        final_hist2 = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",cut_number+2,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+      }
+      else {
+        final_hist = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",cut_number+1,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+        final_hist2 = (TH1*) input->Get(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",cut_number+2,nring,mulike,michel,sort_type[f],sort_mode[f])); 
+      }
+      raw_events = final_hist->GetEntries() + final_hist2->GetEntries();
+    }
     total_ratio+=ratio;
+    cout << "mode: " << final_mode;
+    cout << " events: " << sort_events[f] << " +- " << sort_err[f] << " raw: " << raw_events << " ratio: " << ratio << endl;
   }
   cout << "total ratio is " << total_ratio << endl;
 

@@ -12,7 +12,6 @@
 #include "tools/TypeWrapper.h"
 #include "core/FileRecord.h"
 
-
 TChain * CheckAndBuildChain(  CardReader *, std::string );
 
 int main( int argc, char * argv[] )
@@ -41,6 +40,7 @@ int main( int argc, char * argv[] )
       std::cout << std::endl;
    }
 
+
    std::string sk_era ( argv[1] );  // which detector geometry
    std::string input   ( argv[2] );  // fcdt, pcdt, fcmc, pcmc, ummc, 
    std::string mode   ( argv[3] );  // fcdt, pcdt, fcmc, pcmc, ummc, 
@@ -68,7 +68,6 @@ int main( int argc, char * argv[] )
    // load in all the data from the input card
    CardReader * MasterCard = new CardReader( card.c_str() );
 
-
    int kUseFiTQun = -1;
    MasterCard->GetKey( "use_fitqun",  kUseFiTQun );
    int kUseTauNN = -1;
@@ -79,24 +78,43 @@ int main( int argc, char * argv[] )
    MasterCard->GetKey( "check_bkg", kCheckBkg);
    int kAllHist = -1;
    MasterCard->GetKey( "all_hist", kAllHist);
+   int kCorrelatedDecay = -1;
+   MasterCard->GetKey( "correlated_decay", kCorrelatedDecay);
+   int kFermiMotion = -1;
+   MasterCard->GetKey( "fermi_motion", kFermiMotion);
+   int kOutsideSR = -1;
+   MasterCard->GetKey( "outside_sr", kOutsideSR);
+   int kSystNtag = -1;
+   MasterCard->GetKey( "syst_ntag", kSystNtag);
    int kMakeNtuple = -1;
    MasterCard->GetKey( "make_ntuple", kMakeNtuple);
    std::string output_file,output_ntuple;
-   if(use_batch) {
+   /*if(use_batch) {
      if(kCheckBkg) output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "_check_bkg." + this_cpu_str + ".root";
      else output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "." + this_cpu_str + ".root";
-   }
-   else {
-     output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + ".root";
-     output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
-     if(!kAllHist) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_validation.root";
-     if(kCheckBkg) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_check_bkg.root";
-     if(kDebugMode) output_file = "output/temp.root";
-     if(kMakeNtuple) output_file = "output/temp.root";
-     else output_ntuple = "output/temp.root";
-   }
+   }*/
+   //else {
+   if(use_batch) output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode;
+   else output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode;
+   if(kCorrelatedDecay==0) output_file += "_cddown";
+   if(kCorrelatedDecay==2) output_file += "_cdup";
+   if(kFermiMotion) output_file += "_fermigas";
+   if(kOutsideSR) output_file += "_outsideSR";
+   if(kSystNtag) output_file += "_syst_ntag";
+   std::stringstream dtw;
+   if(!kAllHist) output_file += "_validation";
+   if(kCheckBkg) output_file += "_check_bkg";
+   if(use_batch) output_file += "." + this_cpu_str + ".root";
+   else output_file += ".root";
+   if(kDebugMode || kMakeNtuple) output_file = "output/temp.root";
+   output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
+   //if(kMakeNtuple) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_ntuple.root";
+   //else output_ntuple = "output/temp.root";
+   //}
+
    std::cout << "output file is " << output_file << std::endl;
    std::cout << "output ntuple is " << output_ntuple << std::endl;
+
 
    float live_time_fcmc=-1, live_time_fcdt=-1;
    MasterCard->GetKey( "live_time_fcmc", live_time_fcmc);
@@ -120,7 +138,7 @@ int main( int argc, char * argv[] )
                      nEntries : seed + int( nEntries / tot_cpus ) );
    if ( this_cpu == tot_cpus - 1 ) blossom = nEntries;
 
-
+   
    // Use DataManager to automagically read 
    // in and load all of the Branch information 
    std::cout << "Use DataManager" << std::endl;
@@ -142,8 +160,8 @@ int main( int argc, char * argv[] )
 
    om->SetMode( mode  );
    om->SetInput( input  );
-   om->SetOutputNtuple( output_ntuple  );
-   om->SetOutputHist( output_file  );
+   if(kMakeNtuple) om->SetOutputNtuple( output_ntuple  );
+   else om->SetOutputHist( output_file  );
    om->UseFiTQun(  (kUseFiTQun == 1 ? true : false ) );
    om->UseTauNN( (kUseTauNN == 1 ? true : false ) );
    om->DebugMode( (kDebugMode == 1 ? true : false ) );
@@ -152,7 +170,10 @@ int main( int argc, char * argv[] )
    om->MakeNtuple( (kMakeNtuple == 1 ? true : false ) );
    om->SetInputTree( lchain );
    om->SetLiveTimeWeight(weight_live_time);
-   
+   om->CorrelatedDecay(kCorrelatedDecay );
+   om->FermiMotion(kFermiMotion );
+   om->OutsideSR(kOutsideSR );
+   om->SystNtag(kSystNtag );
 
    // automatically add suffix to  
    // specified output file string in case 

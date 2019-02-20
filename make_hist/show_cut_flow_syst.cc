@@ -1,24 +1,20 @@
-#include <vector>
-void show_cut_flow_ntag(){
-  string type[] = {"p_epi","p_mupi","p_eee_def","p_eee_miura","p_eee_take",//4
-    "p_mumumu","p_mumumu_miura","p_mumumu_take","p_emumu","p_emumu_miura",//9
-    "p_emumu_take","p_mumue","p_muee_def","p_muee_miura","p_muee_take",//14
-    "p_eemu","p_eee","p_muee","fcmc","fcdt"};
-  bool pi0cut = 0;
+void show_cut_flow_syst(){
+  string type[] = {"p_epi","p_mupi","p_eee_def","p_eee_miura","p_mumumu_def",//4
+    "p_mumumu_miura","p_emumu_def","p_emumu_miura","p_mumue","p_muee_def",//9
+    "p_muee_miura","p_eemu","fcmc","fcdt"};
   //input & mode
-  int input_type=18;
+  int input_type=5;
   int mode_type=5;
-  int period=3;
-  int fp= (input_type<18)? 1 : 0;
+  int period=2;
+  string syst = "fermigas";
+  int fp= (input_type<12)? 1 : 0;
   //cut pattern
   int nring=0;//# of ring
   int nmulike=0;//# of mulike ring
   int nmichel=3;//# of michel electron
 
   TH1 *this_hist,*this_hist_free;
-  TFile *input;
-  if(pi0cut) input = TFile::Open(Form("../output/%s.sk%d.mode_%s_pi0cut.root",type[input_type].c_str(),period,type[mode_type].c_str()));
-  else input = TFile::Open(Form("../output/%s.sk%d.mode_%s.root",type[input_type].c_str(),period,type[mode_type].c_str()));
+  TFile *input = TFile::Open(Form("../output/%s.sk%d.mode_%s_%s.root",type[input_type].c_str(),period,type[mode_type].c_str(),syst.c_str()));
   this_hist = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d",nring,nmulike,nmichel));  
   if(fp==1) this_hist_free = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d_fp1",nring,nmulike,nmichel));  
   int nbins = this_hist->GetNbinsX();
@@ -27,6 +23,7 @@ void show_cut_flow_ntag(){
   float previous_yield = first_yield;
   cout << "Cut Flow sk" << period <<  " input: " << type[input_type] << "   mode: " << type[mode_type] << endl; 
   cout << "Cut Pattern: nring" << nring << " nmulike" << nmulike << " nmichel" << nmichel << endl;
+  cout << "Systematic pattern: " << syst << endl;
   float total_eff = 0.,total_yield=0.,total_eff_free = 0.,total_yield_free=0.;
   float total_eff_err_square = 0.,total_eff_err_free_square=0.,total_yield_err_square=0.;
   float total_eff_nt = 0.,total_yield_nt=0.,total_eff_free_nt = 0.,total_yield_free_nt=0.;

@@ -1,9 +1,10 @@
 #include <vector>
 void compare_data_mc(){
-  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt"};
-  int mode_id = 1;
+  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu",//4
+    "p_muee","fcmc","fcdt","subgev_multiring","subgev_onemulike"};
+  int mode_id = 9;
   string sk_period = "sk4";
-  bool add_signal = true;
+  bool add_signal = false;
   float signal_scale = 0.03;
 
   int range_momentum[] = {100,250,400,630,1000,2500,5000,10000,100000};
@@ -20,13 +21,31 @@ void compare_data_mc(){
   vector<string> hist_name;
   hist_name.clear();
 
-  hist_name.push_back("distance_to_wall_cut1_nring0_mulike0_michel0");
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(4);
+  /*hist_name.push_back("distance_to_wall_thr50");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
 
-  hist_name.push_back("visible_energy_cut1_nring0_mulike0_michel0");
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
+  hist_name.push_back("distance_to_wall_scaled_thr50");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
 
-  hist_name.push_back("nhit_OD_cut1_nring0_mulike0_michel0");
+  hist_name.push_back("distance_to_wall_thr100");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
+
+  hist_name.push_back("distance_to_wall_scaled_thr100");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
+
+  hist_name.push_back("distance_to_wall_thr150");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
+
+  hist_name.push_back("distance_to_wall_scaled_thr150");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);*/
+
+  hist_name.push_back("n_michel_electron");
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
+
+  //hist_name.push_back("visible_energy_cut2_nring0_mulike0_michel0");
+  //add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(2);
+
+  /*hist_name.push_back("nhit_OD_cut1_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
   
   hist_name.push_back("nRing_cut1_nring0_mulike0_michel0");
@@ -57,7 +76,7 @@ void compare_data_mc(){
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(5);
 
   hist_name.push_back("mass_proton_reco_cut6_nring0_mulike0_michel0");
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(5);
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(5);*/
 
   TH1 *first_hist;
   TFile *input;
@@ -66,7 +85,8 @@ void compare_data_mc(){
     for(int ss=0;ss<2;ss++){//decide max event of the hist
       if(ss==0) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[7].c_str(),sk_period.c_str(),type[mode_id].c_str()));//data
       if(ss==1) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[6].c_str(),sk_period.c_str(),type[mode_id].c_str()));//MC
-      TH1* temp_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
+      //TH1* temp_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
+      TH1* temp_hist = (TH1*) input->Get(hist_name[s].c_str());
       if(dorebin[s]) temp_hist->Rebin(dorebin[s]);
       if(temp_hist->GetMaximum() > evtmax) evtmax = temp_hist->GetMaximum();
       if(temp_hist->GetEntries() && temp_hist->GetMaximum()/temp_hist->GetEntries() > evtmax_scale) 
@@ -106,7 +126,8 @@ void compare_data_mc(){
       if(h==0) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[7].c_str(),sk_period.c_str(),type[mode_id].c_str()));//data
       else if(h==1) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[6].c_str(),sk_period.c_str(),type[mode_id].c_str()));//MC
       else input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[mode_id].c_str(),sk_period.c_str(),type[mode_id].c_str()));//signal
-      TH1 *this_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
+      //TH1 *this_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
+      TH1 *this_hist = (TH1*) input->Get(hist_name[s].c_str());
       if(h==3) this_hist = (TH1*) input->Get(Form("%s_fp1",hist_name[s].c_str()));
       if(dorebin[s]) this_hist->Rebin(dorebin[s]);
       if(scale[s] && this_hist->GetEntries()) this_hist->Scale(1./this_hist->GetEntries());
@@ -131,8 +152,8 @@ void compare_data_mc(){
         }
         this_hist->Draw("same hist");
         if(h>1) continue;
-        TH1 *ratio_hist = (TH1*) this_hist->Clone("ratio_plot");
-        ratio_hist->Divide(first_hist);
+        TH1 *ratio_hist = (TH1*) first_hist->Clone("ratio_plot");
+        ratio_hist->Divide(this_hist);
         float xmin = ratio_hist->GetBinLowEdge(1);
         float xmax = ratio_hist->GetBinLowEdge(ratio_hist->GetNbinsX())+ratio_hist->GetBinWidth(ratio_hist->GetNbinsX());
         if(add_ratio[s]){

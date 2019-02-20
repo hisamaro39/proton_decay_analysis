@@ -17,7 +17,11 @@ void make_single_plot_tgraph(){
   //input_type.push_back(0);
   //hist.push_back("efficiency_true_mom_lepton_match_ring_angle_elike_nring3_p_eee");
   //input_type.push_back(0);
-  hist.push_back("efficiency_true_mom_muon_match_ring_angle_mulike_nring3_p_muee");
+  //hist.push_back("efficiency_true_mom_muon_match_ring_angle_mulike_nring3_p_muee");
+  //input_type.push_back(0);
+  hist.push_back("efficiency_true_mom_electron_match_ring_angle_elike_nring3_p_eee_def");
+  input_type.push_back(0);
+  hist.push_back("efficiency_true_mom_muon_match_ring_angle_mulike_nring3_p_mumumu_def");
   input_type.push_back(0);
 
   for(int h=0;h<hist.size();h++){
@@ -30,7 +34,7 @@ void make_single_plot_tgraph(){
     double *exlow = this_graph->GetEXlow();
     xmin = x[0] - exlow[0];
     xmax = x[nbins-1] + exhigh[nbins-1];
-    TH1* frame=gPad->DrawFrame(xmin, 0, xmax, 1.1);
+    TH1* frame=gPad->DrawFrame(xmin, 0, 500, 1.1);
     this_graph->SetLineColor(1);
     this_graph->GetYaxis()->SetRangeUser(0,1.1);
     this_graph->Draw("p");

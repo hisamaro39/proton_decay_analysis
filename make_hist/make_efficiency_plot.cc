@@ -1,6 +1,6 @@
 void make_efficiency_plot(){
 
-  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt"};
+  string type[] = {"p_epi","p_mupi","p_eee_def","p_mumumu_def","p_emumu","p_muee","fcmc","fcdt"};
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   
@@ -9,7 +9,7 @@ void make_efficiency_plot(){
   vector<int> input_type,mode_type;
   input_type.clear();mode_type.clear();
   bunbo.clear();bunsi.clear();
-  bunbo.push_back("true_mom_lepton");bunsi.push_back("true_mom_lepton_match_ring");
+  /*bunbo.push_back("true_mom_lepton");bunsi.push_back("true_mom_lepton_match_ring");
   input_type.push_back(2);mode_type.push_back(2);
   bunbo.push_back("true_mom_lepton");bunsi.push_back("true_mom_lepton_match_ring");
   input_type.push_back(3);mode_type.push_back(3);
@@ -30,11 +30,11 @@ void make_efficiency_plot(){
   bunbo.push_back("true_mom_lepton_match_ring_nring3");bunsi.push_back("true_mom_lepton_match_ring_angle_elike_nring3");
   input_type.push_back(2);mode_type.push_back(2);
   bunbo.push_back("true_mom_lepton_match_ring_nring3");bunsi.push_back("true_mom_lepton_match_ring_angle_mulike_nring3");
+  input_type.push_back(3);mode_type.push_back(3);*/
+  bunbo.push_back("true_mom_electron_match_ring_nring3");bunsi.push_back("true_mom_electron_match_ring_angle_elike_nring3");
+  input_type.push_back(2);mode_type.push_back(2);
+  bunbo.push_back("true_mom_muon_match_ring_nring3");bunsi.push_back("true_mom_muon_match_ring_angle_mulike_nring3");
   input_type.push_back(3);mode_type.push_back(3);
-  bunbo.push_back("true_mom_muon_match_ring_nring3");bunsi.push_back("true_mom_muon_match_ring_angle_mulike_nring3");
-  input_type.push_back(5);mode_type.push_back(5);
-  bunbo.push_back("true_mom_muon_match_ring_nring3");bunsi.push_back("true_mom_muon_match_ring_angle_mulike_nring3");
-  input_type.push_back(1);mode_type.push_back(1);
 
   TFile *input;
   for(int n=0;n<bunbo.size();n++){

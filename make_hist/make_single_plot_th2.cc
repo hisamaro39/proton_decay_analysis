@@ -9,7 +9,11 @@ void make_single_plot_th2(){
   vector<int> input_type,mode_type;
   hist.clear();input_type.clear();mode_type.clear();
   //hist list
-  hist.push_back("mass_mom_proton_reco_cut6_nring1_mulike3_michel3");  
+  hist.push_back("total_mass_vs_true_min_mom_muon_nring3_mulike1_fp1");
+  input_type.push_back(5);mode_type.push_back(5);
+  hist.push_back("total_mass_vs_true_min_mom_muon_nring3_mulike2_fp1");
+  input_type.push_back(4);mode_type.push_back(4);
+  hist.push_back("total_mass_vs_true_min_mom_muon_nring3_mulike3_fp1");
   input_type.push_back(3);mode_type.push_back(3);
 
   TBox *box = new TBox(800,0,1050,100);
@@ -22,14 +26,14 @@ void make_single_plot_th2(){
   box2->SetLineColor(1);
   TFile *input;
   for(int h=0;h<hist.size();h++){
-    input = TFile::Open(Form("../output/%s.sk4.mode_%s.root",type[input_type[h]].c_str(),type[mode_type[h]].c_str()));
+    input = TFile::Open(Form("../output/%s.sk4.mode_%s_validation.root",type[input_type[h]].c_str(),type[mode_type[h]].c_str()));
     TCanvas *c = new TCanvas(Form("canvas%d",h),"",800,600);
     string save_name = "";
     TH2* this_hist = (TH2*) input->Get(hist[h].c_str());
     this_hist->SetMinimum(0);
     this_hist->Draw("colz");
-    box->Draw();
-    box2->Draw();
+    //box->Draw();
+    //box2->Draw();
     c->SaveAs(Form("hist/single_%s_input_%s_mode_%s.pdf",hist[h].c_str(),type[input_type[h]].c_str(),type[mode_type[h]].c_str()));
   }
 

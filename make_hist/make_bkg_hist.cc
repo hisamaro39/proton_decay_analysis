@@ -1,19 +1,19 @@
 #include <vector>
 void make_bkg_hist(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt"};
-  int sample_mode = 5;
-  int neut_mode = 1;//0:nue 1:numu
-  int int_mode = 12;//interaction mode. Negative means anti neutrino.
+  int sample_mode = 2;
+  int neut_mode = 0;//0:nue 1:numu
+  int int_mode = 1;//interaction mode. Negative means anti neutrino.
 
   int nring=-1,mulike=-1,michel=-1;
   if(sample_mode==2){
-    nring=2;
+    nring=1;
     mulike=0;
     michel=0;
   }
   if(sample_mode==5){
-    nring=2;
-    mulike=1;
+    nring=1;
+    mulike=0;
     michel=1;
   }
 
@@ -24,7 +24,7 @@ void make_bkg_hist(){
   vector<int> rebin,logy;
 
   //hist list
-  hist.push_back("nRing_cut1");  
+  /*hist.push_back("nRing_cut1");  
   rebin.push_back(1); logy.push_back(0);
   hist.push_back("nElikeRing_angle_nring3_cut1");  
   rebin.push_back(1);logy.push_back(0);
@@ -41,12 +41,14 @@ void make_bkg_hist(){
   hist.push_back("mass_proton_reco_cut4");  
   rebin.push_back(5);logy.push_back(0);
   hist.push_back("mom_proton_reco_cut4");  
+  rebin.push_back(5);logy.push_back(0);*/
+  hist.push_back("mass_two_elike_reco_cut4");  
   rebin.push_back(5);logy.push_back(0);
 
   TFile *input;
   TH1 *this_hist;
   for(int h=0;h<hist.size();h++){
-    input = TFile::Open(Form("../output/fcmc.sk4.mode_%s_check_bkg.root",type[sample_mode].c_str()));
+    input = TFile::Open(Form("../output/fcmc.sk4.mode_%s_pi0cut_check_bkg.root",type[sample_mode].c_str()));
     TCanvas *c = new TCanvas(Form("canvas%d",h),"",800,600);
     if(logy[h]) c->SetLogy();
     string save_name = "";

@@ -1,8 +1,9 @@
 #include <vector>
 void compare_combined_sig_bkg(){
-  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","p_eemu","fcmc","fcdt"};
-  int mode_id = 5;
-  int nring=1;//for no combine
+  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_mumue","p_muee","p_eemu","fcmc","fcdt"};
+  int mode_id = 4;
+
+  int nring=1;
   int mulike=0;
   int michel=1;
   string sk_period = "sk4";
@@ -35,17 +36,17 @@ void compare_combined_sig_bkg(){
   //hist_name.push_back("n_michel_electron_cut3");
   //dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
-  //hist_name.push_back("mom_proton_reco_cut4");
-  //dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
+  hist_name.push_back("mom_proton_reco_cut4");
+  dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
 
-  //hist_name.push_back("mass_proton_reco_cut4");
-  //dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
+  hist_name.push_back("mass_proton_reco_cut4");
+  dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
 
   //hist_name.push_back("ntag_multiplicity_cut4");
   //dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
   
-  hist_name.push_back("mass_two_elike_reco_cut4");
-  dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
+  //hist_name.push_back("mass_two_elike_reco_cut4");
+  //dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
 
   TH1 *first_hist;
   TFile *input_bkg = TFile::Open(Form("../output/fcmc.%s.mode_%s.root",sk_period.c_str(),type[mode_id].c_str()));//bkg
