@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "TLorentzVector.h"
+#include "TRandom.h"
 
 #include "skcore/global.h"
 
@@ -79,6 +80,10 @@ void OscNtupleManager::Initialize()
   kDebugMode     = false ; 
   kAllHist     = false ; 
   kMakeNtuple     = false ; 
+  kCorrelatedDecay = -1;
+  kFermiMotion = -1;
+  kOutsideSR = -1;
+  kSystNtag = -1;
   fsiweight     = 0 ;
 
   LoadWrappers();
@@ -101,7 +106,17 @@ void OscNtupleManager::Initialize()
   expected_3ring_events_muon=0.;
 
   graph_point=0;graph_point_2=0;
+  sample_num=0;event_num=-1;
 
+  for(int r=0;r<r_max;r++){
+    for(int mu=0;mu<mu_max;mu++){
+      for(int m=0;m<m_max;m++){
+        total_with_ntag[r][mu][m]=0;
+        lowerSR_without_ntag[r][mu][m]=0;
+        higherSR_without_ntag[r][mu][m]=0;
+      }
+    }
+  }
 
 }
 
@@ -117,7 +132,10 @@ OscNtupleManager::~OscNtupleManager( )
 }
 
 void OscNtupleManager::CreateBranch(){
+  if(kDebugMode) cout << "CreateBranch" << endl;
 
+  //ofile = new TFile("aho.root","recreate");
+  ofile = new TFile(output_ntuple.c_str(),"recreate");
   otree = new TTree("osc_tuple", "tree build for SK osc analyses"); 
   otree->Branch("ipnu"   , &o_ipnu    , "ipnu/I"    );
   otree->Branch("itype"   , &o_itype    , "itype/I"    );
@@ -125,6 +143,30 @@ void OscNtupleManager::CreateBranch(){
   otree->Branch("dir"    , &o_dir     , "dir[3]/F"  );
   otree->Branch("amom"   , &o_amom    , "amom/F"    );
   otree->Branch("mode"   , &o_mode    , "mode/I"    );
+  otree->Branch("nring"   , &o_nring    , "nring/I"    );
+  otree->Branch("nmulike"   , &o_nmulike    , "nmulike/I"    );
+  otree->Branch("total_mass"   , &o_total_mass    , "total_mass/F"    );
+  otree->Branch("total_mom"   , &o_total_mom    , "total_mom/F"    );
+  otree->Branch("dlfct"   , &o_dlfct    , "dlfct/F"    );
+  otree->Branch("prob_angle"    , &o_prob_angle     , "prob_angle[5]/F"  );
+  otree->Branch("probms_e"    , &o_probms_e     , "probms_e[5]/F"  );
+  otree->Branch("probms_mu"    , &o_probms_mu     , "probms_mu[5]/F"  );
+  otree->Branch("prob_pattern"    , &o_prob_pattern     , "prob_pattern[5]/F"  );
+  otree->Branch("prmslg_e"    , &o_prmslg_e     , "prmslg_e[5]/F"  );
+  otree->Branch("prmslg_mu"    , &o_prmslg_mu     , "prmslg_mu[5]/F"  );
+  otree->Branch("mmom"    , &o_mmom     , "mmom[5]/F"  );
+  otree->Branch("dir_x"   , &o_dir_x    , "dir_x[5]/F"    );
+  otree->Branch("dir_y"   , &o_dir_y    , "dir_y[5]/F"    );
+  otree->Branch("dir_z"   , &o_dir_z    , "dir_z[5]/F"    );
+  otree->Branch("ang"    , &o_ang     , "ang[5]/F"  );
+  otree->Branch("ange"    , &o_ange     , "ange[5]/F"  );
+  otree->Branch("angm"    , &o_angm     , "angm[5]/F"  );
+  otree->Branch("mmom_min"    , &o_mmom_min     , "mmom_min/F"  );
+  otree->Branch("mmom_mid"    , &o_mmom_mid     , "mmom_mid/F"  );
+  otree->Branch("mmom_max"    , &o_mmom_max     , "mmom_max/F"  );
+  otree->Branch("vertex_x"   , &o_vertex_x    , "vertex_x/F"    );
+  otree->Branch("vertex_y"   , &o_vertex_y    , "vertex_y/F"    );
+  otree->Branch("vertex_z"   , &o_vertex_z    , "vertex_z/F"    );
 
 }
 
@@ -149,123 +191,141 @@ void OscNtupleManager::CreateHist()
 
   //validation plot
   if(!kAllHist){
-    m_hSvc.createGraph("tgraph_test","");
-    m_hSvc.create1D("true_mom_lepton","",40,0,800);
-    m_hSvc.create1D("true_mom_lepton_match_ring","",40,0,800);
-    m_hSvc.create1D("true_mom_lepton_match_ring_angle_elike","",40,0,800);
-    m_hSvc.create1D("true_mom_lepton_match_ring_angle_mulike","",40,0,800);
-    m_hSvc.create1D("true_mom_lepton_match_ring_charge_elike","",40,0,800);
-    m_hSvc.create1D("true_mom_lepton_match_ring_charge_mulike","",40,0,800);
-    m_hSvc.create1D("true_angle_lepton_and_lepton","",36,0,180);
-    m_hSvc.create1D("true_angle_lepton_and_lepton_match_ring","",36,0,180);
-    m_hSvc.create1D("residual_emom","",80,-0.4,0.4);
-    m_hSvc.create1D("residual_mmom","",80,-0.4,0.4);
-    m_hSvc.create1D("residual_total_mass","",80,-0.4,0.4);
-    m_hSvc.create1D("residual_total_mom","",80,-0.8,0.8);
-    m_hSvc.create1D("residual_total_gamma_mass","",80,-0.4,0.4);
-    m_hSvc.create1D("residual_total_gamma_mom","",80,-0.8,0.8);
-    m_hSvc.create1D("diff_opening_angle","",80,-10,10);
-    m_hSvc.create1D("diff_opening_angle_angle_elike","",80,-10,10);
-    m_hSvc.create1D("diff_opening_angle_charge_elike","",80,-10,10);
-    m_hSvc.create1D("diff_opening_angle_angle_mulike","",80,-10,10);
-    m_hSvc.create1D("diff_opening_angle_charge_mulike","",80,-10,10);
-    m_hSvc.create1D("diff_opening_angle_ip2","",80,-10,10);
-    m_hSvc.create1D("diff_opening_angle_ip3","",80,-10,10);
-    m_hSvc.create1D("diff_vertex_r","",100,0,100);
-    m_hSvc.create1D("opening_angle","",100,0,50);
-    m_hSvc.create1D("expected_opening_angle","",100,0,50);
-    m_hSvc.create1D("n_true_decayE","",5,0,5);
-    m_hSvc.create1D("nDecayE_true_decayE_1","",5,0,5);
-    m_hSvc.create1D("nDecayE_true_decayE_2","",5,0,5);
-    m_hSvc.create1D("nDecayE_true_decayE_3","",5,0,5);
-    m_hSvc.create2D("true_mom_expected_opening_angle","",100,0,800,100,0,50);
-    m_hSvc.create2D("true_mom_opening_angle","",100,0,800,100,0,50);
-    m_hSvc.create1D("true_min_mom_lepton","",40,0,800);
-    m_hSvc.create1D("true_mid_mom_lepton","",40,0,800);
-    m_hSvc.create1D("true_max_mom_lepton","",40,0,800);
-    m_hSvc.create1D("true_mom_muon","",40,0,800);
+    m_hSvc.create1D("hstate","",5,0,5);
+    m_hSvc.create1D("fermi_momentum","",15,0,300);
+    m_hSvc.create1D("fermi_dirx","",20,-1,1);
+    m_hSvc.create1D("fermi_diry","",20,-1,1);
+    m_hSvc.create1D("fermi_dirz","",20,-1,1);
+    m_hSvc.create1D("nRing","",10,0,10);
+    m_hSvc.create1D("nMulikeRing_angle","",6,0,6);
+    m_hSvc.create1D("ring_counting_likelihood","",100,-15,15);
+    m_hSvc.create1D("true_dirx_lepton","",100,-1,1);
+    m_hSvc.create1D("true_diry_lepton","",100,-1,1);
+    m_hSvc.create1D("true_dirz_lepton","",100,-1,1);
     m_hSvc.create1D("true_mom_electron","",40,0,800);
-    m_hSvc.create1D("true_mom_gamma","",40,0,800);
-    for(int p=0;p<6;p++){
-      m_hSvc.create1D(Form("diff_opening_angle_mom%d_%d",100*p,100+100*p),"",80,-10,10);
-      m_hSvc.create1D(Form("diff_opening_angle_muon_mom%d_%d",100*p,100+100*p),"",80,-10,10);
-      m_hSvc.create1D(Form("diff_opening_angle_electron_mom%d_%d",100*p,100+100*p),"",80,-10,10);
-      m_hSvc.create1D(Form("diff_opening_angle_diff_vertex_r%d_%d",5*p,5+5*p),"",80,-10,10);
-      m_hSvc.create1D(Form("residual_emom_mom%d_%d",100*p,100+100*p),"",80,-0.4,0.4);
-      m_hSvc.create1D(Form("residual_mmom_mom%d_%d",100*p,100+100*p),"",80,-0.4,0.4);
-      m_hSvc.create1D(Form("prob_angle_electron_mom%d_%d",100*p,100+100*p),"",100,-50,50);
-      m_hSvc.create1D(Form("prob_angle_muon_mom%d_%d",100*p,100+100*p),"",100,-5,5);
-    }
-
+    m_hSvc.create1D("true_mom_muon","",40,0,800);
+    m_hSvc.create1D("diff_vertex_x","",100,-100,100);
+    m_hSvc.create1D("diff_vertex_y","",100,-100,100);
+    m_hSvc.create1D("diff_vertex_z","",100,-100,100);
+    m_hSvc.create1D("diff_vertex_r","",100,-100,100);
+    m_hSvc.create1D("true_angle_lepton_and_ring","",36,0,180);
+    m_hSvc.create1D("true_mom_electron_match_ring","",40,0,800);
+    m_hSvc.create1D("true_mom_muon_match_ring","",40,0,800);
+    m_hSvc.create1D("true_mom_electron_match_ring_angle_elike","",40,0,800);
+    m_hSvc.create1D("true_mom_muon_match_ring_angle_mulike","",40,0,800);
+    m_hSvc.create1D("true_angle_min_mid_lepton","",36,0,180);
+    m_hSvc.create1D("true_angle_min_max_lepton","",36,0,180);
+    m_hSvc.create1D("true_angle_mid_max_lepton","",36,0,180);
     for(int r=2;r<4;r++){
-      m_hSvc.create1D(Form("true_max_mom_lepton_nring%d",r),"",40,0,800);
-      m_hSvc.create1D(Form("true_mid_mom_lepton_nring%d",r),"",40,0,800);
-      m_hSvc.create1D(Form("true_min_mom_lepton_nring%d",r),"",40,0,800);
-      m_hSvc.create1D(Form("true_min_angle_lepton_lepton_nring%d",r),"",36,0,180);
-      m_hSvc.create1D(Form("true_angle_min_mid_lepton_nring%d",r),"",36,0,180);
-      m_hSvc.create1D(Form("true_angle_min_max_lepton_nring%d",r),"",36,0,180);
-      m_hSvc.create1D(Form("true_angle_mid_max_lepton_nring%d",r),"",36,0,180);
+      m_hSvc.create1D(Form("true_angle_lepton_and_ring_nring%d",r),"",36,0,180);
       m_hSvc.create1D(Form("true_mom_lepton_nring%d",r),"",40,0,800);
       m_hSvc.create1D(Form("true_mom_muon_nring%d",r),"",40,0,800);
-      m_hSvc.create1D(Form("true_mom_lepton_match_ring_nring%d",r),"",40,0,800);
       m_hSvc.create1D(Form("true_mom_muon_match_ring_nring%d",r),"",40,0,800);
-      m_hSvc.create1D(Form("true_angle_lepton_and_ring_nring%d",r),"",36,0,180);
-      m_hSvc.create1D(Form("true_mom_lepton_match_ring_angle_elike_nring%d",r),"",40,0,800);
-      m_hSvc.create1D(Form("true_mom_lepton_match_ring_angle_mulike_nring%d",r),"",40,0,800);
       m_hSvc.create1D(Form("true_mom_muon_match_ring_angle_mulike_nring%d",r),"",40,0,800);
-      for(int m1=0;m1<2;m1++){
-        m_hSvc.create1D(Form("residual_total_mass_nring%d_mulike%d",r,m1),"",80,-0.4,0.4);
-        m_hSvc.create1D(Form("residual_total_mom_nring%d_mulike%d",r,m1),"",80,-0.4,0.4);
-        m_hSvc.create1D(Form("residual_total_gamma_mass_nring%d_mulike%d",r,m1),"",80,-0.4,0.4);
-        m_hSvc.create1D(Form("residual_total_gamma_mom_nring%d_mulike%d",r,m1),"",80,-0.4,0.4);
+      m_hSvc.create1D(Form("true_mom_electron_match_ring_nring%d",r),"",40,0,800);
+      m_hSvc.create1D(Form("true_mom_electron_match_ring_angle_elike_nring%d",r),"",40,0,800);
+      for(int m1=0;m1<4;m1++){
         m_hSvc.create1D(Form("true_mom_muon_nring%d_mulike%d",r,m1),"",40,0,800);
-        m_hSvc.create1D(Form("diff_vertex_r_nring%d_mulike%d",r,m1),"",100,0,100);
-        m_hSvc.create1D(Form("nMulikeRing_angle_nring%d_trueDecayE%d",r,m1),"",6,0,6);
+        for(int f=0;f<2;f++){
+          m_hSvc.create1D(Form("total_mass_nring%d_mulike%d_fp%d",r,m1,f),"",50,750,1050);
+          m_hSvc.create1D(Form("residual_total_mass_nring%d_mulike%d_fp%d",r,m1,f),"",80,-0.2,0.2);
+          m_hSvc.create1D(Form("diff_total_mass_nring%d_mulike%d_fp%d",r,m1,f),"",100,-100,100);
+          m_hSvc.create1D(Form("total_mom_nring%d_mulike%d_fp%d",r,m1,f),"",100,0,1000);
+          m_hSvc.create1D(Form("residual_total_mom_nring%d_mulike%d_fp%d",r,m1,f),"",80,-0.2,0.2);
+          m_hSvc.create1D(Form("diff_total_mom_nring%d_mulike%d_fp%d",r,m1,f),"",100,-100,100);
+        }
+      }
+      for(int p=0;p<6;p++){
+        m_hSvc.create1D(Form("residual_emom_mom%d_%d_nring%d",100*p,100+100*p,r),"",80,-0.4,0.4);
+        m_hSvc.create1D(Form("residual_mmom_mom%d_%d_nring%d",100*p,100+100*p,r),"",80,-0.4,0.4);
       }
     }
-    for(int f=0;f<2;f++){//free proton or not
-      m_hSvc.create1D(Form("total_true_mass_fp%d",f),"",125,0,1250);
-      m_hSvc.create1D(Form("total_true_mom_fp%d",f),"",100,0,1000);
-      m_hSvc.create2D(Form("total_true_mass_true_mom_fp%d",f),"",125,0,1250,100,0,1000);
-      m_hSvc.create1D(Form("total_gamma_true_mass_fp%d",f),"",125,0,1250);
-      m_hSvc.create1D(Form("total_gamma_true_mom_fp%d",f),"",100,0,1000);
-      m_hSvc.create2D(Form("total_true_mass_1st_lepton_mom_fp%d",f),"",125,0,1250,100,0,800);
-      m_hSvc.create2D(Form("total_true_mom_1st_lepton_mom_fp%d",f),"",100,0,1000,100,0,800);
-      m_hSvc.create1D(Form("true_mom_1st_lepton_fp%d",f),"",40,0,800);
-      m_hSvc.create1D(Form("true_mom_2nd_lepton_fp%d",f),"",40,0,800);
-      m_hSvc.create1D(Form("true_mom_3rd_lepton_fp%d",f),"",40,0,800);
-      m_hSvc.create1D(Form("true_energy_1st_lepton_fp%d",f),"",40,0,800);
-      m_hSvc.create1D(Form("true_energy_2nd_lepton_fp%d",f),"",40,0,800);
-      m_hSvc.create1D(Form("true_energy_3rd_lepton_fp%d",f),"",40,0,800);
-      m_hSvc.create1D(Form("true_mass_1st_2nd_fp%d",f),"",50,0,1250);
-      m_hSvc.create1D(Form("true_mass_2nd_3rd_fp%d",f),"",50,0,1250);
-      m_hSvc.create1D(Form("true_mass_3rd_1st_fp%d",f),"",50,0,1250);
-      m_hSvc.createGraph(Form("true_mass_1st_2nd_vs_2nd_3rd_fp%d",f),"");
-
+    m_hSvc.create1D("prob_angle_electron","",100,-10,10);
+    m_hSvc.create1D("prob_angle_muon","",100,-10,10);
+    for(int p=0;p<6;p++){
+      m_hSvc.create1D(Form("prob_angle_electron_mom%d_%d",100*p,100+100*p),"",100,-10,10);
+      m_hSvc.create1D(Form("prob_angle_muon_mom%d_%d",100*p,100+100*p),"",100,-10,10);
+      m_hSvc.create1D(Form("residual_emom_mom%d_%d",100*p,100+100*p),"",80,-0.4,0.4);
+      m_hSvc.create1D(Form("residual_mmom_mom%d_%d",100*p,100+100*p),"",80,-0.4,0.4);
     }
 
-    for(int e=1;e<5;e++){
-      m_hSvc.create1D(Form("etime_etype%d",e),"",200,0,5);
+    for(int f=0;f<2;f++){
+      m_hSvc.create1D(Form("true_mom_lepton_fp%d",is_free_proton),"",40,0,800);
+      m_hSvc.create1D(Form("total_true_mass_fp%d",f),"",125,0,1250);
+      m_hSvc.create1D(Form("total_true_mom_fp%d",f),"",100,0,1000);
+      m_hSvc.create1D(Form("true_min_mom_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_mid_mom_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("true_max_mom_lepton_fp%d",f),"",40,0,800);
+      m_hSvc.create1D(Form("angle_min_mom_lepton_proton_fp%d",f),"",36,0,180);
+      m_hSvc.create1D(Form("angle_mid_mom_lepton_proton_fp%d",f),"",36,0,180);
+      m_hSvc.create1D(Form("angle_max_mom_lepton_proton_fp%d",f),"",36,0,180);
+    }
+  }
+  if(process_mode=="subgev_multiring"){
+    int dwall_thr[3] = {50,100,150};
+    for(int d=0;d<3;d++){
+      m_hSvc.create1D(Form("distance_to_wall_thr%d",dwall_thr[d]),"",36,0,1800);
+      for(int r=2;r<6;r++){
+        m_hSvc.create1D(Form("distance_to_wall_thr%d_nring%d",dwall_thr[d],r),"",36,0,1800);
+      }
+    }
+    for(int m=1;m<4;m++) m_hSvc.create1D(Form("n_michel_electron_mulike%d",m),"",5,0,5);
+
+    //check background component
+    for (int m=1;m<55;m++){
+      for(int t=0;t<2;t++){
+        for(int mu=1;mu<4;mu++){
+          m_hSvc.create1D(Form("n_michel_electron_mulike%d_type%d_mode_pos%d",mu,t,m),"",5,0,5);
+          m_hSvc.create1D(Form("n_michel_electron_mulike%d_type%d_mode_neg%d",mu,t,m),"",5,0,5);
+        }
+      }
     }
   }
 
+  if(process_mode=="subgev_onemulike" || process_mode=="subgev_oneelike"){
+   
+    m_hSvc.create1D("n_michel_electron","",5,0,5);
+    m_hSvc.create1D("nRing","",5,0,5);
+    m_hSvc.create1D("nMulikeRing_angle","",5,0,5);
+
+    //check background component
+    for (int m=1;m<55;m++){
+      for(int t=0;t<2;t++){
+        m_hSvc.create1D(Form("n_michel_electron_type%d_mode_pos%d",t,m),"",5,0,5);
+        m_hSvc.create1D(Form("n_michel_electron_type%d_mode_neg%d",t,m),"",5,0,5);
+      }
+    }
+
+  }
+
   r_max=3;
-  if(process_mode=="p_epi" || process_mode=="p_eee") {
+  int cut_max=10;
+  if(process_mode.find("p_epi")!=std::string::npos || process_mode.find("p_eee")!=std::string::npos){
     mu_max=1;m_max=1;}
-  if(process_mode=="p_mupi" || process_mode=="p_muee" || process_mode=="p_eemu") {
+  if(process_mode.find("p_mupi")!=std::string::npos || process_mode.find("p_muee")!=std::string::npos
+      || process_mode.find("p_eemu")!=std::string::npos){
     mu_max=1;m_max=3;}
-  if(process_mode=="p_mumumu") {
+  if(process_mode.find("p_mumumu")!=std::string::npos){
     mu_max=1;m_max=4;}
-  if(process_mode=="p_emumu" || process_mode=="p_mumue") {
+  if(process_mode.find("p_emumu")!=std::string::npos || process_mode.find("p_mumue")!=std::string::npos){
     mu_max=1;m_max=3;}
 
   if(kAllHist && !kCheckBkg){
-    for(int c=0;c<10;c++){//cut type
+    for(int c=0;c<cut_max;c++){//cut type
       for(int r=0;r<r_max;r++){//cut pattern of nring
         for(int mu=0;mu<mu_max;mu++){//cut pattern of mu-like ring
           for(int p=0;p<m_max;p++){//cut pattern of michel electron
+            if(kSystNtag){
+              m_hSvc.create1D(Form("ntag_multiplicity_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",10,0,10);
+              for(int e=0;e<11;e++){
+                int eff = e*10;
+                m_hSvc.create1D(Form("n_tagged_neutron_exp_eff%d_cut%d_nring%d_mulike%d_michel%d",eff,c,r,mu,p),"",10,0,10);
+              }
+              continue;
+            }
+            m_hSvc.create1D(Form("n_true_neutron_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",15,0,15);
             m_hSvc.create1D(Form("interaction_mode_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",92,1,93);
-            m_hSvc.create1D(Form("distance_to_wall_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,1000);
+            m_hSvc.create1D(Form("distance_to_wall_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",36,0,1800);
             m_hSvc.create1D(Form("visible_energy_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,500);
             m_hSvc.create1D(Form("nhit_OD_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,100);
             m_hSvc.create1D(Form("nRing_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",10,0,10);
@@ -289,7 +349,7 @@ void OscNtupleManager::CreateHist()
 
             for(int f=0;f<2;f++){
               m_hSvc.create1D(Form("interaction_mode_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",92,1,93);
-              m_hSvc.create1D(Form("distance_to_wall_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",100,0,1000);
+              m_hSvc.create1D(Form("distance_to_wall_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",36,0,1800);
               m_hSvc.create1D(Form("visible_energy_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",100,0,500);
               m_hSvc.create1D(Form("nhit_OD_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",100,0,100);
               m_hSvc.create1D(Form("nRing_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",10,0,10);
@@ -373,6 +433,7 @@ void OscNtupleManager::CreateHist()
 void OscNtupleManager::LoadWrappers()
 {
 
+  dm->Get("hstate"    , hstate     );
   dm->Get( "pnu"  , pnu    );
   dm->Get( "ndcy"  , ndcy    );
   dm->Get( "ngate"  , ngate    );
@@ -388,6 +449,20 @@ void OscNtupleManager::LoadWrappers()
   dm->Get("numnu" , numnu  );
   dm->Get("npar" , npar  );
   dm->Get("npar2" , npar2  );
+  dm->Get("Npvc" , Npvc  );
+  dm->Get("Ipvc" , Ipvc  );
+  dm->Get("Ichvc" , Ichvc  );
+  dm->Get("Abspvc" , Abspvc  );
+  dm->Get("pscnd" , pscnd  );
+  dm->Get("nscndprt" , nscndprt  );
+  dm->Get("iprtscnd" , iprtscnd  );
+  dm->Get("iprntprt" , iprntprt  );
+  dm->Get("lmecscnd" , lmecscnd  );
+  dm->Get("iprnttrk" , iprnttrk  );
+  dm->Get("Dlfct" , Dlfct  );
+  dm->Get("Iorgvc" , Iorgvc  );
+  dm->Get("Iflvc" , Iflvc  );
+  dm->Get("iprntidx" , iprntidx   );
   dm->Get("nhitac", nhitac );
   dm->Get("nev", nev );
   dm->Get("nsub", nsub );
@@ -428,6 +503,7 @@ void OscNtupleManager::LoadWrappers()
   dm->Get("flxh11"   , flxh11     );
 
   dm->Get("oscwgt"   , oscwgt     );
+
 
   // needed by UpMu
   dm->Get("wallv"    , wallv     );
@@ -493,21 +569,35 @@ void OscNtupleManager::Process(int seed, int blossom )
   int Good = 0;
   int Bad = 0;
   cout << "kDebugMode=" << kDebugMode << endl;
+  cout << "kCorrelatedDecay=" << kCorrelatedDecay << endl;
+  cout << "kFermiMotion=" << kFermiMotion << endl;
+  cout << "kOutsideSR=" << kOutsideSR << endl;
+  cout << "kSystNtag=" << kSystNtag << endl;
 
+  TFile *f_fm;
+  TH1 *h_fm=new TH1F();
+  if(kFermiMotion){//fermi gas model
+    f_fm = new TFile("make_hist/output/ratio_fermi_motion.root");
+    h_fm = (TH1F*) f_fm->Get("ratio_fermi_motion");
+    cout << "h_fm entries=" << h_fm->GetEntries() << endl;
+  }
 
   for( int i = startEntry ; i < endEntry ; i ++ )
   {
     if(kDebugMode) cout << "Entry is " << i << endl;
-    else if(i%10000==0) cout << "Entry is " << i << endl;
+    else if(i%10000==0) 
+      cout << "Entry is " << i << endl;
 
+    _ltree->GetEntry(i-1);//just for culculating sample number
+    int nev_before = nev(0);
     _ltree->GetEntry(i);
 
     ZeroStructure();
 
-    if(kMakeNtuple){
+    /*if(kMakeNtuple){
       FillNtuple();
       continue;
-    }
+    }*/
 
     weight = 1.;
     mc_weight = 1.;
@@ -529,8 +619,35 @@ void OscNtupleManager::Process(int seed, int blossom )
         continue;
       }
     }
-
+    if(kCorrelatedDecay==0){//no correlated decay
+      if(hstate(0)>=1 && hstate(0)<=3) weight = 20./18;//adjust the ratio of free proton   
+      if(hstate(0)==4) weight = 0;    
+    }
+    if(kCorrelatedDecay==2){//20% correlated decay
+      if(hstate(0)>=1 && hstate(0)<=3) weight = 16./18;//adjust the ratio of free proton   
+      if(hstate(0)==4) weight *= 2;    
+    }
+    if(kFermiMotion && hstate(0)!=0 && hstate(0)!=4){//fermi gas model
+      if(kDebugMode) cout << "proton momentum=" << pmomv(0) << endl;
+      for(int p=0;p<h_fm->GetNbinsX();p++){
+        float xmin = h_fm->GetBinLowEdge(p+1);
+        float xmax = xmin + h_fm->GetBinWidth(p+1);
+        if(kDebugMode) cout << "p/xmin/xmax=" << p << "/" << xmin << "/" << xmax << endl;
+        if(pmomv(0)>xmin && pmomv(0)<xmax){//range of proton momentum
+          if(kDebugMode) cout << "ratio=" << h_fm->GetBinContent(p+1) << endl;
+          weight *= h_fm->GetBinContent(p+1);
+          break;
+        }
+      }
+    }
+    
+    if(nev(0)<nev_before) {
+      sample_num++;
+      event_num=-1;
+    }
+    event_num++;
     if(kDebugMode) {
+      cout << "num sample/evt=" << sample_num << "/" << event_num << endl;
       cout << "nsub/nev=" << nsub(0) << "/" << nev(0) << endl;
       cout << "nsube/ndcy/ngate/nbye=" << nsube(0) << "/" << ndcy(0) << "/" << ngate(0) << "/" << nbye(0) << endl;
       cout << "event date " << date(0) << "/" << date(1) << "/" << date(2) << endl;
@@ -546,24 +663,55 @@ void OscNtupleManager::Process(int seed, int blossom )
       cout << "weight osc is " << osc_weight << endl;
       cout << "weight=" << weight << endl;
       cout << "npar/npar2=" << npar(0) << "/" << npar2(0) << endl;
+      cout << "Dlfct=" << Dlfct(0) << endl;
+      if(process_input!="fcmc" && process_input!="fcdt") cout << "hstate=" << hstate(0) << endl;
+      if(kCheckBkg) cout << "Npvc/daughter=" << Npvc(0) << "/" << nscndprt(0) << endl;
+      cout << "numnu=" << numnu(0) << endl;
+      cout << "### vector list at detector simulation ###" << endl;
       for(int m=0;m<npar(0);m++){
-        cout << "particle_" << m << " pid=" << ipv(m) << " mom=" << pmomv(m) 
+        cout << "particle_" << m+1 << " pid=" << ipv(m) << " mom=" << pmomv(m) 
           << " dir x/y/z=" << dirv(m,0) << "/" << dirv(m,1) << "/" << dirv(m,2) << endl;
       }
+      cout << "### vector list of secondaries at detector simulation ###" << endl;
       for(int t=0;t<npar2(0);t++){
         cout << "daughter particle from " << iorg(t) << " pid=" << ipv2(t) << " mom=" << pmomv2(t)
           << " dir x/y/z=" << dirv2(t,0) << "/" << dirv2(t,1) << "/" << dirv2(t,2) << endl;
       }
+      cout << "### vector list at neutrino interaction ###" << endl;
+      for(int n=0;n<numnu(0);n++){
+        cout << "numnu_" << n+1 << " ipnu=" << ipnu(n) << endl;
+      }
+      if(kCheckBkg){
+        cout << "### Copy of VECT and NEWORK primary stacks with additional information ###" << endl;
+        for(int v=0;v<Npvc(0);v++){
+          cout << "pvc_" << v+1 << " pid=" << Ipvc(v) << " org=" << Iorgvc(v) << " mom=" << Abspvc(v) << " flv=" << Iflvc(v) << endl;
+        }
+        cout << "### Copy of VECT2 secondaries stack with additional information ###" << endl;
+        for(int d=0;d<nscndprt(0);d++){
+          float momx = pscnd(d,0);
+          float momy = pscnd(d,1);
+          float momz = pscnd(d,2);
+          float mom = sqrt(momx*momx+momy*momy+momz*momz);
+          cout << "daughter_" << d+1 << " pid=" << iprtscnd(d) << " org iprntprt/iprnttrk/iprntidx=" << iprntprt(d) << "/" << iprnttrk(d) << "/" << iprntidx(d) 
+            << " lmecscnd=" << lmecscnd(d) << " mom=" << mom << endl;
+        }
+      }
     }
 
-    if(process_mode=="p_epi") Process_pepi();
-    if(process_mode=="p_mupi") Process_pmupi();
-    if(process_mode=="p_eee") Process_peee();
-    if(process_mode=="p_muee") Process_pmuee();
-    if(process_mode=="p_eemu") Process_pmuee();
-    if(process_mode=="p_emumu") Process_pemumu();
-    if(process_mode=="p_mumue") Process_pemumu();
-    if(process_mode=="p_mumumu") Process_pmumumu();
+    if(process_mode.find("p_epi")!=std::string::npos) Process_pepi();
+    if(process_mode.find("p_mupi")!=std::string::npos) Process_pmupi();
+    if(process_mode.find("p_eee")!=std::string::npos) Process_peee();
+    if(process_mode.find("p_muee")!=std::string::npos) Process_pmuee();
+    if(process_mode.find("p_eemu")!=std::string::npos) Process_pmuee();
+    if(process_mode.find("p_emumu")!=std::string::npos) Process_pemumu();
+    if(process_mode.find("p_mumue")!=std::string::npos) Process_pemumu();
+    if(process_mode.find("p_mumumu")!=std::string::npos) Process_pmumumu();
+    if(process_mode.find("single_e")!=std::string::npos) Process_single();
+    if(process_mode.find("single_mu")!=std::string::npos) Process_single();
+    if(process_mode.find("subgev_multiring")!=std::string::npos) Process_subgev_multiring();
+    if(process_mode.find("subgev_onemulike")!=std::string::npos) Process_subgev_onemulike();
+    if(process_mode.find("subgev_oneelike")!=std::string::npos) Process_subgev_oneelike();
+
   }
 
   cout << " Classification: " << endl
@@ -574,10 +722,23 @@ void OscNtupleManager::Process(int seed, int blossom )
   cout << "expected 3ring events electron/muon=" 
     << expected_3ring_events_electron << "/" << expected_3ring_events_muon << endl;
 
+  for(int r=0;r<r_max;r++){
+    for(int mu=0;mu<mu_max;mu++){
+      for(int m=0;m<m_max;m++){
+        cout << "cut nring/mulike/michel=" << r << "/" << mu << "/" << m << endl;
+        cout << "total_with_ntag=" << total_with_ntag[r][mu][m] << endl;
+        cout << "lowerSR_without_ntag=" << lowerSR_without_ntag[r][mu][m] << endl;
+        cout << "higherSR_without_ntag=" << higherSR_without_ntag[r][mu][m] << endl;
+      }
+    }
+  }
+
+
   if(kMakeNtuple){
-    TFile *file = new TFile(output_ntuple.c_str(),"recreate");
+    if(kDebugMode) cout << "Write ntuple" << endl;
+    //TFile *file = new TFile(output_ntuple.c_str(),"recreate");
     otree->Write();
-    file->Close();
+    ofile->Close();
   }
 
   else m_hSvc.WriteOutput();
@@ -589,7 +750,7 @@ void OscNtupleManager::Process_pepi(){
 
   //apply selection here
 
-  if(!kDebugMode && wallv(0)<200) return;
+  if(process_input!="fcmc" && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
@@ -665,7 +826,7 @@ void OscNtupleManager::Process_pmupi(){
 
   //apply selection here
 
-  if(!kDebugMode && wallv(0)<200) return;
+  if(process_input!="fcmc" && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
@@ -744,7 +905,7 @@ void OscNtupleManager::Process_peee(){
 
   //apply selection here
 
-  if(!kDebugMode && wallv(0)<200) return;
+  if(process_input!="fcmc" && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
@@ -773,7 +934,6 @@ void OscNtupleManager::Process_peee(){
       for(unsigned int r2=r1+1;r2<e_cand.size();r2++){
         float mass_pi0_reco = (e_cand[r1] + e_cand[r2]).M();
         float diff = fabs(mass_pi0_reco-135);
-        //cout << "mass_pi0_reco=" << mass_pi0_reco << endl;
         if(diff < min_diff){
           min_diff = diff;
           closest_mass_pi0_reco = mass_pi0_reco;
@@ -781,11 +941,10 @@ void OscNtupleManager::Process_peee(){
       }
     }
   }
-  //cout << "closest_mass_pi0_reco=" << closest_mass_pi0_reco << endl;
-  if(nRing==3 && (closest_mass_pi0_reco<85 || closest_mass_pi0_reco>185) ) pass_cut[5][0]=true;
-  if(nRing==2) pass_cut[5][0]=true;
+  //if(nRing==3 && (closest_mass_pi0_reco<85 || closest_mass_pi0_reco>185) ) pass_cut[5][0]=true;
+  //if(nRing==2) pass_cut[5][0]=true;
 
-  //pass_cut[5][0] = true;//no pi0 selection
+  pass_cut[5][0] = true;//no pi0 selection
 
   TLorentzVector total_vec;
   if(n_elike_angle==3) total_vec = e_cand[0] + e_cand[1] + e_cand[2];
@@ -819,7 +978,7 @@ void OscNtupleManager::Process_pmumumu(){
 
   //apply selection here
 
-  if(!kDebugMode && wallv(0)<200) return;
+  if(process_input!="fcmc" && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
@@ -872,6 +1031,7 @@ void OscNtupleManager::Process_pmumumu(){
   all_mulike_mass = all_mulike_vec.M();
   all_mulike_mom = all_mulike_vec.P();
 
+  if (kMakeNtuple) MakeNtuple();
   if(kAllHist) MakeCutFlow();
   else MakeValidationPlot();
 
@@ -881,7 +1041,7 @@ void OscNtupleManager::Process_pemumu(){
 
   //apply selection here
 
-  if(!kDebugMode && wallv(0)<200) return;
+  if(process_input!="fcmc" && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
@@ -910,7 +1070,6 @@ void OscNtupleManager::Process_pemumu(){
   }
 
   pass_cut[5][0]=true;//no pi0 mass cut
-
 
   TLorentzVector total_vec;
   if(n_mulike_angle==2) total_vec = mu_cand[0] + mu_cand[1] + e_cand;
@@ -944,7 +1103,7 @@ void OscNtupleManager::Process_pmuee(){
 
   //apply selection here
 
-  if(!kDebugMode && wallv(0)<200) return;
+  if(process_input!="fcmc" && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
@@ -981,6 +1140,7 @@ void OscNtupleManager::Process_pmuee(){
   total_mass = total_vec.M();
   total_mom = total_vec.P();
   closest_mass_pi0_reco = two_elike_vec.M();
+  
   if(nRing==3 && (closest_mass_pi0_reco<85 || closest_mass_pi0_reco>185) ) pass_cut[5][0]=true;
   if(nRing==2) pass_cut[5][0]=true;
 
@@ -1010,6 +1170,127 @@ void OscNtupleManager::Process_pmuee(){
 
 }
 
+void OscNtupleManager::Process_single(){
+
+  m_hSvc.h1D("ring_counting_likelihood","","")->Fill(Dlfct(0));
+  m_hSvc.h1D("true_mom_lepton","","")->Fill(pmomv(0));
+  m_hSvc.h1D("true_dirx_lepton","","")->Fill(dirv(0,0));
+  m_hSvc.h1D("true_diry_lepton","","")->Fill(pmomv(0,1));
+  m_hSvc.h1D("true_dirz_lepton","","")->Fill(pmomv(0,2));
+  m_hSvc.h1D("nRing","","")->Fill(nRing);
+  m_hSvc.h1D("nMulikeRing_angle","","")->Fill(n_mulike_angle);
+
+  TLorentzVector this_lepton = GetTLorentzVectorVector(0);
+  float closest_angle=9999,closest_ring_prob_angle=9999;
+  int closest_ring_id=-1;
+  for(int r=0;r<nRing;r++){
+    float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
+    int pid_angle = (prob_angle<0)? 0 : 2;//e-like or mu-like
+    TLorentzVector this_ring = GetTLorentzVectorRing(r,pid_angle);
+    float angle_lep_ring = this_ring.Angle(this_lepton.Vect())*180./3.14159;
+    m_hSvc.h1D("true_angle_lepton_and_ring","","")->Fill(angle_lep_ring);
+    if(angle_lep_ring<20) {
+      if(angle_lep_ring<closest_angle){
+        closest_angle = angle_lep_ring;
+        closest_ring_id = r;
+        closest_ring_prob_angle = prob_angle;
+      }
+    }
+  }
+
+  if(kDebugMode) cout << "closest_ring_id=" << closest_ring_id << endl;
+  if(ipv(0)==2 || ipv(0)==3) m_hSvc.h1D("true_mom_electron","","")->Fill(pmomv(0));
+  if(ipv(0)==5 || ipv(0)==6) m_hSvc.h1D("true_mom_muon","","")->Fill(pmomv(0));
+  if(closest_ring_id!=-1){//matching success !!
+    float prob_angle = sqrt(fabs(probms(closest_ring_id,1)))-sqrt(fabs(probms(closest_ring_id,2)));
+    float residual_emom = (amome(closest_ring_id)-pmomv(0))/pmomv(0);
+    float residual_mmom = (amomm(closest_ring_id)-pmomv(0))/pmomv(0);
+    if(ipv(0)==2 || ipv(0)==3){//electron
+      m_hSvc.h1D("true_mom_electron_match_ring","","")->Fill(pmomv(0));
+      if(prob_angle<0) m_hSvc.h1D("true_mom_electron_match_ring_angle_elike","","")->Fill(pmomv(0));
+    }
+    if(ipv(0)==5 || ipv(0)==6){//muon
+      m_hSvc.h1D("true_mom_muon_match_ring","","")->Fill(pmomv(0));
+      if(prob_angle>0) m_hSvc.h1D("true_mom_muon_match_ring_angle_mulike","","")->Fill(pmomv(0));
+    }
+    for(int p=0;p<6;p++){
+      if(pmomv(0)>100*p && pmomv(0)<100+100*p){
+        if(ipv(0)==2 || ipv(0)==3) {//electron
+          m_hSvc.h1D(Form("residual_emom_mom%d_%d",100*p,100+100*p),"","")->Fill(residual_emom);
+          m_hSvc.h1D(Form("prob_angle_electron_mom%d_%d",100*p,100+100*p),"","")->Fill(prob_angle);
+        }
+        if(ipv(0)==5 || ipv(0)==6) {//muon
+          m_hSvc.h1D(Form("residual_mmom_mom%d_%d",100*p,100+100*p),"","")->Fill(residual_mmom);
+          m_hSvc.h1D(Form("prob_angle_muon_mom%d_%d",100*p,100+100*p),"","")->Fill(prob_angle);
+        }
+      }
+    }
+  }
+
+  if (kMakeNtuple) MakeNtuple();
+
+}
+
+void OscNtupleManager::Process_subgev_multiring(){
+
+  if(kDebugMode) cout << "Process_subgev_multiring" << endl;
+  
+  if ( evis(0) < 30.0 || evis(0) > 1330.0 || nhitac(0) >  nhitac_cut[skgen] || nring(0)<2) 
+    return;//FC subgev multi ring w/o dwall cut
+
+  int dwall_thr[3] = {50,100,150};
+  for(int d=0;d<3;d++){
+    if(wall(0)>dwall_thr[d]){
+      m_hSvc.h1D(Form("distance_to_wall_thr%d",dwall_thr[d]),"","")->Fill(wall(0),weight*osc_weight);
+      m_hSvc.h1D(Form("distance_to_wall_thr%d_nring%d",dwall_thr[d],nRing),"","")->Fill(wall(0),weight*osc_weight);
+    }
+  }
+
+  //w/ Dwall cut for decayE systematic in multi ring sample
+  if(wall(0)>200){
+    m_hSvc.h1D(Form("n_michel_electron_mulike%d",n_mulike_angle),"","")->Fill(nDecayE,weight*osc_weight);
+    int type=-1;
+    if(abs(ipnu(0))==12) type=0;//nue or nuebar
+    if(abs(ipnu(0))==14) type=1;//numu or numubar
+    if(mode(0)>0) m_hSvc.h1D(Form("n_michel_electron_mulike%d_type%d_mode_pos%d",n_mulike_angle,type,abs(mode(0))),"","")->Fill(nDecayE,weight*osc_weight);
+    else m_hSvc.h1D(Form("n_michel_electron_mulike%d_type%d_mode_neg%d",n_mulike_angle,type,abs(mode(0))),"","")->Fill(nDecayE,weight*osc_weight);
+  }
+
+}
+
+void OscNtupleManager::Process_subgev_onemulike(){
+
+  if(kDebugMode) cout << "Process_subgev_onemulike" << endl;
+
+  if ( evis(0) < 30.0 || evis(0) > 1330.0 || nhitac(0) > nhitac_cut[skgen] 
+      || wall(0) < 200 || nring(0) != 1 || n_mulike_angle != 1) 
+    return;//FC subgev one mu-like ring 
+
+    m_hSvc.h1D("n_michel_electron","","")->Fill(nDecayE,weight*osc_weight);
+    m_hSvc.h1D("nRing","","")->Fill(nRing,weight*osc_weight);
+    m_hSvc.h1D("nMulikeRing_angle","","")->Fill(n_mulike_angle,weight*osc_weight);
+    int type=-1;
+    if(abs(ipnu(0))==12) type=0;//nue or nuebar
+    if(abs(ipnu(0))==14) type=1;//numu or numubar
+    if(mode(0)>0) m_hSvc.h1D(Form("n_michel_electron_type%d_mode_pos%d",type,abs(mode(0))),"","")->Fill(nDecayE,weight*osc_weight);
+    else m_hSvc.h1D(Form("n_michel_electron_type%d_mode_neg%d",type,abs(mode(0))),"","")->Fill(nDecayE,weight*osc_weight);
+
+}
+
+void OscNtupleManager::Process_subgev_oneelike(){
+
+  if(kDebugMode) cout << "Process_subgev_oneelike" << endl;
+
+  if ( evis(0) < 30.0 || evis(0) > 1330.0 || nhitac(0) > nhitac_cut[skgen] 
+      || wall(0) < 200 || nring(0) != 1 || n_elike_angle != 1) 
+    return;//FC subgev one mu-like ring 
+
+    m_hSvc.h1D("n_michel_electron","","")->Fill(nDecayE,weight*osc_weight);
+    m_hSvc.h1D("nRing","","")->Fill(nRing,weight*osc_weight);
+    m_hSvc.h1D("nMulikeRing_angle","","")->Fill(n_mulike_angle,weight*osc_weight);
+
+}
+
 void OscNtupleManager::ZeroStructure()
 {
   if(kDebugMode) cout << "OscNtupleManager::ZeroStructure" << endl;
@@ -1024,7 +1305,6 @@ void OscNtupleManager::ZeroStructure()
   if(process_input=="fcmc" || process_input=="fcdt") is_free_proton = 0;
   closest_mass_pi0_reco=0.;
   total_mass=0.;
-  two_elike_mass=0.;
   total_mom=0.;
   all_ring_mass=0.;
   all_ring_mom=0.;
@@ -1048,12 +1328,34 @@ void OscNtupleManager::ZeroStructure()
   nDecayE    = llm->GetDecayE();  // must be called after llBuild
 
   //neutron tagging
-  if(skgen == SK4) nNeutron = ntag_nn(0);//only for sk4
+  if(process_input=="single_mu_def" || process_input=="single_mu_miura") nNeutron = 0;
+  else if(skgen == SK4) nNeutron = ntag_nn(0);//only for sk4
   else nNeutron = 0;
+
+  //find the events with captured neutron
+  n_true_neutron=0;
+  if(process_input=="fcmc"){
+    //cout << "# of secondary particle is " << nscndprt(0) << endl;
+    for(int n=0;n<nscndprt(0);n++){
+      //cout << "#/pid/ind=" << n << "/" << iprtscnd(n) << "/" << lmecscnd(n) << endl;
+      if(iprtscnd(n)==100045 && lmecscnd(n)==18) n_true_neutron++;
+    }
+  }
+  for(int n=0;n<11;n++) n_tagged_neutron_exp[n] = 0;
+  TRandom *generator = new TRandom();
+  generator->SetSeed(0);
+  for(int e=0;e<11;e++){
+    float efficiency = 0.1*e;
+    for(int n=0;n<n_true_neutron;n++){
+      float rnd = generator->Rndm();
+      if(rnd<efficiency) n_tagged_neutron_exp[e]++;
+    }
+  }
 
   for(int c=0;c<10;c++) 
     for(int c2=0;c2<5;c2++)
       pass_cut[c][c2]=false;
+
 
   return;
 }
@@ -1753,6 +2055,7 @@ int OscNtupleManager::GetZBin(float zenith, int type){
 }
 
 void OscNtupleManager::FillNtuple(){
+  if(kDebugMode) cout << "FillNtuple" << endl;
 
   int   type;
   SetEventType(process_input,type);
@@ -1841,6 +2144,10 @@ void OscNtupleManager::MakeOscillationPlot(){
 }
 
 void OscNtupleManager::MakeCutFlow(){
+  
+  if(kOutsideSR){//reject events inside the signal region
+    if(total_mass>800 && total_mass<1050 && total_mom<250) return;
+  }
 
   for(int r=0;r<r_max;r++){// # of ring
     for(int mu=0;mu<mu_max;mu++){// # of mu-like ring
@@ -1864,12 +2171,16 @@ void OscNtupleManager::MakeCutFlow(){
 
 void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, michel e cut, 
 
-
   if(process_input!="fcdt" || total_mass<800 || total_mass>1050 || total_mom>250){//for blind analysis
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d",r,mu,p),"","")->Fill(c,weight*osc_weight);
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d_fp%d",r,mu,p,is_free_proton),"","")->Fill(c,weight*osc_weight);
   }
+  for(int e=0;e<11;e++){
+    int eff = 10*e;
+    m_hSvc.h1D(Form("n_tagged_neutron_exp_eff%d_cut%d_nring%d_mulike%d_michel%d",eff,c,r,mu,p),"","")->Fill(n_tagged_neutron_exp[e],weight*osc_weight);
+  }
   m_hSvc.h1D(Form("interaction_mode_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(true_mode,weight*osc_weight);
+  m_hSvc.h1D(Form("n_true_neutron_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(n_true_neutron,weight*osc_weight);
   m_hSvc.h1D(Form("distance_to_wall_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(wall(0),weight*osc_weight);
   m_hSvc.h1D(Form("visible_energy_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(evis(0),weight*osc_weight);
   m_hSvc.h1D(Form("nhit_OD_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(nhitac(0),weight*osc_weight);
@@ -1898,8 +2209,8 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
   if(process_input!="fcdt" || total_mass<800 || total_mass>1050){//for blind analysis
     m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mass,weight*osc_weight);
     m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mass,weight*osc_weight);
-    m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(two_elike_mass,weight*osc_weight);
-    m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(two_elike_mass,weight*osc_weight);
+    m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
+    m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
     m_hSvc.h1D(Form("mass_all_ring_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_ring_mass,weight*osc_weight);
     m_hSvc.h1D(Form("mass_all_mulike_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_mulike_mass,weight*osc_weight);
   }
@@ -1918,6 +2229,7 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
     m_hSvc.graph(Form("all_mulike_mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->SetPoint(graph_point_2,all_mulike_mass,all_mulike_mom);
   }
   if(kCheckBkg){//decault is fcmc
+    //cout << "Fill!!" << endl;
     int type=-1;
     if(abs(ipnu(0))==12) type=0;//nue or nuebar
     if(abs(ipnu(0))==14) type=1;//numu or numubar
@@ -1929,7 +2241,7 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
       m_hSvc.h1D(Form("n_michel_electron_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(nDecayE,weight*osc_weight);
       m_hSvc.h1D(Form("ntag_multiplicity_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(nNeutron,weight*osc_weight);
       m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(total_mass,weight*osc_weight);
-      m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(two_elike_mass,weight*osc_weight);
+      m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
       m_hSvc.h1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_pos%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(total_mom,weight*osc_weight);
     }
     else {//negative mode number
@@ -1941,7 +2253,7 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
       m_hSvc.h1D(Form("n_michel_electron_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(nDecayE,weight*osc_weight);
       m_hSvc.h1D(Form("ntag_multiplicity_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(nNeutron,weight*osc_weight);
       m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(total_mass,weight*osc_weight);
-      m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(two_elike_mass,weight*osc_weight);
+      m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
       m_hSvc.h1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_type%d_mode_neg%d",c,r,mu,p,type,abs(mode(0))),"","")->Fill(total_mom,weight*osc_weight);
     }
   }
@@ -1950,31 +2262,50 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
 }
 
 void OscNtupleManager::MakeValidationPlot(){
+  if(kDebugMode) cout << "OscNtupleManager::MakeValidationPlot" << endl;
 
-  //if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){}//FC & FC cut
-  //else return;
+  float initial_pmom = 0.,initial_pdirx=0.,initial_pdiry=0.,initial_pdirz=0.;
+  if(process_input=="fcmc"){
+    if(ipv(1)==14) {
+      initial_pmom = pmomv(1);
+      initial_pdirx = dirv(1,0);
+      initial_pdiry = dirv(1,1);
+      initial_pdirz = dirv(1,2);
+    }
+  }
+  else {//for proton decay events
+    initial_pmom = pmomv(0);
+    initial_pdirx = dirv(0,0);
+    initial_pdiry = dirv(0,1);
+    initial_pdirz = dirv(0,2);
+  }
+  if(process_input=="fcmc"){
+    if(initial_pmom>1e-2) {
+      m_hSvc.h1D("fermi_momentum","","")->Fill(initial_pmom,weight);
+      m_hSvc.h1D("fermi_dirx","","")->Fill(initial_pdirx,weight);
+      m_hSvc.h1D("fermi_diry","","")->Fill(initial_pdiry,weight);
+      m_hSvc.h1D("fermi_dirz","","")->Fill(initial_pdirz,weight);
+    }
+  } else if (hstate(0)!=0 && hstate(0)!=4){
+    m_hSvc.h1D("fermi_momentum","","")->Fill(initial_pmom,weight);
+    m_hSvc.h1D("fermi_dirx","","")->Fill(initial_pdirx,weight);
+    m_hSvc.h1D("fermi_diry","","")->Fill(initial_pdiry,weight);
+    m_hSvc.h1D("fermi_dirz","","")->Fill(initial_pdirz,weight);
+  }
 
-  m_hSvc.graph("tgraph_test","","")->SetPoint(graph_point,graph_point,graph_point);
 
-  float vertex_r_ring = sqrt(pos(0)*pos(0)+pos(1)*pos(1)+pos(2)*pos(2));
-  float vertex_r_true = sqrt(posv(0)*posv(0)+posv(1)*posv(1)+posv(2)*posv(2));
-  float diff_vertex_r = vertex_r_ring - vertex_r_true;
-  m_hSvc.h1D("diff_vertex_r","","")->Fill(diff_vertex_r);
-  m_hSvc.h1D(Form("diff_vertex_r_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(diff_vertex_r);
+  //Basic plot
+  if(process_input!="fcmc" && process_input!="fcdt") m_hSvc.h1D("hstate","","")->Fill(hstate(0),weight);
 
-
+  //truth&ring matching
+  //ordering by momentum 
   float min_mom=99999999, mid_mom=99999999, max_mom=99999999;
   int min_mom_id=-1,mid_mom_id=-1,max_mom_id=-1;
-  TLorentzVector total_true_vec,total_gamma_true_vec;
-  for(int v=1;v<4;v++){
-    float expected_opening_angle=0;
-    if(ipv(v)==2 || ipv(v)==3) expected_opening_angle = CalcOpeningAngle(0,pmomv(v));
-    if(ipv(v)==5 || ipv(v)==6) expected_opening_angle = CalcOpeningAngle(1,pmomv(v));
-    if(kDebugMode){
-      cout << "true lepton pid/mom=" << ipv(v) << "/" << pmomv(v) << endl;
-      cout << "true direction x/y/z=" << dirv(v,0) << "/" << dirv(v,1) << "/" << dirv(v,2) << endl;
-      cout << "expected opening angle is " << expected_opening_angle << endl;
-    }
+  int matched_ring_id[4];
+  float matched_ring_prob_angle[4];
+  TLorentzVector total_true_vec;
+  for(int v=1;v<4;v++){//loop for 3 leptons
+    if(kDebugMode) cout << "lepton mom/pid/x/y/z=" << pmomv(v) << "/" << ipv(v) << "/" << dirv(v,0) << "/" << dirv(v,1) << "/" << dirv(v,2) << endl;
     if(pmomv(v)<min_mom) {
       max_mom=mid_mom;
       mid_mom=min_mom;
@@ -1995,228 +2326,166 @@ void OscNtupleManager::MakeValidationPlot(){
     }
     TLorentzVector this_lepton = GetTLorentzVectorVector(v);
     total_true_vec = total_true_vec + this_lepton;
-    float closest_angle=9999;
+    float closest_angle=9999,closest_ring_prob_angle=9999;
     int closest_ring_id=-1;
     for(int r=0;r<nRing;r++){
-      TLorentzVector ring = GetTLorentzVectorRing(r,0);//just for angle calculation
       float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
-      float prob_pattern = prmslg(r,1) - prmslg(r,2);
-      int ip_angle = (prob_angle<0)? 2 : 3 ;
-      int ip_pattern = (prob_pattern<0)? 2 : 3;
-      float angle_lep_ring = this_lepton.Angle(ring.Vect())*180./3.14159;
-      if(kDebugMode) {
-        cout << "ring ip/pattern/angle=" << ip(r) << "/" << ip_pattern << "/" << ip_angle << endl;
-        cout << "opening angle ang/e/m=" << ang(r) << "/" << ange(r) << "/" << angm(r) << endl;
-        cout << "ring dir x/y/z=" << dir(r,0) << "/" << dir(r,1) << "/" << dir(r,2) << endl;
-        cout << "momentum amom/e/m=" << amom(r) << "/" << amome(r) << "/" << amomm(r) << endl;
-      }
+      int pid_angle = (prob_angle<0)? 0 : 2;//e-like or mu-like
+      TLorentzVector this_ring = GetTLorentzVectorRing(r,pid_angle);
+      float angle_lep_ring = this_ring.Angle(this_lepton.Vect())*180./3.14159;
       m_hSvc.h1D(Form("true_angle_lepton_and_ring_nring%d",nRing),"","")->Fill(angle_lep_ring);
       if(angle_lep_ring<20) {
-        if(kDebugMode) cout << "match!!" << endl;
         if(angle_lep_ring<closest_angle){
           closest_angle = angle_lep_ring;
           closest_ring_id = r;
+          closest_ring_prob_angle = prob_angle;
         }
       }
     }
+    matched_ring_id[v] = closest_ring_id;
+    matched_ring_prob_angle[v] = closest_ring_prob_angle;
     if(kDebugMode) cout << "closest_ring_id=" << closest_ring_id << endl;
-    m_hSvc.h1D("true_mom_lepton","","")->Fill(pmomv(v));
-    m_hSvc.h1D(Form("true_mom_lepton_nring%d",nRing),"","")->Fill(pmomv(v));
-    if(ipv(v)==5 || ipv(v)==6) {
-      m_hSvc.h1D("true_mom_muon","","")->Fill(pmomv(v));
-      m_hSvc.h1D(Form("true_mom_muon_nring%d",nRing),"","")->Fill(pmomv(v));
-      m_hSvc.h1D(Form("true_mom_muon_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(pmomv(v));
+  }
+  if(kDebugMode) cout << "minmom id/mom=" << min_mom_id << "/" << min_mom << endl;
+  if(kDebugMode) cout << "midmom id/mom=" << mid_mom_id << "/" << mid_mom << endl;
+  if(kDebugMode) cout << "maxmom id/mom=" << max_mom_id << "/" << max_mom << endl;
+  TLorentzVector min_mom_lepton = GetTLorentzVectorVector(min_mom_id);
+  TLorentzVector mid_mom_lepton = GetTLorentzVectorVector(mid_mom_id);
+  TLorentzVector max_mom_lepton = GetTLorentzVectorVector(max_mom_id);
+  float true_angle_min_mid_lepton = min_mom_lepton.Angle(mid_mom_lepton.Vect())*180./3.14159;
+  float true_angle_min_max_lepton = min_mom_lepton.Angle(max_mom_lepton.Vect())*180./3.14159;
+  float true_angle_mid_max_lepton = mid_mom_lepton.Angle(max_mom_lepton.Vect())*180./3.14159;
+  m_hSvc.h1D("true_angle_min_mid_lepton","","")->Fill(true_angle_min_mid_lepton,weight);
+  m_hSvc.h1D("true_angle_min_max_lepton","","")->Fill(true_angle_min_max_lepton,weight);
+  m_hSvc.h1D("true_angle_mid_max_lepton","","")->Fill(true_angle_mid_max_lepton,weight);
+
+  //make histgram
+  m_hSvc.h1D("ring_counting_likelihood","","")->Fill(Dlfct(0));
+  m_hSvc.h1D(Form("true_min_mom_lepton_fp%d",is_free_proton),"","")->Fill(min_mom,weight);
+  m_hSvc.h1D(Form("true_mid_mom_lepton_fp%d",is_free_proton),"","")->Fill(mid_mom,weight);
+  m_hSvc.h1D(Form("true_max_mom_lepton_fp%d",is_free_proton),"","")->Fill(max_mom,weight);
+  for(int c=1;c<4;c++){
+    m_hSvc.h1D(Form("true_mom_lepton_fp%d",is_free_proton),"","")->Fill(pmomv(c),weight);
+    m_hSvc.h1D(Form("true_mom_lepton_nring%d",nRing),"","")->Fill(pmomv(c));
+    if(ipv(c)==2 || ipv(c)==3){
+      m_hSvc.h1D("true_mom_electron","","")->Fill(pmomv(c));
+      m_hSvc.h1D("prob_angle_electron","","")->Fill(matched_ring_prob_angle[c]);
     }
-    if(ipv(v)==2 || ipv(v)==3)m_hSvc.h1D("true_mom_electron","","")->Fill(pmomv(v));
-    if(closest_ring_id!=-1){//true & ring matched
-      float opening_angle = (ip(closest_ring_id)==2)? ange(closest_ring_id) : angm(closest_ring_id);
-      float diff_opening_angle = opening_angle-expected_opening_angle;
-      float diff_opening_angle_muon = angm(closest_ring_id) - expected_opening_angle;
-      float diff_opening_angle_electron = ange(closest_ring_id) - expected_opening_angle;
-      if(kDebugMode){
-        if(wallv(0)>200 && fabs(diff_opening_angle)>10) cout << "diff_opening _angle is worse!!" << endl;
-        cout << "diff_opening_angle=" << diff_opening_angle << endl;
+    if(ipv(c)==5 || ipv(c)==6) {
+      m_hSvc.h1D("true_mom_muon","","")->Fill(pmomv(c));
+      m_hSvc.h1D(Form("true_mom_muon_nring%d",nRing),"","")->Fill(pmomv(c));
+      m_hSvc.h1D(Form("true_mom_muon_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(pmomv(c));
+      m_hSvc.h1D("prob_angle_muon","","")->Fill(matched_ring_prob_angle[c]);
+    }
+    if(matched_ring_id[c]){//matching success !!
+      float residual_emom = (amome(matched_ring_id[c])-pmomv(c))/pmomv(c);
+      float residual_mmom = (amomm(matched_ring_id[c])-pmomv(c))/pmomv(c);
+      if(ipv(c)==2 || ipv(c)==3){//electron
+        m_hSvc.h1D(Form("true_mom_electron_match_ring_nring%d",nRing),"","")->Fill(pmomv(c));
+        if(matched_ring_prob_angle[c]<0) m_hSvc.h1D(Form("true_mom_electron_match_ring_angle_elike_nring%d",nRing),"","")->Fill(pmomv(c));
       }
-      float mom_pattern = ( (prmslg(closest_ring_id,1) - prmslg(closest_ring_id,2)) < 0 )? amome(closest_ring_id) : amomm(closest_ring_id);
-      float mom_angle = ( sqrt(fabs(probms(closest_ring_id,1)))-sqrt(fabs(probms(closest_ring_id,2))) < 0 )? amome(closest_ring_id) : amomm(closest_ring_id);
-      float residual_emom = (amome(closest_ring_id)-pmomv(v))/pmomv(v);
-      float residual_mmom = (amomm(closest_ring_id)-pmomv(v))/pmomv(v);
-      float residual_mom_angle = (mom_angle-pmomv(v))/pmomv(v);
-      float residual_mom_pattern = (mom_pattern-pmomv(v))/pmomv(v);
-      float prob_angle = sqrt(fabs(probms(closest_ring_id,1)))-sqrt(fabs(probms(closest_ring_id,2)));
-      float prob_pattern = prmslg(closest_ring_id,1) - prmslg(closest_ring_id,2);
-      m_hSvc.h1D("expected_opening_angle","","")->Fill(expected_opening_angle);
-      m_hSvc.h2D("true_mom_expected_opening_angle","","")->Fill(pmomv(v),expected_opening_angle);
-      m_hSvc.h2D("true_mom_opening_angle","","")->Fill(pmomv(v),opening_angle);
-      m_hSvc.h1D("opening_angle","","")->Fill(opening_angle);
-      m_hSvc.h1D("residual_emom","","")->Fill(residual_emom);
-      m_hSvc.h1D("residual_mmom","","")->Fill(residual_mmom);
-      m_hSvc.h1D("diff_opening_angle","","")->Fill(diff_opening_angle);
-      m_hSvc.h1D(Form("diff_opening_angle_ip%d",ip(closest_ring_id)),"","")->Fill(diff_opening_angle);
-      m_hSvc.h1D("true_mom_lepton_match_ring","","")->Fill(pmomv(v));
-      m_hSvc.h1D(Form("true_mom_lepton_match_ring_nring%d",nRing),"","")->Fill(pmomv(v));
-      if(ipv(v)==5 || ipv(v)==6) m_hSvc.h1D(Form("true_mom_muon_match_ring_nring%d",nRing),"","")->Fill(pmomv(v));
-      if(prob_angle<0) {
-        m_hSvc.h1D("true_mom_lepton_match_ring_angle_elike","","")->Fill(pmomv(v));
-        m_hSvc.h1D(Form("true_mom_lepton_match_ring_angle_elike_nring%d",nRing),"","")->Fill(pmomv(v));
-        m_hSvc.h1D("diff_opening_angle_angle_elike","","")->Fill(diff_opening_angle);
-      }
-      else {
-        m_hSvc.h1D("true_mom_lepton_match_ring_angle_mulike","","")->Fill(pmomv(v));
-        m_hSvc.h1D(Form("true_mom_lepton_match_ring_angle_mulike_nring%d",nRing),"","")->Fill(pmomv(v));
-        if(ipv(v)==5 || ipv(v)==6) m_hSvc.h1D(Form("true_mom_muon_match_ring_angle_mulike_nring%d",nRing),"","")->Fill(pmomv(v));
-        m_hSvc.h1D("diff_opening_angle_angle_mulike","","")->Fill(diff_opening_angle);
-      }
-      if(prob_pattern<0) {
-        m_hSvc.h1D("true_mom_lepton_match_ring_charge_elike","","")->Fill(pmomv(v));
-        m_hSvc.h1D("diff_opening_angle_charge_elike","","")->Fill(diff_opening_angle);
-      }
-      else {
-        m_hSvc.h1D("true_mom_lepton_match_ring_charge_mulike","","")->Fill(pmomv(v));
-        m_hSvc.h1D("diff_opening_angle_charge_mulike","","")->Fill(diff_opening_angle);
+      if(ipv(c)==5 || ipv(c)==6){//muon
+        m_hSvc.h1D(Form("true_mom_muon_match_ring_nring%d",nRing),"","")->Fill(pmomv(c));
+        if(matched_ring_prob_angle[c]>0) m_hSvc.h1D(Form("true_mom_muon_match_ring_angle_mulike_nring%d",nRing),"","")->Fill(pmomv(c));
       }
       for(int p=0;p<6;p++){
-        if(pmomv(v)>100*p && pmomv(v)<100+100*p){
-          m_hSvc.h1D(Form("diff_opening_angle_mom%d_%d",100*p,100+100*p),"","")->Fill(diff_opening_angle);
-          m_hSvc.h1D(Form("residual_emom_mom%d_%d",100*p,100+100*p),"","")->Fill(residual_emom);
-          m_hSvc.h1D(Form("residual_mmom_mom%d_%d",100*p,100+100*p),"","")->Fill(residual_mmom);
-          if(ipv(v)==2 || ipv(v)==3) {//electron
-            m_hSvc.h1D(Form("diff_opening_angle_electron_mom%d_%d",100*p,100+100*p),"","")->Fill(diff_opening_angle_electron);
-            m_hSvc.h1D(Form("prob_angle_electron_mom%d_%d",100*p,100+100*p),"","")->Fill(prob_angle);
+        if(pmomv(c)>100*p && pmomv(c)<100+100*p){
+          if(ipv(c)==2 || ipv(c)==3) {//electron
+            m_hSvc.h1D(Form("residual_emom_mom%d_%d_nring%d",100*p,100+100*p,nRing),"","")->Fill(residual_emom);
+            m_hSvc.h1D(Form("prob_angle_electron_mom%d_%d",100*p,100+100*p),"","")->Fill(matched_ring_prob_angle[c]);
           }
-          if(ipv(v)==5 || ipv(v)==6) {//muon
-            m_hSvc.h1D(Form("diff_opening_angle_muon_mom%d_%d",100*p,100+100*p),"","")->Fill(diff_opening_angle_muon);
-            m_hSvc.h1D(Form("prob_angle_muon_mom%d_%d",100*p,100+100*p),"","")->Fill(prob_angle);
+          if(ipv(c)==5 || ipv(c)==6) {//muon
+            m_hSvc.h1D(Form("residual_mmom_mom%d_%d_nring%d",100*p,100+100*p,nRing),"","")->Fill(residual_mmom);
+            m_hSvc.h1D(Form("prob_angle_muon_mom%d_%d",100*p,100+100*p),"","")->Fill(matched_ring_prob_angle[c]);
           }
         }
-        if(diff_vertex_r>5*p && diff_vertex_r<5+5*p){
-          m_hSvc.h1D(Form("diff_opening_angle_diff_vertex_r%d_%d",5*p,5+5*p),"","")->Fill(diff_opening_angle);
-        }
       }
-    }
-
-    float closest_angle_lep_lep=9999;
-    for(int vv=1;vv<4;vv++){
-      if(vv==v) continue;
-      TLorentzVector this_lepton2 = GetTLorentzVectorVector(vv);
-      float angle_lep_lep = this_lepton.Angle(this_lepton2.Vect())*180./3.14159;
-      //cout << "angle_lep_lep=" << angle_lep_lep << endl;
-      if(closest_angle_lep_lep>angle_lep_lep) closest_angle_lep_lep=angle_lep_lep;
-      if(pmomv(v)>150){
-        m_hSvc.h1D("true_angle_lepton_and_lepton","","")->Fill(angle_lep_lep);
-        if(closest_ring_id!=-1) m_hSvc.h1D("true_angle_lepton_and_lepton_match_ring","","")->Fill(angle_lep_lep);
-      }
-    }
-    //cout << "closest_angle_lep_lep=" << closest_angle_lep_lep << endl;
-    if(v==1){
-      //cout << "Fill!!" << endl;
     }
   }
-  TLorentzVector first_lep = GetTLorentzVectorVector(1);
-  TLorentzVector second_lep = GetTLorentzVectorVector(2);
-  TLorentzVector third_lep = GetTLorentzVectorVector(3);
-  float mass_1st_2nd = (first_lep + second_lep).M();
-  float mass_2nd_3rd = (second_lep + third_lep).M();
-  float mass_3rd_1st = (third_lep + first_lep).M();
+
   float total_true_mass = total_true_vec.M();
   float total_true_mom = total_true_vec.P();
+  float angle_min_mom_lepton_proton = min_mom_lepton.Angle(total_true_vec.Vect())*180./3.14159;
+  float angle_mid_mom_lepton_proton = mid_mom_lepton.Angle(total_true_vec.Vect())*180./3.14159;
+  float angle_max_mom_lepton_proton = max_mom_lepton.Angle(total_true_vec.Vect())*180./3.14159;
   float residual_total_mass = (total_mass-total_true_mass)/total_true_mass;
-  float residual_total_mom = (total_mom-total_true_mom)/total_true_mom;
-  m_hSvc.h1D(Form("total_true_mass_fp%d",is_free_proton),"","")->Fill(total_true_mass);
-  m_hSvc.h1D(Form("total_true_mom_fp%d",is_free_proton),"","")->Fill(total_true_mom);
-  m_hSvc.h2D(Form("total_true_mass_true_mom_fp%d",is_free_proton),"","")->Fill(total_true_mass,total_true_mom);
-  m_hSvc.h2D(Form("total_true_mass_1st_lepton_mom_fp%d",is_free_proton),"","")->Fill(total_true_mass,pmomv(1));
-  m_hSvc.h2D(Form("total_true_mom_1st_lepton_mom_fp%d",is_free_proton),"","")->Fill(total_true_mom,pmomv(1));
-  m_hSvc.h1D("residual_total_mass","","")->Fill(residual_total_mass);
-  m_hSvc.h1D("residual_total_mom","","")->Fill(residual_total_mom);
-  m_hSvc.h1D(Form("residual_total_mass_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(residual_total_mass);
-  m_hSvc.h1D(Form("residual_total_mom_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(residual_total_mom);
-  m_hSvc.h1D(Form("true_mom_1st_lepton_fp%d",is_free_proton),"","")->Fill(pmomv(1));
-  m_hSvc.h1D(Form("true_mom_2nd_lepton_fp%d",is_free_proton),"","")->Fill(pmomv(2));
-  m_hSvc.h1D(Form("true_mom_3rd_lepton_fp%d",is_free_proton),"","")->Fill(pmomv(3));
-  m_hSvc.h1D(Form("true_energy_1st_lepton_fp%d",is_free_proton),"","")->Fill(CalcEnergyVector(1));
-  m_hSvc.h1D(Form("true_energy_2nd_lepton_fp%d",is_free_proton),"","")->Fill(CalcEnergyVector(2));
-  m_hSvc.h1D(Form("true_energy_3rd_lepton_fp%d",is_free_proton),"","")->Fill(CalcEnergyVector(3));
-  m_hSvc.h1D(Form("true_mass_1st_2nd_fp%d",is_free_proton),"","")->Fill(mass_1st_2nd);
-  m_hSvc.h1D(Form("true_mass_2nd_3rd_fp%d",is_free_proton),"","")->Fill(mass_2nd_3rd);
-  m_hSvc.h1D(Form("true_mass_3rd_1st_fp%d",is_free_proton),"","")->Fill(mass_3rd_1st);
-  m_hSvc.graph(Form("true_mass_1st_2nd_vs_2nd_3rd_fp%d",is_free_proton),"","")->SetPoint(graph_point,mass_1st_2nd,mass_2nd_3rd);
-  //cout << "total true vec mass/mom=" << total_true_vec.M() << "/" << total_true_vec.P() << endl;
-  //cout << "final id min/mid/max=" << min_mom_id << "/" << mid_mom_id << "/" << max_mom_id << endl;
-  //cout << "final mom min/mid/max=" << min_mom << "/" << mid_mom << "/" << max_mom << endl;
-  TLorentzVector min_mom_lep = GetTLorentzVectorVector(min_mom_id);
-  TLorentzVector mid_mom_lep = GetTLorentzVectorVector(mid_mom_id);
-  TLorentzVector max_mom_lep = GetTLorentzVectorVector(max_mom_id);
-  float angle_min_mid = min_mom_lep.Angle(mid_mom_lep.Vect())*180./3.14159;
-  float angle_min_max = min_mom_lep.Angle(max_mom_lep.Vect())*180./3.14159;
-  float angle_mid_max = mid_mom_lep.Angle(max_mom_lep.Vect())*180./3.14159;
-  float min_angle=-1;
-  if(angle_min_mid<angle_min_max){
-    if(angle_mid_max<angle_min_mid) min_angle=angle_min_mid;
-    else min_angle = angle_min_mid;
-  }else{
-    if(angle_mid_max<angle_min_max) min_angle=angle_mid_max;
-    else min_angle = angle_min_max;
+  float diff_total_mass = total_mass-total_true_mass;
+  float diff_total_mom = total_mom-total_true_mom;
+  m_hSvc.h1D(Form("angle_min_mom_lepton_proton_fp%d",is_free_proton),"","")->Fill(angle_min_mom_lepton_proton,weight);
+  m_hSvc.h1D(Form("angle_mid_mom_lepton_proton_fp%d",is_free_proton),"","")->Fill(angle_mid_mom_lepton_proton,weight);
+  m_hSvc.h1D(Form("angle_max_mom_lepton_proton_fp%d",is_free_proton),"","")->Fill(angle_max_mom_lepton_proton,weight);
+  m_hSvc.h1D(Form("total_true_mass_fp%d",is_free_proton),"","")->Fill(total_true_mass,weight);
+  m_hSvc.h1D(Form("total_true_mom_fp%d",is_free_proton),"","")->Fill(total_true_mom,weight);
+  m_hSvc.h1D(Form("total_mass_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(total_mass,weight);
+  m_hSvc.h1D(Form("total_mom_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(total_mom,weight);
+  m_hSvc.h1D(Form("residual_total_mass_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(residual_total_mass);
+  m_hSvc.h1D(Form("diff_total_mass_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(diff_total_mass);
+  m_hSvc.h1D(Form("diff_total_mom_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(diff_total_mom);
+
+  float vertex_r_ring = sqrt(pos(0)*pos(0)+pos(1)*pos(1)+pos(2)*pos(2));
+  float vertex_r_true = sqrt(posv(0)*posv(0)+posv(1)*posv(1)+posv(2)*posv(2));
+  float diff_vertex_x = pos(0) - posv(0);
+  float diff_vertex_y = pos(1) - posv(1);
+  float diff_vertex_z = pos(2) - posv(2);
+  float diff_vertex_r = vertex_r_ring - vertex_r_true;
+  m_hSvc.h1D("diff_vertex_x","","")->Fill(diff_vertex_x);
+  m_hSvc.h1D("diff_vertex_y","","")->Fill(diff_vertex_y);
+  m_hSvc.h1D("diff_vertex_z","","")->Fill(diff_vertex_z);
+  m_hSvc.h1D("diff_vertex_r","","")->Fill(diff_vertex_r);
+
+}
+
+void OscNtupleManager::MakeNtuple(){
+  if(kDebugMode) {
+    cout << "MakeNtuple" << endl;
+    cout << "nRing/nMulike=" << nRing << "/" << n_mulike_angle << endl;
   }
-  //cout << "min_angle=" << min_angle << endl;
-
-  m_hSvc.h1D("true_min_mom_lepton","","")->Fill(min_mom);
-  m_hSvc.h1D("true_mid_mom_lepton","","")->Fill(mid_mom);
-  m_hSvc.h1D("true_max_mom_lepton","","")->Fill(max_mom);
-
-  if(min_mom>200) m_hSvc.h1D(Form("true_min_angle_lepton_lepton_nring%d",nRing),"","")->Fill(min_angle);
-  m_hSvc.h1D(Form("true_max_mom_lepton_nring%d",nRing),"","")->Fill(max_mom);
-  m_hSvc.h1D(Form("true_mid_mom_lepton_nring%d",nRing),"","")->Fill(mid_mom);
-  m_hSvc.h1D(Form("true_min_mom_lepton_nring%d",nRing),"","")->Fill(min_mom);
-  m_hSvc.h1D(Form("true_angle_min_mid_lepton_nring%d",nRing),"","")->Fill(angle_min_mid);
-  m_hSvc.h1D(Form("true_angle_min_max_lepton_nring%d",nRing),"","")->Fill(angle_min_max);
-  m_hSvc.h1D(Form("true_angle_mid_max_lepton_nring%d",nRing),"","")->Fill(angle_mid_max);
-
-  int n_true_decayE=0;
-  total_gamma_true_vec = GetTLorentzVectorVector(1);
-  for(int t=0;t<npar2(0);t++){
-    if(kDebugMode) cout << "par2 pid/origin=" << ipv2(t) << "/" << iorg(t) << endl;
-    if(ipv2(t)==2 || ipv2(t)==3) n_true_decayE++;
-    if(ipv2(t)==1) {
-      m_hSvc.h1D("true_mom_gamma","","")->Fill(pmomv2(t));
-      total_gamma_true_vec = total_gamma_true_vec + GetTLorentzVectorVector2(t);
+  o_itype = 0 ;  
+  o_nring = nRing;
+  o_nmulike = n_mulike_angle;
+  o_total_mass = total_mass;
+  o_total_mom = total_mom;
+  o_dlfct = Dlfct(0);
+  o_vertex_x = pos(0); 
+  o_vertex_y = pos(1); 
+  o_vertex_z = pos(2); 
+  float min_mom=99999999, mid_mom=99999999, max_mom=99999999;
+  for(int r=0;r<nRing;r++){
+    //cout << "ring" << r << " amomm=" << amomm(r) << endl;
+    float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
+    float prob_pattern = prmslg(r,1) - prmslg(r,2);
+    o_prob_angle[r] = prob_angle;
+    o_probms_e[r] = probms(r,1);
+    o_probms_mu[r] = probms(r,2);
+    o_prob_pattern[r] = prob_pattern;
+    o_prmslg_e[r] = prmslg(r,1);
+    o_prmslg_mu[r] = prmslg(r,2);
+    o_mmom[r] = amomm(r);
+    o_dir_x[r] = dir(r,0);
+    o_dir_y[r] = dir(r,1);
+    o_dir_z[r] = dir(r,2);
+    o_ang[r] = ang(r);
+    o_ange[r] = ange(r);
+    o_angm[r] = angm(r);
+    if(amomm(r)<min_mom) {
+      max_mom=mid_mom;
+      mid_mom=min_mom;
+      min_mom=amomm(r);
+    }
+    else if(amomm(r)<mid_mom) {
+      max_mom=mid_mom;
+      mid_mom=amomm(r);
+    }
+    else if(amomm(r)<max_mom) {
+      max_mom=amomm(r);
     }
   }
+  //cout << "amomm min/mid/max=" << min_mom << "/" << mid_mom << "/" << max_mom << endl;
+  o_mmom_min = min_mom;
+  o_mmom_mid = mid_mom;
+  o_mmom_max = max_mom;
 
-  if(kDebugMode) cout << "nmue=" << nmue(0) << endl;
-  for(int i = 0 ; i < nmue(0) ; i++ ){
-    m_hSvc.h1D(Form("etime_etype%d",etype(i)),"","")->Fill(etime(i));
-  }// end of loop on rings
-  m_hSvc.h1D(Form("nMulikeRing_angle_nring%d_trueDecayE%d",nRing,n_true_decayE),"","")->Fill(n_mulike_angle);
-  float total_gamma_true_mass = total_gamma_true_vec.M();
-  float total_gamma_true_mom = total_gamma_true_vec.P();
-  float residual_total_gamma_mass = (total_mass-total_gamma_true_mass)/total_gamma_true_mass;
-  float residual_total_gamma_mom = (total_mom-total_gamma_true_mom)/total_gamma_true_mom;
-  m_hSvc.h1D("total_gamma_true_mass","","")->Fill(total_gamma_true_mass);
-  m_hSvc.h1D("total_gamma_true_mom","","")->Fill(total_gamma_true_mom);
-  m_hSvc.h1D(Form("total_gamma_true_mass_fp%d",is_free_proton),"","")->Fill(total_gamma_true_mass);
-  m_hSvc.h1D(Form("total_gamma_true_mom_fp%d",is_free_proton),"","")->Fill(total_gamma_true_mom);
-  m_hSvc.h1D("residual_total_gamma_mass","","")->Fill(residual_total_gamma_mass);
-  m_hSvc.h1D("residual_total_gamma_mom","","")->Fill(residual_total_gamma_mom);
-  m_hSvc.h1D(Form("residual_total_gamma_mass_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(residual_total_gamma_mass);
-  m_hSvc.h1D(Form("residual_total_gamma_mom_nring%d_mulike%d",nRing,n_mulike_angle),"","")->Fill(residual_total_gamma_mom);
-
-  if(kDebugMode) cout << "decayE true/detect=" << n_true_decayE << "/" << nDecayE << endl;
-  m_hSvc.h1D("n_true_decayE","","")->Fill(n_true_decayE);
-  m_hSvc.h1D(Form("nDecayE_true_decayE_%d",n_true_decayE),"","")->Fill(nDecayE);
-
-  if(min_mom>200){
-    expected_3ring_events_electron+=1.;
-    expected_3ring_events_muon+=1.;
-  }else{
-    for(int p=0;p<10;p++){
-      if(min_mom>p*20 && min_mom<20+p*20){
-        expected_3ring_events_electron+=eff_e_ring[p];
-      }
-    }
-  }
-  //cout << "expected_3ring_events_electron=" << expected_3ring_events_electron << endl;
-  graph_point++;//for tgraph
+  otree->Fill();
 }
 
 int OscNtupleManager::GetParType(int ring_id){
