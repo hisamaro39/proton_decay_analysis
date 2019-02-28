@@ -115,7 +115,6 @@ int main( int argc, char * argv[] )
    std::cout << "output file is " << output_file << std::endl;
    std::cout << "output ntuple is " << output_ntuple << std::endl;
 
-
    float live_time_fcmc=-1, live_time_fcdt=-1;
    MasterCard->GetKey( "live_time_fcmc", live_time_fcmc);
    MasterCard->GetKey( "live_time_fcdt", live_time_fcdt);

@@ -6,9 +6,6 @@ void syst_fv(){
   bool add_signal = false;
   float signal_scale = 0.03;
 
-  int range_momentum[] = {100,250,400,630,1000,2500,5000,10000,100000};
-  int n_range_momentum = sizeof(range_momentum)/sizeof(int);
-
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   vector<string> hist;

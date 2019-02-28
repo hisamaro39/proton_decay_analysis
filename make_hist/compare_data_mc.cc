@@ -2,7 +2,7 @@
 void compare_data_mc(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu",//4
     "p_muee","fcmc","fcdt","subgev_multiring","subgev_onemulike"};
-  int mode_id = 9;
+  int mode_id = 2;
   string sk_period = "sk4";
   bool add_signal = false;
   float signal_scale = 0.03;
@@ -37,7 +37,7 @@ void compare_data_mc(){
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
 
   hist_name.push_back("distance_to_wall_scaled_thr150");
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);*/
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
 
   hist_name.push_back("n_michel_electron");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(1);
@@ -45,7 +45,7 @@ void compare_data_mc(){
   //hist_name.push_back("visible_energy_cut2_nring0_mulike0_michel0");
   //add_ratio.push_back(1);scale.push_back(0);dology.push_back(0);dorebin.push_back(2);
 
-  /*hist_name.push_back("nhit_OD_cut1_nring0_mulike0_michel0");
+  hist_name.push_back("nhit_OD_cut1_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
   
   hist_name.push_back("nRing_cut1_nring0_mulike0_michel0");
@@ -70,13 +70,13 @@ void compare_data_mc(){
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(2);
 
   hist_name.push_back("ntag_multiplicity_cut5_nring0_mulike0_michel0");
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);
+  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);*/
 
   hist_name.push_back("mom_proton_reco_cut6_nring0_mulike0_michel0");
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(5);
+  add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);dorebin.push_back(5);
 
   hist_name.push_back("mass_proton_reco_cut6_nring0_mulike0_michel0");
-  add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(5);*/
+  add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);dorebin.push_back(5);
 
   TH1 *first_hist;
   TFile *input;

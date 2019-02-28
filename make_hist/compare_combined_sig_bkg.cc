@@ -1,11 +1,11 @@
 #include <vector>
 void compare_combined_sig_bkg(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_mumue","p_muee","p_eemu","fcmc","fcdt"};
-  int mode_id = 4;
+  int mode_id = 2;
 
   int nring=1;
   int mulike=0;
-  int michel=1;
+  int michel=0;
   string sk_period = "sk4";
 
   int range_momentum[] = {100,250,400,630,1000,2500,5000,10000,100000};
@@ -36,10 +36,10 @@ void compare_combined_sig_bkg(){
   //hist_name.push_back("n_michel_electron_cut3");
   //dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
-  hist_name.push_back("mom_proton_reco_cut4");
+  hist_name.push_back("mom_proton_reco_cut5");
   dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
 
-  hist_name.push_back("mass_proton_reco_cut4");
+  hist_name.push_back("mass_proton_reco_cut5");
   dology.push_back(0);dorebin.push_back(5);combine.push_back(0);
 
   //hist_name.push_back("ntag_multiplicity_cut4");
