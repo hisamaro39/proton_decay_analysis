@@ -3,15 +3,15 @@ void show_cut_flow_syst(){
     "p_mumumu_miura","p_emumu_def","p_emumu_miura","p_mumue","p_muee_def",//9
     "p_muee_miura","p_eemu","fcmc","fcdt"};
   //input & mode
-  int input_type=5;
-  int mode_type=5;
-  int period=2;
+  int input_type=11;
+  int mode_type=11;
+  int period=3;
   string syst = "fermigas";
   int fp= (input_type<12)? 1 : 0;
   //cut pattern
-  int nring=0;//# of ring
+  int nring=1;//# of ring
   int nmulike=0;//# of mulike ring
-  int nmichel=3;//# of michel electron
+  int nmichel=1;//# of michel electron
 
   TH1 *this_hist,*this_hist_free;
   TFile *input = TFile::Open(Form("../output/%s.sk%d.mode_%s_%s.root",type[input_type].c_str(),period,type[mode_type].c_str(),syst.c_str()));

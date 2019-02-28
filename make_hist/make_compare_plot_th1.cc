@@ -16,7 +16,46 @@ void make_compare_plot_th1(){
   hist.clear();hist_set.clear();scale.clear();dology.clear();input_type.clear();
   input_type_set.clear();add_ratio.clear();mode_type_set.clear();mode_type.clear();use_validation.clear();
 
-  hist.push_back("ring_counting_likelihood");
+  /*hist.push_back("nRing_cut1_nring0_mulike0_michel0");
+  hist.push_back("nRing_cut1_nring0_mulike0_michel0");
+  hist.push_back("nRing_cut1_nring0_mulike0_michel0");
+  hist.push_back("nRing_cut1_nring0_mulike0_michel0");
+  hist.push_back("nRing_cut1_nring0_mulike0_michel0");
+  input_type.push_back(14);input_type.push_back(4);input_type.push_back(13);input_type.push_back(10);input_type.push_back(7);
+  mode_type.push_back(2);mode_type.push_back(4);mode_type.push_back(13);mode_type.push_back(10);mode_type.push_back(7);
+  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();*/
+
+  hist.push_back("distance_to_wall");
+  hist.push_back("true_distance_to_wall");
+  hist.push_back("shift_true_distance_to_wall_reso40");
+  hist.push_back("shift_true_distance_to_wall_reso100");
+  input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);
+  mode_type.push_back(18);mode_type.push_back(18);mode_type.push_back(18);mode_type.push_back(18);
+  add_ratio.push_back(1);scale.push_back(0);use_validation.push_back(0);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  /*hist.push_back("distance_to_wall");
+  hist.push_back("true_distance_to_wall");
+  input_type.push_back(14);input_type.push_back(14);
+  mode_type.push_back(18);mode_type.push_back(18);
+  add_ratio.push_back(1);scale.push_back(0);use_validation.push_back(0);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+  
+  hist.push_back("diff_dwall_0_100");
+  hist.push_back("diff_dwall_100_200");
+  hist.push_back("diff_dwall_200_300");
+  hist.push_back("diff_dwall_300_400");
+  input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);
+  mode_type.push_back(18);mode_type.push_back(18);mode_type.push_back(18);mode_type.push_back(18);
+  add_ratio.push_back(1);scale.push_back(1);use_validation.push_back(0);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();*/
+
+  /*hist.push_back("ring_counting_likelihood");
   hist.push_back("ring_counting_likelihood");
   input_type.push_back(7);input_type.push_back(8);
   mode_type.push_back(7);mode_type.push_back(8);
@@ -88,7 +127,7 @@ void make_compare_plot_th1(){
   hist_set.push_back(hist);dology.push_back(1);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
-  /*hist.push_back("ring_counting_likelihood");
+  hist.push_back("ring_counting_likelihood");
   hist.push_back("ring_counting_likelihood");
   input_type.push_back(6);input_type.push_back(7);
   mode_type.push_back(6);mode_type.push_back(7);
@@ -305,6 +344,7 @@ void make_compare_plot_th1(){
       }
       else{
         this_hist->SetLineColor(h+1);
+        if(h==4) this_hist->SetLineColor(h+2);
         this_hist->Draw("same hist E0");
         TH1 *ratio_hist = (TH1*) this_hist->Clone("ratio_plot");
         ratio_hist->Divide(first_hist);
@@ -314,7 +354,7 @@ void make_compare_plot_th1(){
           c->cd(2);
           if(h==1){
             TH1* frame;
-            frame=gPad->DrawFrame(xmin, 0, xmax, 3);
+            frame=gPad->DrawFrame(xmin, 0.5, xmax, 1.5);
             //frame=gPad->DrawFrame(xmin, ratio_min*0.9, xmax, ratio_max*1.1);
             //if(ratio_max<1) frame=gPad->DrawFrame(xmin, ratio_min*0.9, xmax, 1.1);
             //if(ratio_min>1) frame=gPad->DrawFrame(xmin, 0.9, xmax, ratio_max*1.1);

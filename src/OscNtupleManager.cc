@@ -260,8 +260,36 @@ void OscNtupleManager::CreateHist()
       m_hSvc.create1D(Form("angle_mid_mom_lepton_proton_fp%d",f),"",36,0,180);
       m_hSvc.create1D(Form("angle_max_mom_lepton_proton_fp%d",f),"",36,0,180);
     }
+
+    m_hSvc.create1D("min_time_diff_between_two_true_decayE","",100,0,2000);
+    m_hSvc.create1D("min_decay_time_true_decayE","",100,0,5000);
+    for(int t=1;t<4;t++){
+      for(int d=0;d<=t;d++){
+        m_hSvc.create1D(Form("min_decay_time_true_decayE_true%d_tag%d",t,d),"",100,0,5000);
+        m_hSvc.create1D(Form("decay_time_true_decayE_true%d_tag%d",t,d),"",100,0,5000);
+        m_hSvc.create1D(Form("min_time_diff_between_two_true_decayE_true%d_tag%d",t,d),"",100,0,2000);
+        m_hSvc.create1D(Form("min_time_diff_between_two_true_decayE_exclude_early_true%d_tag%d",t,d),"",100,0,2000);
+      }
+    }
+
   }
+
   if(process_mode=="subgev_multiring"){
+    m_hSvc.create1D("distance_to_wall","",40,-200,1800);
+    m_hSvc.create1D("true_distance_to_wall","",40,-200,1800);
+    for(int s=1;s<6;s++){
+      int reso = 20*s;
+      m_hSvc.create1D(Form("shift_true_distance_to_wall_reso%d",reso),"",40,-200,1800);
+      m_hSvc.create1D(Form("generated_diff_vertex_r_reso%d",reso),"",100,-100,100);
+    }
+    m_hSvc.create1D("visible_energy","",75,0,1500);
+    m_hSvc.create1D("diff_vertex_x","",100,-100,100);
+    m_hSvc.create1D("diff_vertex_y","",100,-100,100);
+    m_hSvc.create1D("diff_vertex_z","",100,-100,100);
+    m_hSvc.create1D("diff_vertex_r","",100,-100,100);
+    m_hSvc.create1D("diff_dwall","",100,-100,100);
+    for(int w=0;w<16;w++) m_hSvc.create1D(Form("diff_dwall_%d_%d",100*w,100*(w+1)),"",100,-100,100);
+
     int dwall_thr[3] = {50,100,150};
     for(int d=0;d<3;d++){
       m_hSvc.create1D(Form("distance_to_wall_thr%d",dwall_thr[d]),"",36,0,1800);
@@ -456,6 +484,7 @@ void OscNtupleManager::LoadWrappers()
   dm->Get("pscnd" , pscnd  );
   dm->Get("nscndprt" , nscndprt  );
   dm->Get("iprtscnd" , iprtscnd  );
+  dm->Get("tscnd" , tscnd  );
   dm->Get("iprntprt" , iprntprt  );
   dm->Get("lmecscnd" , lmecscnd  );
   dm->Get("iprnttrk" , iprnttrk  );
@@ -573,6 +602,7 @@ void OscNtupleManager::Process(int seed, int blossom )
   cout << "kFermiMotion=" << kFermiMotion << endl;
   cout << "kOutsideSR=" << kOutsideSR << endl;
   cout << "kSystNtag=" << kSystNtag << endl;
+ 
 
   TFile *f_fm;
   TH1 *h_fm=new TH1F();
@@ -711,6 +741,7 @@ void OscNtupleManager::Process(int seed, int blossom )
     if(process_mode.find("subgev_multiring")!=std::string::npos) Process_subgev_multiring();
     if(process_mode.find("subgev_onemulike")!=std::string::npos) Process_subgev_onemulike();
     if(process_mode.find("subgev_oneelike")!=std::string::npos) Process_subgev_oneelike();
+    if(process_mode.find("cosmic_muon")!=std::string::npos) Process_cosmic_muon();
 
   }
 
@@ -1238,6 +1269,43 @@ void OscNtupleManager::Process_subgev_multiring(){
   if ( evis(0) < 30.0 || evis(0) > 1330.0 || nhitac(0) >  nhitac_cut[skgen] || nring(0)<2) 
     return;//FC subgev multi ring w/o dwall cut
 
+  m_hSvc.h1D("distance_to_wall","","")->Fill(wall(0));
+  m_hSvc.h1D("true_distance_to_wall","","")->Fill(wallv(0));
+  m_hSvc.h1D("visible_energy","","")->Fill(evis(0));
+  float vertex_r_ring = sqrt(pos(0)*pos(0)+pos(1)*pos(1)+pos(2)*pos(2));
+  float vertex_r_true = sqrt(posv(0)*posv(0)+posv(1)*posv(1)+posv(2)*posv(2));
+  float diff_vertex_x = posv(0) - pos(0);
+  float diff_vertex_y = posv(1) - pos(1);
+  float diff_vertex_z = posv(2) - pos(2);
+  float diff_vertex_r = vertex_r_true - vertex_r_ring;
+  m_hSvc.h1D("diff_vertex_x","","")->Fill(diff_vertex_x);
+  m_hSvc.h1D("diff_vertex_y","","")->Fill(diff_vertex_y);
+  m_hSvc.h1D("diff_vertex_z","","")->Fill(diff_vertex_z);
+  m_hSvc.h1D("diff_vertex_r","","")->Fill(diff_vertex_r);
+  float diff_dwall = wallv(0) - wall(0);
+  m_hSvc.h1D("diff_dwall","","")->Fill(diff_dwall);
+  for(int w=0;w<16;w++){
+    if(wallv(0)>100*w && wallv(0)<100*(w+1)){
+      m_hSvc.h1D(Form("diff_dwall_%d_%d",100*w,100*(w+1)),"","")->Fill(diff_dwall);
+    }
+  }
+  TRandom *generator = new TRandom();
+  generator->SetSeed(0);
+  for(int s=1;s<6;s++){
+    int reso = s*20;
+    //cout << "reso_vertex_r=" << reso_vertex_r << endl;
+    float shift_true_dwall = -1;
+    //int count=0;
+    //while(shift_true_dwall<0 || shift_true_dwall>1600){
+    float reso_vertex_r = gRandom->Gaus(0,reso);
+    m_hSvc.h1D(Form("generated_diff_vertex_r_reso%d",reso),"","")->Fill(reso_vertex_r);
+    shift_true_dwall = wallv(0) + reso_vertex_r;
+    //count++;
+    //if(count>100) break;
+    //}
+    m_hSvc.h1D(Form("shift_true_distance_to_wall_reso%d",reso),"","")->Fill(shift_true_dwall);
+  }
+
   int dwall_thr[3] = {50,100,150};
   for(int d=0;d<3;d++){
     if(wall(0)>dwall_thr[d]){
@@ -1291,6 +1359,12 @@ void OscNtupleManager::Process_subgev_oneelike(){
 
 }
 
+void OscNtupleManager::Process_cosmic_muon(){
+  cout << "OscNtupleManager::Process_cosmic_muon" << endl;
+
+
+}
+
 void OscNtupleManager::ZeroStructure()
 {
   if(kDebugMode) cout << "OscNtupleManager::ZeroStructure" << endl;
@@ -1341,16 +1415,29 @@ void OscNtupleManager::ZeroStructure()
       if(iprtscnd(n)==100045 && lmecscnd(n)==18) n_true_neutron++;
     }
   }
-  for(int n=0;n<11;n++) n_tagged_neutron_exp[n] = 0;
+  for(int e=0;e<11;e++) 
+    for(int i=0;i<10;i++) 
+      n_tagged_neutron_exp[e][i] = 0;
   TRandom *generator = new TRandom();
-  generator->SetSeed(0);
-  for(int e=0;e<11;e++){
-    float efficiency = 0.1*e;
-    for(int n=0;n<n_true_neutron;n++){
-      float rnd = generator->Rndm();
-      if(rnd<efficiency) n_tagged_neutron_exp[e]++;
+  for(int i=0;i<10;i++){
+    generator->SetSeed(i);
+    for(int e=0;e<11;e++){
+      float efficiency = 0.1*e;
+      for(int n=0;n<n_true_neutron;n++){
+        float rnd = generator->Rndm();
+        if(rnd<efficiency) n_tagged_neutron_exp[e][i]++;
+      }
     }
   }
+  //# of true decay electrons
+  n_true_decayE = 0;
+  for(int t=0;t<npar2(0);t++){
+    if(ipv2(t)==2 || ipv2(t)==3) n_true_decayE++;
+  }
+
+  //for(int e=0;e<11;e++) 
+    //for(int i=0;i<10;i++) 
+      //cout << "iteration/eff/ntag=" << i << "/" << e*10 << "/" << n_tagged_neutron_exp[e][i] << endl;
 
   for(int c=0;c<10;c++) 
     for(int c2=0;c2<5;c2++)
@@ -2175,9 +2262,11 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d",r,mu,p),"","")->Fill(c,weight*osc_weight);
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d_fp%d",r,mu,p,is_free_proton),"","")->Fill(c,weight*osc_weight);
   }
-  for(int e=0;e<11;e++){
-    int eff = 10*e;
-    m_hSvc.h1D(Form("n_tagged_neutron_exp_eff%d_cut%d_nring%d_mulike%d_michel%d",eff,c,r,mu,p),"","")->Fill(n_tagged_neutron_exp[e],weight*osc_weight);
+  for(int i=0;i<10;i++){
+    for(int e=0;e<11;e++){
+      int eff = 10*e;
+      m_hSvc.h1D(Form("n_tagged_neutron_exp_eff%d_cut%d_nring%d_mulike%d_michel%d",eff,c,r,mu,p),"","")->Fill(n_tagged_neutron_exp[e][i],weight*osc_weight);
+    }
   }
   m_hSvc.h1D(Form("interaction_mode_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(true_mode,weight*osc_weight);
   m_hSvc.h1D(Form("n_true_neutron_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(n_true_neutron,weight*osc_weight);
@@ -2432,6 +2521,51 @@ void OscNtupleManager::MakeValidationPlot(){
   m_hSvc.h1D("diff_vertex_y","","")->Fill(diff_vertex_y);
   m_hSvc.h1D("diff_vertex_z","","")->Fill(diff_vertex_z);
   m_hSvc.h1D("diff_vertex_r","","")->Fill(diff_vertex_r);
+
+  //decay electron
+  for (int d=0;d<nmue(0);d++){
+    //cout << "decayE # is " << d << endl;
+    //cout << "etype/ehit/egood/etime=" << etype(d) << "/" << ehit(d) 
+      //<< "/" << egood(d) << "/" << etime(d) <<endl; 
+  }
+  float min_decay_time=999999,min_time_diff=999999;
+  for(int s=0;s<nscndprt(0);s++){
+    float mom = sqrt(pow(pscnd(s,0),2)+pow(pscnd(s,1),2)+pow(pscnd(s,2),2));
+    bool yes=false;
+    for(int t=0;t<npar2(0);t++){
+      if(fabs(mom-pmomv2(t))<1e-5) yes=true;
+    }
+    if(!yes) continue;
+    if(kDebugMode){
+      cout << "true decayE # is " << s << endl;
+      cout << "pid/mom/dcy_time=" << iprtscnd(s) << "/" << mom << "/" << tscnd(s) << endl;
+    }
+    m_hSvc.h1D(Form("decay_time_true_decayE_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(tscnd(s));
+    if(tscnd(s)<min_decay_time) min_decay_time = tscnd(s);
+    for(int u=0;u<s;u++){
+      float mom2 = sqrt(pow(pscnd(u,0),2)+pow(pscnd(u,1),2)+pow(pscnd(u,2),2));
+      bool yes2=false;
+      for(int tt=0;tt<npar2(0);tt++){
+        if(fabs(mom-pmomv2(tt))<1e-5) yes2=true;
+      }
+      if(!yes2) continue;
+      //cout << "compared true decayE # is " << u << endl;
+      //cout << "pid/mom/dcy_time=" << iprtscnd(u) << "/" << mom << "/" << tscnd(u) << endl;
+      float time_diff = fabs(tscnd(s) - tscnd(u));
+      if(time_diff<1e-5) continue;
+      if(time_diff<min_time_diff) min_time_diff = time_diff;
+    }
+  }
+  m_hSvc.h1D("min_decay_time_true_decayE","","")->Fill(min_decay_time);
+  m_hSvc.h1D("min_time_diff_between_two_true_decayE","","")->Fill(min_time_diff);
+  m_hSvc.h1D(Form("min_decay_time_true_decayE_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_decay_time);
+  m_hSvc.h1D(Form("min_time_diff_between_two_true_decayE_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_time_diff);
+  if(min_decay_time>200) m_hSvc.h1D(Form("min_time_diff_between_two_true_decayE_exclude_early_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_time_diff);
+  if(kDebugMode){
+    cout << "decayE true/tag=" << n_true_decayE << "/" << nDecayE << endl;
+    cout << "min decay time=" << min_decay_time << endl;
+    cout << "min time diff=" << min_time_diff << endl;
+  }
 
 }
 

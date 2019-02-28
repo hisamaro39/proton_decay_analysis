@@ -154,7 +154,7 @@ class OscNtupleManager
     int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type,nNeutron,true_mode;
     int n_elike_pattern,n_elike_angle,n_mulike_pattern,n_mulike_angle;
     bool is_free_proton;
-    int n_free_proton,n_true_neutron,n_tagged_neutron_exp[11];
+    int n_free_proton,n_true_neutron,n_tagged_neutron_exp[11][10],n_true_decayE;
     float expected_3ring_events_electron,expected_3ring_events_muon;
     //count p->eee event type
     int n_eee,n_eeeg,n_eeep,n_eeen,n_eeegp,n_eeenp,n_eeegn;
@@ -188,6 +188,7 @@ class OscNtupleManager
     void Process_subgev_multiring();
     void Process_subgev_onemulike();
     void Process_subgev_oneelike();
+    void Process_cosmic_muon();
     TLorentzVector GetTLorentzVectorVector(int index);
     TLorentzVector GetTLorentzVectorVector2(int index);
     TLorentzVector GetTLorentzVectorRing(int index, int type);
@@ -299,6 +300,7 @@ class OscNtupleManager
   TypeWrapper<Float_t>   pscnd;
   TypeWrapper<Int_t>   nscndprt;
   TypeWrapper<Int_t>   iprtscnd;
+  TypeWrapper<Float_t>   tscnd;
   TypeWrapper<Int_t>   iprntprt;
   TypeWrapper<Int_t>   lmecscnd;
   TypeWrapper<Int_t>   iprnttrk;
