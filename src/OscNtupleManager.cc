@@ -263,12 +263,22 @@ void OscNtupleManager::CreateHist()
 
     m_hSvc.create1D("min_time_diff_between_two_true_decayE","",100,0,2000);
     m_hSvc.create1D("min_decay_time_true_decayE","",100,0,5000);
+    for(int i=1;i<=3;i++){
+      m_hSvc.create1D(Form("etime_etype%d",i),"",50,0,5);
+      m_hSvc.create1D(Form("egood_etype%d",i),"",100,0,1);
+      m_hSvc.create1D(Form("ehit_etype%d",i),"",100,0,100);
+    }
     for(int t=1;t<4;t++){
       for(int d=0;d<=t;d++){
         m_hSvc.create1D(Form("min_decay_time_true_decayE_true%d_tag%d",t,d),"",100,0,5000);
+        m_hSvc.create1D(Form("min_decay_time_true_decayE_exclude_separate_true%d_tag%d",t,d),"",100,0,5000);
+        m_hSvc.create1D(Form("min_decay_time_true_decayE_include_separate_true%d_tag%d",t,d),"",100,0,5000);
         m_hSvc.create1D(Form("decay_time_true_decayE_true%d_tag%d",t,d),"",100,0,5000);
+        m_hSvc.create1D(Form("mom_true_decayE_true%d_tag%d",t,d),"",100,0,100);
         m_hSvc.create1D(Form("min_time_diff_between_two_true_decayE_true%d_tag%d",t,d),"",100,0,2000);
         m_hSvc.create1D(Form("min_time_diff_between_two_true_decayE_exclude_early_true%d_tag%d",t,d),"",100,0,2000);
+        m_hSvc.create1D(Form("min_time_diff_between_two_true_decayE_include_early_true%d_tag%d",t,d),"",100,0,2000);
+        m_hSvc.createGraph(Form("min_decay_time_min_time_diff_true%d_tag%d",t,d),"");
       }
     }
 
@@ -277,6 +287,8 @@ void OscNtupleManager::CreateHist()
   if(process_mode=="subgev_multiring"){
     m_hSvc.create1D("distance_to_wall","",40,-200,1800);
     m_hSvc.create1D("true_distance_to_wall","",40,-200,1800);
+    m_hSvc.create1D("vertex_z","",20,-2000,2000);
+    m_hSvc.create1D("vertex_z_Dwall600_1000","",20,-2000,2000);
     for(int s=1;s<6;s++){
       int reso = 20*s;
       m_hSvc.create1D(Form("shift_true_distance_to_wall_reso%d",reso),"",40,-200,1800);
@@ -362,6 +374,10 @@ void OscNtupleManager::CreateHist()
             m_hSvc.create1D(Form("mass_pi0_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",125,0,1250);
             m_hSvc.create1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",125,0,1250);
             m_hSvc.create1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,1000);
+            m_hSvc.create1D(Form("total_distance_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",50,0,1250);
+            m_hSvc.create1D(Form("total_distance_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",50,0,1250);
+            m_hSvc.create1D(Form("mass_proton_reco_momcut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",125,0,1250);
+            m_hSvc.create1D(Form("mom_proton_reco_masscut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,1000);
             m_hSvc.create1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",125,0,1250);
             m_hSvc.createGraph(Form("mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"");
             m_hSvc.createGraph(Form("all_ring_mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"");
@@ -384,8 +400,8 @@ void OscNtupleManager::CreateHist()
               m_hSvc.create1D(Form("n_michel_electron_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",5,0,5);
               m_hSvc.create1D(Form("ntag_multiplicity_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",10,0,10);
               m_hSvc.create1D(Form("mass_pi0_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",125,0,1250);
-              m_hSvc.create1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",125,0,1250);
-              m_hSvc.create1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",100,0,1000);
+              m_hSvc.create1D(Form("mass_proton_reco_momcut_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",125,0,1250);
+              m_hSvc.create1D(Form("mom_proton_reco_masscut_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",100,0,1000);
               m_hSvc.create1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",125,0,1250);
               m_hSvc.createGraph(Form("mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"");
               m_hSvc.createGraph(Form("all_ring_mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"");
@@ -602,14 +618,38 @@ void OscNtupleManager::Process(int seed, int blossom )
   cout << "kFermiMotion=" << kFermiMotion << endl;
   cout << "kOutsideSR=" << kOutsideSR << endl;
   cout << "kSystNtag=" << kSystNtag << endl;
+  cout << "kEnergyScale=" << kEnergyScale << endl;
  
-
   TFile *f_fm;
   TH1 *h_fm=new TH1F();
   if(kFermiMotion){//fermi gas model
     f_fm = new TFile("make_hist/output/ratio_fermi_motion.root");
     h_fm = (TH1F*) f_fm->Get("ratio_fermi_motion");
     cout << "h_fm entries=" << h_fm->GetEntries() << endl;
+  }
+
+  float energy_scale = 0.021;
+  total_mass_low = 800;
+  total_mass_high = 1050;
+  total_mom_low = 100;
+  total_mom_high = 250;
+  pi_mass_low = 85;
+  pi_mass_high = 185;
+  if(kEnergyScale==0){//1 sigma down
+    total_mass_low = total_mass_low * (1 - energy_scale);
+    total_mass_high = total_mass_high * (1 - energy_scale);
+    total_mom_low = total_mom_low * (1 - energy_scale);
+    total_mom_high = total_mom_high * (1 - energy_scale);
+    pi_mass_low = pi_mass_low * (1 - energy_scale);
+    pi_mass_high = pi_mass_high * (1 - energy_scale);
+  }
+  if(kEnergyScale==2){//1 sigma up
+    total_mass_low = total_mass_low * (1 + energy_scale);
+    total_mass_high = total_mass_high * (1 + energy_scale);
+    total_mom_low = total_mom_low * (1 + energy_scale);
+    total_mom_high = total_mom_high * (1 + energy_scale);
+    pi_mass_low = pi_mass_low * (1 + energy_scale);
+    pi_mass_high = pi_mass_high * (1 + energy_scale);
   }
 
   for( int i = startEntry ; i < endEntry ; i ++ )
@@ -982,10 +1022,11 @@ void OscNtupleManager::Process_peee(){
   if(n_elike_angle==2) total_vec = e_cand[0] + e_cand[1];
   total_mass = total_vec.M();
   total_mom = total_vec.P();
-  if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
+  total_distance = sqrt(pow(total_mass-925,2)+pow(total_mom-125,2));
+  if(total_mass > total_mass_low && total_mass < total_mass_high && total_mom < total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
+  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
 
@@ -1041,10 +1082,10 @@ void OscNtupleManager::Process_pmumumu(){
   if(n_mulike_angle==2) total_vec = mu_cand[0] + mu_cand[1];
   total_mass = total_vec.M();
   total_mom = total_vec.P();
-  if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
+  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom<total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
+  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
 
@@ -1107,10 +1148,10 @@ void OscNtupleManager::Process_pemumu(){
   if(n_mulike_angle==1) total_vec = mu_cand[0] + e_cand;
   total_mass = total_vec.M();
   total_mom = total_vec.P();
-  if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
+  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom<total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
+  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
 
@@ -1172,16 +1213,16 @@ void OscNtupleManager::Process_pmuee(){
   total_mom = total_vec.P();
   closest_mass_pi0_reco = two_elike_vec.M();
   
-  if(nRing==3 && (closest_mass_pi0_reco<85 || closest_mass_pi0_reco>185) ) pass_cut[5][0]=true;
+  if(nRing==3 && (closest_mass_pi0_reco<pi_mass_low || closest_mass_pi0_reco>pi_mass_high) ) pass_cut[5][0]=true;
   if(nRing==2) pass_cut[5][0]=true;
 
   //pass_cut[5][0]=true;//no pi0 mass cut
 
 
-  if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
+  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom<total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
+  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
 
@@ -1272,6 +1313,8 @@ void OscNtupleManager::Process_subgev_multiring(){
   m_hSvc.h1D("distance_to_wall","","")->Fill(wall(0));
   m_hSvc.h1D("true_distance_to_wall","","")->Fill(wallv(0));
   m_hSvc.h1D("visible_energy","","")->Fill(evis(0));
+  m_hSvc.h1D("vertex_z","","")->Fill(pos(2),weight*osc_weight);
+  if(wall(0)>600 && wall(0)<1000) m_hSvc.h1D("vertex_z_Dwall600_1000","","")->Fill(pos(2));
   float vertex_r_ring = sqrt(pos(0)*pos(0)+pos(1)*pos(1)+pos(2)*pos(2));
   float vertex_r_true = sqrt(posv(0)*posv(0)+posv(1)*posv(1)+posv(2)*posv(2));
   float diff_vertex_x = posv(0) - pos(0);
@@ -1380,6 +1423,7 @@ void OscNtupleManager::ZeroStructure()
   closest_mass_pi0_reco=0.;
   total_mass=0.;
   total_mom=0.;
+  total_distance=0.;
   all_ring_mass=0.;
   all_ring_mom=0.;
 
@@ -1416,10 +1460,10 @@ void OscNtupleManager::ZeroStructure()
     }
   }
   for(int e=0;e<11;e++) 
-    for(int i=0;i<10;i++) 
+    for(int i=0;i<100;i++) 
       n_tagged_neutron_exp[e][i] = 0;
   TRandom *generator = new TRandom();
-  for(int i=0;i<10;i++){
+  for(int i=0;i<kSystNtag;i++){//# of iteration
     generator->SetSeed(i);
     for(int e=0;e<11;e++){
       float efficiency = 0.1*e;
@@ -1467,8 +1511,6 @@ bool OscNtupleManager::SetEventType( std::string mode , int &type)
   return false; //program flow should never make it here
 
 }
-
-
 
 bool OscNtupleManager::SetEventTypeFC( int &type)
 {
@@ -2262,7 +2304,7 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d",r,mu,p),"","")->Fill(c,weight*osc_weight);
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d_fp%d",r,mu,p,is_free_proton),"","")->Fill(c,weight*osc_weight);
   }
-  for(int i=0;i<10;i++){
+  for(int i=0;i<kSystNtag;i++){
     for(int e=0;e<11;e++){
       int eff = 10*e;
       m_hSvc.h1D(Form("n_tagged_neutron_exp_eff%d_cut%d_nring%d_mulike%d_michel%d",eff,c,r,mu,p),"","")->Fill(n_tagged_neutron_exp[e][i],weight*osc_weight);
@@ -2297,7 +2339,11 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
   m_hSvc.h1D(Form("mass_pi0_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
   if(process_input!="fcdt" || total_mass<800 || total_mass>1050){//for blind analysis
     m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mass,weight*osc_weight);
+    m_hSvc.h1D(Form("total_distance_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_distance,weight*osc_weight);
+    if(nNeutron==0) m_hSvc.h1D(Form("total_distance_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_distance,weight*osc_weight);
+    if(total_mom<250) m_hSvc.h1D(Form("mass_proton_reco_momcut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mass,weight*osc_weight);
     m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mass,weight*osc_weight);
+    if(total_mom<250) m_hSvc.h1D(Form("mass_proton_reco_momcut_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mass,weight*osc_weight);
     m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
     m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
     m_hSvc.h1D(Form("mass_all_ring_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_ring_mass,weight*osc_weight);
@@ -2305,7 +2351,9 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
   }
   if(process_input!="fcdt" || total_mom>250){//for blind analysis
     m_hSvc.h1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
+    if(total_mass>800 && total_mass<1050) m_hSvc.h1D(Form("mom_proton_reco_masscut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
     m_hSvc.h1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mom,weight*osc_weight);
+    if(total_mass>800 && total_mass<1050) m_hSvc.h1D(Form("mom_proton_reco_masscut_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mom,weight*osc_weight);
     m_hSvc.h1D(Form("mom_all_ring_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_ring_mom,weight*osc_weight);
     m_hSvc.h1D(Form("mom_all_mulike_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_mulike_mom,weight*osc_weight);
   }
@@ -2524,9 +2572,14 @@ void OscNtupleManager::MakeValidationPlot(){
 
   //decay electron
   for (int d=0;d<nmue(0);d++){
-    //cout << "decayE # is " << d << endl;
-    //cout << "etype/ehit/egood/etime=" << etype(d) << "/" << ehit(d) 
-      //<< "/" << egood(d) << "/" << etime(d) <<endl; 
+    m_hSvc.h1D(Form("etime_etype%d",etype(d)),"","")->Fill(etime(d));
+    m_hSvc.h1D(Form("egood_etype%d",etype(d)),"","")->Fill(egood(d));
+    m_hSvc.h1D(Form("ehit_etype%d",etype(d)),"","")->Fill(ehit(d));
+    if(kDebugMode){
+      cout << "decayE # is " << d << endl;
+      cout << "etype/ehit/egood/etime=" << etype(d) << "/" << ehit(d) 
+        << "/" << egood(d) << "/" << etime(d) <<endl; 
+    }
   }
   float min_decay_time=999999,min_time_diff=999999;
   for(int s=0;s<nscndprt(0);s++){
@@ -2541,6 +2594,7 @@ void OscNtupleManager::MakeValidationPlot(){
       cout << "pid/mom/dcy_time=" << iprtscnd(s) << "/" << mom << "/" << tscnd(s) << endl;
     }
     m_hSvc.h1D(Form("decay_time_true_decayE_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(tscnd(s));
+    m_hSvc.h1D(Form("mom_true_decayE_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(mom);
     if(tscnd(s)<min_decay_time) min_decay_time = tscnd(s);
     for(int u=0;u<s;u++){
       float mom2 = sqrt(pow(pscnd(u,0),2)+pow(pscnd(u,1),2)+pow(pscnd(u,2),2));
@@ -2559,13 +2613,18 @@ void OscNtupleManager::MakeValidationPlot(){
   m_hSvc.h1D("min_decay_time_true_decayE","","")->Fill(min_decay_time);
   m_hSvc.h1D("min_time_diff_between_two_true_decayE","","")->Fill(min_time_diff);
   m_hSvc.h1D(Form("min_decay_time_true_decayE_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_decay_time);
+  if(min_time_diff<200) m_hSvc.h1D(Form("min_decay_time_true_decayE_exclude_separate_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_decay_time);
+  else m_hSvc.h1D(Form("min_decay_time_true_decayE_include_separate_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_decay_time);
   m_hSvc.h1D(Form("min_time_diff_between_two_true_decayE_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_time_diff);
   if(min_decay_time>200) m_hSvc.h1D(Form("min_time_diff_between_two_true_decayE_exclude_early_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_time_diff);
+  else m_hSvc.h1D(Form("min_time_diff_between_two_true_decayE_include_early_true%d_tag%d",n_true_decayE,nDecayE),"","")->Fill(min_time_diff);
+  m_hSvc.graph(Form("min_decay_time_min_time_diff_true%d_tag%d",n_true_decayE,nDecayE),"","")->SetPoint(graph_point,min_decay_time,min_time_diff);
   if(kDebugMode){
     cout << "decayE true/tag=" << n_true_decayE << "/" << nDecayE << endl;
     cout << "min decay time=" << min_decay_time << endl;
     cout << "min time diff=" << min_time_diff << endl;
   }
+  graph_point++;
 
 }
 

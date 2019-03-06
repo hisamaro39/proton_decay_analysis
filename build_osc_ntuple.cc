@@ -86,6 +86,8 @@ int main( int argc, char * argv[] )
    MasterCard->GetKey( "outside_sr", kOutsideSR);
    int kSystNtag = -1;
    MasterCard->GetKey( "syst_ntag", kSystNtag);
+   int kEnergyScale = -1;
+   MasterCard->GetKey( "energy_scale", kEnergyScale);
    int kMakeNtuple = -1;
    MasterCard->GetKey( "make_ntuple", kMakeNtuple);
    std::string output_file,output_ntuple;
@@ -100,8 +102,11 @@ int main( int argc, char * argv[] )
    if(kCorrelatedDecay==2) output_file += "_cdup";
    if(kFermiMotion) output_file += "_fermigas";
    if(kOutsideSR) output_file += "_outsideSR";
-   if(kSystNtag) output_file += "_syst_ntag";
-   std::stringstream dtw;
+   stringstream iteration;
+   iteration << kSystNtag;
+   if(kSystNtag) output_file += "_syst_ntag_it" + iteration.str();
+   if(kEnergyScale==0) output_file += "_energydown";
+   if(kEnergyScale==2) output_file += "_energyup";
    if(!kAllHist) output_file += "_validation";
    if(kCheckBkg) output_file += "_check_bkg";
    if(use_batch) output_file += "." + this_cpu_str + ".root";
@@ -111,6 +116,7 @@ int main( int argc, char * argv[] )
    //if(kMakeNtuple) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_ntuple.root";
    //else output_ntuple = "output/temp.root";
    //}
+
 
    std::cout << "output file is " << output_file << std::endl;
    std::cout << "output ntuple is " << output_ntuple << std::endl;
@@ -173,6 +179,8 @@ int main( int argc, char * argv[] )
    om->FermiMotion(kFermiMotion );
    om->OutsideSR(kOutsideSR );
    om->SystNtag(kSystNtag );
+   om->EnergyScale(kEnergyScale );
+
 
    // automatically add suffix to  
    // specified output file string in case 

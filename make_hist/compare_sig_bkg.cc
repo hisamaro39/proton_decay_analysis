@@ -34,10 +34,10 @@ void compare_sig_bkg(){
   //hist_name.push_back("n_michel_electron_cut3");
   //dology.push_back(0);dorebin.push_back(0);combine.push_back(0);
 
-  hist_name.push_back("mom_proton_reco_cut5");
+  hist_name.push_back("mom_proton_reco_masscut_cut5");
   dology.push_back(0);dorebin.push_back(5);
 
-  hist_name.push_back("mass_proton_reco_cut5");
+  hist_name.push_back("mass_proton_reco_momcut_cut5");
   dology.push_back(0);dorebin.push_back(5);
 
   //hist_name.push_back("ntag_multiplicity_cut4");
@@ -48,7 +48,7 @@ void compare_sig_bkg(){
 
   TH1 *first_hist;
   TFile *input_bkg = TFile::Open(Form("../output/fcmc.%s.mode_%s.root",sk_period.c_str(),type[mode_id].c_str()));//bkg
-  TFile *input_sig = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[mode_id].c_str(),sk_period.c_str(),type[mode_id].c_str()));//sig
+  TFile *input_sig = TFile::Open(Form("../output/%s_miura.%s.mode_%s_miura.root",type[mode_id].c_str(),sk_period.c_str(),type[mode_id].c_str()));//sig
 
   //calculate signal scale
   TH1* h_sig_cutflow = (TH1*) input_sig->Get(Form("cut_flow_nring%d_mulike%d_michel%d",nring,mulike,michel));
@@ -74,14 +74,14 @@ void compare_sig_bkg(){
       h_sig_all->Scale(signal_scale);
       h_sig_free->Scale(signal_scale);
       h_bkg->SetLineWidth(2);
-      h_bkg->Draw("hist E0");
       h_sig_all->SetLineColor(2);
       h_sig_all->SetLineWidth(2);
       h_sig_all->SetLineStyle(2);
-      h_sig_all->Draw("hist E0 same");
       h_sig_free->SetLineColor(4);
       h_sig_free->SetLineWidth(2);
       h_sig_free->SetLineStyle(2);
+      h_sig_all->Draw("hist E0");
+      h_bkg->Draw("hist E0 same");
       h_sig_free->Draw("hist E0 same");
 
     stringstream str_mulike,str_michel,str_nring,str_lifetime;

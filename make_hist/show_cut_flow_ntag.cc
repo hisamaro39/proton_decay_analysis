@@ -1,14 +1,14 @@
 #include <vector>
 void show_cut_flow_ntag(){
-  string type[] = {"p_epi","p_mupi","p_eee_def","p_eee_miura","p_eee_take",//4
+  string type[] = {"p_epi","p_mupi","p_eee","p_eee_miura","p_eee_take",//4
     "p_mumumu","p_mumumu_miura","p_mumumu_take","p_emumu","p_emumu_miura",//9
     "p_emumu_take","p_mumue","p_muee_def","p_muee_miura","p_muee_take",//14
     "p_eemu","p_eee","p_muee","fcmc","fcdt"};
   bool pi0cut = 0;
   //input & mode
-  int input_type=11;
-  int mode_type=11;
-  int period=3;
+  int input_type=13;
+  int mode_type=13;
+  int period=4;
   int fp= (input_type<18)? 1 : 0;
   //cut pattern
   int nring=1;//# of ring

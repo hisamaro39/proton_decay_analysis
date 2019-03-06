@@ -113,8 +113,9 @@ class OscNtupleManager
     void    MakeNtuple( bool x )  { kMakeNtuple  = x ; }
     void    FermiMotion( bool x ) {kFermiMotion = x; }
     void    OutsideSR( bool x ) {kOutsideSR = x; }
-    void    SystNtag( bool x ) {kSystNtag = x; }
+    void    SystNtag( int x ) {kSystNtag = x; }
     void    CorrelatedDecay( int x ) {kCorrelatedDecay = x; }
+    void    EnergyScale( int x ) {kEnergyScale = x; }
 
     void FillNtuple();
     void MakeNtuple();
@@ -148,13 +149,13 @@ class OscNtupleManager
     int lowerSR_without_ntag[3][2][5];
     int higherSR_without_ntag[3][2][5];
     int total;
-    float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom;
+    float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom,total_distance;
     float weight,mc_weight,osc_weight;
     int sample_num,event_num;
     int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type,nNeutron,true_mode;
     int n_elike_pattern,n_elike_angle,n_mulike_pattern,n_mulike_angle;
     bool is_free_proton;
-    int n_free_proton,n_true_neutron,n_tagged_neutron_exp[11][10],n_true_decayE;
+    int n_free_proton,n_true_neutron,n_tagged_neutron_exp[11][100],n_true_decayE;
     float expected_3ring_events_electron,expected_3ring_events_muon;
     //count p->eee event type
     int n_eee,n_eeeg,n_eeep,n_eeen,n_eeegp,n_eeenp,n_eeegn;
@@ -162,6 +163,7 @@ class OscNtupleManager
     int n_noint,n_abs,n_scat,n_charge,n_prod,n_match_e,n_match_1gamma,n_match_2gamma,n_match_0gamma;
     //count p->mupi event type
     int n_match_mu;
+    float total_mass_high,total_mass_low,total_mom_high,total_mom_low,pi_mass_low,pi_mass_high;
     
   private:
 
@@ -375,8 +377,9 @@ class OscNtupleManager
   bool kMakeNtuple;
   bool kFermiMotion;
   bool kOutsideSR;
-  bool kSystNtag;
+  int kSystNtag;
   int kCorrelatedDecay;
+  int kEnergyScale;
 
   //Tau_NN related
   TypeWrapper<Double_t> NN_output;

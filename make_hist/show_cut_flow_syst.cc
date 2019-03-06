@@ -1,12 +1,12 @@
 void show_cut_flow_syst(){
-  string type[] = {"p_epi","p_mupi","p_eee_def","p_eee_miura","p_mumumu_def",//4
+  string type[] = {"p_epi","p_mupi","p_eee","p_eee_miura","p_mumumu_def",//4
     "p_mumumu_miura","p_emumu_def","p_emumu_miura","p_mumue","p_muee_def",//9
     "p_muee_miura","p_eemu","fcmc","fcdt"};
   //input & mode
-  int input_type=11;
-  int mode_type=11;
-  int period=3;
-  string syst = "fermigas";
+  int input_type=10;
+  int mode_type=10;
+  int period=4;
+  string syst = "energyup";
   int fp= (input_type<12)? 1 : 0;
   //cut pattern
   int nring=1;//# of ring

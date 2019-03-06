@@ -12,9 +12,43 @@ void make_compare_plot_th1(){
   vector<string> hist;
   vector<vector<string>> hist_set;
   vector<vector<int>> input_type_set,mode_type_set;
-  vector<int> scale,dology,input_type,add_ratio,mode_type,use_validation;
-  hist.clear();hist_set.clear();scale.clear();dology.clear();input_type.clear();
+  vector<int> scale,dology,input_type,add_ratio,mode_type,use_validation,rebin;
+  hist.clear();hist_set.clear();scale.clear();dology.clear();input_type.clear();rebin.clear();
   input_type_set.clear();add_ratio.clear();mode_type_set.clear();mode_type.clear();use_validation.clear();
+
+  hist.push_back("min_decay_time_true_decayE_true3_tag3");
+  hist.push_back("min_decay_time_true_decayE_true3_tag2");
+  input_type.push_back(7);input_type.push_back(7);
+  mode_type.push_back(7);mode_type.push_back(7);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(2);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  hist.push_back("min_time_diff_between_two_true_decayE_true3_tag3");
+  hist.push_back("min_time_diff_between_two_true_decayE_true3_tag2");
+  input_type.push_back(7);input_type.push_back(7);
+  mode_type.push_back(7);mode_type.push_back(7);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(2);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  /*hist.push_back("min_decay_time_true_decayE_true2_tag2");
+  hist.push_back("min_decay_time_true_decayE_true2_tag1");
+  hist.push_back("min_decay_time_true_decayE_exclude_separate_true2_tag1");
+  input_type.push_back(10);input_type.push_back(10);input_type.push_back(10);
+  mode_type.push_back(10);mode_type.push_back(10);mode_type.push_back(10);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(2);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();*/
+
+  hist.push_back("min_time_diff_between_two_true_decayE_true3_tag3");
+  hist.push_back("min_time_diff_between_two_true_decayE_true3_tag2");
+  hist.push_back("min_time_diff_between_two_true_decayE_exclude_early_true3_tag2");
+  input_type.push_back(7);input_type.push_back(7);input_type.push_back(7);
+  mode_type.push_back(7);mode_type.push_back(7);mode_type.push_back(7);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(2);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
 
   /*hist.push_back("nRing_cut1_nring0_mulike0_michel0");
   hist.push_back("nRing_cut1_nring0_mulike0_michel0");
@@ -25,7 +59,7 @@ void make_compare_plot_th1(){
   mode_type.push_back(2);mode_type.push_back(4);mode_type.push_back(13);mode_type.push_back(10);mode_type.push_back(7);
   add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
-  mode_type_set.push_back(mode_type);mode_type.clear();*/
+  mode_type_set.push_back(mode_type);mode_type.clear();
 
   hist.push_back("distance_to_wall");
   hist.push_back("true_distance_to_wall");
@@ -37,7 +71,7 @@ void make_compare_plot_th1(){
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
-  /*hist.push_back("distance_to_wall");
+  hist.push_back("distance_to_wall");
   hist.push_back("true_distance_to_wall");
   input_type.push_back(14);input_type.push_back(14);
   mode_type.push_back(18);mode_type.push_back(18);
@@ -288,6 +322,7 @@ void make_compare_plot_th1(){
       if(use_validation[s]) input = TFile::Open(Form("../output/%s.%s.mode_%s_validation.root",type[input_type_set[s].at(ss)].c_str(),period.c_str(),type[mode_type_set[s].at(ss)].c_str()));
       else input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[input_type_set[s].at(ss)].c_str(),period.c_str(),type[mode_type_set[s].at(ss)].c_str()));
       TH1* temp_hist = (TH1*) input->Get(hist_set[s].at(ss).c_str());
+      temp_hist->Rebin(rebin[s]);
       if(temp_hist->GetMaximum() > evtmax) evtmax = temp_hist->GetMaximum();
       if(temp_hist->GetEntries() && temp_hist->GetMaximum()/temp_hist->Integral() > evtmax_scale){ 
         evtmax_scale = temp_hist->GetMaximum()/temp_hist->Integral();
@@ -324,6 +359,7 @@ void make_compare_plot_th1(){
       if(use_validation[s]) input = TFile::Open(Form("../output/%s.%s.mode_%s_validation.root",type[input_type_set[s].at(h)].c_str(),period.c_str(),type[mode_type_set[s].at(h)].c_str()));
       else input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[input_type_set[s].at(h)].c_str(),period.c_str(),type[mode_type_set[s].at(h)].c_str()));
       TH1* this_hist = (TH1*) input->Get(hist_set[s].at(h).c_str());
+      this_hist->Rebin(rebin[s]);
       if(scale[s] && this_hist->GetEntries()) this_hist->Scale(1./this_hist->Integral());
       this_hist->SetLineWidth(2);
       if(add_ratio[s]) c->cd(1);

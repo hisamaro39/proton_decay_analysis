@@ -1,5 +1,5 @@
 void test_poisson(){
-  float exp_bkg = 0.20;
+  float exp_bkg = 0.03;
   cout << "expected background is " << exp_bkg << endl;
   
   TGraph *g = new TGraph();

@@ -1,6 +1,11 @@
 #include <vector>
 void syst_ntag_3(){
-  string mode = "p_eee";
+  string mode = "p_mumumu";
+  int iteration = 50;
+  int cut = 7;
+  int nring=0;
+  int mulike=0;
+  int michel=3;
 
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
@@ -8,8 +13,8 @@ void syst_ntag_3(){
   cout << "mode=" << mode << endl;
   TH1 *first_hist;
   TFile *input_mc = TFile::Open(Form("../output/fcmc.sk4.mode_%s.root",mode.c_str()));//mc
-  TH1* h_n_neutron_true = (TH1*) input_mc->Get("n_true_neutron_cut5_nring1_mulike0_michel0");
-  TH1* h_n_neutron_tag = (TH1*) input_mc->Get("ntag_multiplicity_cut5_nring1_mulike0_michel0");
+  TH1* h_n_neutron_true = (TH1*) input_mc->Get(Form("n_true_neutron_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
+  TH1* h_n_neutron_tag = (TH1*) input_mc->Get(Form("ntag_multiplicity_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
   //TCanvas *c1 = new TCanvas("c1","",800,600);
   h_n_neutron_tag->SetLineWidth(2);
   h_n_neutron_true->SetLineWidth(2);
@@ -34,8 +39,8 @@ void syst_ntag_3(){
   }
   //cout << "no ntag events detect/calc=" << n_no_tagged << "/" << n_no_tagged_calc << endl;
 
-  TFile *input = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag.root",mode.c_str()));//mc
-  TH1* h_n_neutron_true_final = (TH1*) input_mc->Get("n_true_neutron_cut7_nring1_mulike0_michel0");
+  TFile *input = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it%d.root",mode.c_str(),iteration));//mc
+  TH1* h_n_neutron_true_final = (TH1*) input_mc->Get(Form("n_true_neutron_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
   float total_events = h_n_neutron_true_final->Integral();
   float total_err2 = 0.;
   for(int b=1;b<=h_n_neutron_true_final->GetNbinsX();b++)
@@ -48,7 +53,7 @@ void syst_ntag_3(){
   for(int e=0;e<11;e++){
     int eff = 10*e;
     cout << "assumed efficiency is " << eff << "%" << endl;
-    TH1* h_n_neutron_exp = (TH1*) input->Get(Form("n_tagged_neutron_exp_eff%d_cut7_nring1_mulike0_michel0",eff));
+    TH1* h_n_neutron_exp = (TH1*) input->Get(Form("n_tagged_neutron_exp_eff%d_cut%d_nring%d_mulike%d_michel%d",eff,cut,nring,mulike,michel));
     float total_events = h_n_neutron_exp->Integral();
     float sum_2err = 0;
     for(int b=0;b<h_n_neutron_exp->GetNbinsX();b++) sum_2err += pow(h_n_neutron_exp->GetBinError(b+1),2);
@@ -70,7 +75,7 @@ void syst_ntag_3(){
   TF1 *func = new TF1("func","[0]+exp([1]*x+[2])",0,1);
   func->SetLineColor(2);
   graph->Fit(func);
-  c2->SaveAs("hist/ntag_eff_bkg_frac_cut7_p_eee_sk4.pdf");
+  c2->SaveAs(Form("hist/ntag_eff_bkg_frac_cut7_%s_sk4.pdf",mode.c_str()));
   float par0 = func->GetParameter(0);
   float par1 = func->GetParameter(1);
   float par2 = func->GetParameter(2);
@@ -85,63 +90,26 @@ void syst_ntag_3(){
   float diff_down = (frac_nom - frac_down)/frac_nom; 
   cout << "difference up/down=" << diff_up << "/" << diff_down << endl;
 
-  //TCanvas *c3 = new TCanvas("c3","",800,600);
-  TH1* hist_10 = (TH1*) input->Get("n_tagged_neutron_exp_eff10_cut5_nring1_mulike0_michel0");
-  TH1* hist_20 = (TH1*) input->Get("n_tagged_neutron_exp_eff20_cut5_nring1_mulike0_michel0");
-  TH1* hist_30 = (TH1*) input->Get("n_tagged_neutron_exp_eff30_cut5_nring1_mulike0_michel0");
-  hist_10->SetLineWidth(2);
-  hist_20->SetLineWidth(2);
-  hist_30->SetLineWidth(2);
-  hist_10->SetLineColor(2);
-  hist_20->SetLineColor(3);
-  hist_30->SetLineColor(4);
-  //h_n_neutron_tag->GetYaxis()->SetRangeUser(0,400);
-  //h_n_neutron_tag->Draw();
-  //hist_10->Draw("same");
-  //hist_20->Draw("same");
-  //hist_30->Draw("same");
-  //c3->SaveAs("hist/compare_exp_ntag_real_10_20_30_cut5_p_eee_sk4.pdf");*/
-
-  /*int no_cap_n = hist_low->GetBinContent(1) + hist_high->GetBinContent(1);
-  int cap_n = hist_low->GetBinContent(2) + hist_high->GetBinContent(2);
-  cout << "# of events no_captured/captured=" << no_cap_n << "/" << cap_n << endl;
-
-  TGraphErrors *graph = new TGraphErrors();
-  TRandom *generator = new TRandom();
-  int n_iteration = 10;
-  for(int p=0;p<11;p++){
-    float ntag_eff = 0.1*p;
-    cout << "assumed ntag efficiency = " << ntag_eff << endl;
-    int tagged_cap_n=0;
-    for(int i=0;i<n_iteration;i++){
-      cout << "iteration:" << i << endl;
-      generator->SetSeed(i);
-      for(int n=0;n<cap_n;n++){
-        float rnd = generator->Rndm();
-        cout << "rnd=" << rnd << endl;
-        if(rnd<ntag_eff) {
-          tagged_cap_n++;
-          cout << "tag!!" << endl;
-        }
-      }
-      cout << "tagged_cap_n=" << tagged_cap_n << endl;
-    }
-    int total_cap_n = cap_n * n_iteration;
-    cout << "cap_n/tagged=" << total_cap_n << "/" << tagged_cap_n << endl;
-    float frac = 1.*tagged_cap_n / total_cap_n;
-    float frac_err = (tagged_cap_n)? frac*sqrt(1./total_cap_n + 1./tagged_cap_n) : frac/sqrt(total_cap_n);
-    cout << "efficiency is " << frac << " +- " << frac_err << endl;
-    int total_initial = n_iteration * ( no_cap_n + cap_n );
-    int total_remained = total_initial - tagged_cap_n;
-    float total_frac = 1.*total_remained/total_initial;
-    float total_frac_err = total_frac*sqrt(1./total_remained + 1./total_initial);
-    cout << "total fraction is " << total_frac << " +- " << total_frac_err << endl;
-    graph->SetPoint(p,ntag_eff,total_frac);
-    graph->SetPointError(p,0,total_frac_err);
-  }
-  graph->SetMarkerStyle(8);
-  graph->Draw("ap");
-  */
+  TFile *input_it10 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it10.root",mode.c_str()));//mc
+  TFile *input_it30 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it30.root",mode.c_str()));//mc
+  TFile *input_it50 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it50.root",mode.c_str()));//mc
+  TCanvas *c3 = new TCanvas("c3","",800,600);
+  TH1* hist_eff20_it10 = (TH1*) input_it10->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
+  TH1* hist_eff20_it30 = (TH1*) input_it30->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
+  TH1* hist_eff20_it50 = (TH1*) input_it50->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
+  hist_eff20_it10->SetLineWidth(2);
+  hist_eff20_it30->SetLineWidth(2);
+  hist_eff20_it50->SetLineWidth(2);
+  hist_eff20_it10->SetLineColor(2);
+  hist_eff20_it30->SetLineColor(3);
+  hist_eff20_it50->SetLineColor(2);
+  h_n_neutron_tag->Draw("hist E0");
+  hist_eff20_it10->Scale(1./10);
+  hist_eff20_it30->Scale(1./30);
+  hist_eff20_it50->Scale(1./50);
+  //hist_eff20_it10->Draw("hist same");
+  //hist_eff20_it30->Draw("hist same");
+  hist_eff20_it50->Draw("hist same");
+  c3->SaveAs(Form("hist/compare_ntag_reco_20_cut%d_%s_sk4.pdf",cut,mode.c_str()));
 
 }
-
