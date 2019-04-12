@@ -16,6 +16,31 @@ void make_compare_plot_th1(){
   hist.clear();hist_set.clear();scale.clear();dology.clear();input_type.clear();rebin.clear();
   input_type_set.clear();add_ratio.clear();mode_type_set.clear();mode_type.clear();use_validation.clear();
 
+  hist.push_back("total_true_mass_fp1");
+  hist.push_back("total_true_mass_shift_fp1");
+  input_type.push_back(4);input_type.push_back(4);
+  mode_type.push_back(4);mode_type.push_back(4);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  hist.push_back("total_true_mom_fp0");
+  hist.push_back("total_true_mom_shift_fp0");
+  input_type.push_back(4);input_type.push_back(4);
+  mode_type.push_back(4);mode_type.push_back(4);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  /*hist.push_back("true_min_mom_lepton");
+  hist.push_back("true_mid_mom_lepton");
+  hist.push_back("true_max_mom_lepton");
+  input_type.push_back(4);input_type.push_back(4);input_type.push_back(4);
+  mode_type.push_back(4);mode_type.push_back(4);mode_type.push_back(4);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
   hist.push_back("min_decay_time_true_decayE_true3_tag3");
   hist.push_back("min_decay_time_true_decayE_true3_tag2");
   input_type.push_back(7);input_type.push_back(7);
@@ -32,14 +57,14 @@ void make_compare_plot_th1(){
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
-  /*hist.push_back("min_decay_time_true_decayE_true2_tag2");
+  hist.push_back("min_decay_time_true_decayE_true2_tag2");
   hist.push_back("min_decay_time_true_decayE_true2_tag1");
   hist.push_back("min_decay_time_true_decayE_exclude_separate_true2_tag1");
   input_type.push_back(10);input_type.push_back(10);input_type.push_back(10);
   mode_type.push_back(10);mode_type.push_back(10);mode_type.push_back(10);
   add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(1);rebin.push_back(2);
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
-  mode_type_set.push_back(mode_type);mode_type.clear();*/
+  mode_type_set.push_back(mode_type);mode_type.clear();
 
   hist.push_back("min_time_diff_between_two_true_decayE_true3_tag3");
   hist.push_back("min_time_diff_between_two_true_decayE_true3_tag2");
@@ -50,14 +75,14 @@ void make_compare_plot_th1(){
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
-  /*hist.push_back("nRing_cut1_nring0_mulike0_michel0");
+  hist.push_back("nRing_cut1_nring0_mulike0_michel0");
   hist.push_back("nRing_cut1_nring0_mulike0_michel0");
   hist.push_back("nRing_cut1_nring0_mulike0_michel0");
   hist.push_back("nRing_cut1_nring0_mulike0_michel0");
   hist.push_back("nRing_cut1_nring0_mulike0_michel0");
   input_type.push_back(14);input_type.push_back(4);input_type.push_back(13);input_type.push_back(10);input_type.push_back(7);
   mode_type.push_back(2);mode_type.push_back(4);mode_type.push_back(13);mode_type.push_back(10);mode_type.push_back(7);
-  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);
+  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);rebin.push_back(1);
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
@@ -380,7 +405,8 @@ void make_compare_plot_th1(){
       }
       else{
         this_hist->SetLineColor(h+1);
-        if(h==4) this_hist->SetLineColor(h+2);
+        if(h==2) this_hist->SetLineColor(kGreen+2);
+        if(h==4) this_hist->SetLineColor(6);
         this_hist->Draw("same hist E0");
         TH1 *ratio_hist = (TH1*) this_hist->Clone("ratio_plot");
         ratio_hist->Divide(first_hist);

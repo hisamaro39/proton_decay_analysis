@@ -40,7 +40,6 @@ int main( int argc, char * argv[] )
       std::cout << std::endl;
    }
 
-
    std::string sk_era ( argv[1] );  // which detector geometry
    std::string input   ( argv[2] );  // fcdt, pcdt, fcmc, pcmc, ummc, 
    std::string mode   ( argv[3] );  // fcdt, pcdt, fcmc, pcmc, ummc, 
@@ -52,6 +51,7 @@ int main( int argc, char * argv[] )
    int seed;                        // where in the list of input files to start
    int blossom;                     // where to stop
    int skgen = -1;                  // sk generation {1,...4,...woa}
+
 
    if( sk_era.find("1") != std::string::npos ) skgen = 1; 
    if( sk_era.find("2") != std::string::npos ) skgen = 2; 
@@ -88,6 +88,10 @@ int main( int argc, char * argv[] )
    MasterCard->GetKey( "syst_ntag", kSystNtag);
    int kEnergyScale = -1;
    MasterCard->GetKey( "energy_scale", kEnergyScale);
+   int kNonUni = -1;
+   MasterCard->GetKey( "non_uniformity", kNonUni);
+   int kPID = -1;
+   MasterCard->GetKey( "pid", kPID);
    int kMakeNtuple = -1;
    MasterCard->GetKey( "make_ntuple", kMakeNtuple);
    std::string output_file,output_ntuple;
@@ -107,15 +111,17 @@ int main( int argc, char * argv[] )
    if(kSystNtag) output_file += "_syst_ntag_it" + iteration.str();
    if(kEnergyScale==0) output_file += "_energydown";
    if(kEnergyScale==2) output_file += "_energyup";
+   if(kNonUni==0) output_file += "_nonunidown";
+   if(kNonUni==2) output_file += "_nonuniup";
+   if(kPID==0) output_file += "_piddown";
+   if(kPID==2) output_file += "_pidup";
    if(!kAllHist) output_file += "_validation";
    if(kCheckBkg) output_file += "_check_bkg";
    if(use_batch) output_file += "." + this_cpu_str + ".root";
    else output_file += ".root";
    if(kDebugMode || kMakeNtuple) output_file = "output/temp.root";
-   output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
-   //if(kMakeNtuple) output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_ntuple.root";
-   //else output_ntuple = "output/temp.root";
-   //}
+   if(use_batch) output_ntuple = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "_tree." + this_cpu_str + ".root";
+   else output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
 
 
    std::cout << "output file is " << output_file << std::endl;
@@ -180,6 +186,8 @@ int main( int argc, char * argv[] )
    om->OutsideSR(kOutsideSR );
    om->SystNtag(kSystNtag );
    om->EnergyScale(kEnergyScale );
+   om->NonUni(kNonUni );
+   om->PID(kPID );
 
 
    // automatically add suffix to  

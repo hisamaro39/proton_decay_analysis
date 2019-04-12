@@ -6,14 +6,14 @@ void show_cut_flow_ntag(){
     "p_eemu","p_eee","p_muee","fcmc","fcdt"};
   bool pi0cut = 0;
   //input & mode
-  int input_type=13;
-  int mode_type=13;
+  int input_type=18;
+  int mode_type=2;
   int period=4;
   int fp= (input_type<18)? 1 : 0;
   //cut pattern
   int nring=1;//# of ring
   int nmulike=0;//# of mulike ring
-  int nmichel=1;//# of michel electron
+  int nmichel=0;//# of michel electron
 
   TH1 *this_hist,*this_hist_free;
   TFile *input;

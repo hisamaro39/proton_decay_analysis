@@ -51,11 +51,23 @@ void make_single_plot_tgraph_sr(){
   e3->SetLineWidth(2);
   e3->SetLineStyle(2);
   e3->Draw();
+  TEllipse *e4 = new TEllipse(925*1.021, 125*1.021, 125, 125);
+  e4->SetFillStyle(0);
+  e4->SetLineColor(4);
+  e4->SetLineWidth(2);
+  //e4->SetLineStyle(2);
+  e4->Draw();
+  TEllipse *e5 = new TEllipse(925*0.979, 125*0.979, 125, 125);
+  e5->SetFillStyle(0);
+  e5->SetLineColor(6);
+  e5->SetLineWidth(2);
+  //e5->SetLineStyle(2);
+  e5->Draw();
   graph_all->Draw("p");
   graph_sr_low->SetMarkerStyle(8);
   graph_sr_low->Draw("p");
   graph_sr_high->SetMarkerStyle(8);
   graph_sr_high->Draw("p");
-  c->SaveAs(Form("hist/single_mass_mom_proton_input_%s_mode_%s.pdf",type[input_type].c_str(),type[mode_type].c_str()));
+  //c->SaveAs(Form("hist/single_mass_mom_proton_input_%s_mode_%s.pdf",type[input_type].c_str(),type[mode_type].c_str()));
 
 }

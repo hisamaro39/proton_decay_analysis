@@ -116,6 +116,8 @@ class OscNtupleManager
     void    SystNtag( int x ) {kSystNtag = x; }
     void    CorrelatedDecay( int x ) {kCorrelatedDecay = x; }
     void    EnergyScale( int x ) {kEnergyScale = x; }
+    void    NonUni( int x ) {kNonUni = x; }
+    void    PID( int x ) {kPID = x; }
 
     void FillNtuple();
     void MakeNtuple();
@@ -149,11 +151,12 @@ class OscNtupleManager
     int lowerSR_without_ntag[3][2][5];
     int higherSR_without_ntag[3][2][5];
     int total;
-    float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom,total_distance;
+    float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom,total_distance,total_distance_up,total_distance_down,pid_thr;
     float weight,mc_weight,osc_weight;
     int sample_num,event_num;
     int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type,nNeutron,true_mode;
     int n_elike_pattern,n_elike_angle,n_mulike_pattern,n_mulike_angle;
+    int min_ring_id,mid_ring_id,max_ring_id;
     bool is_free_proton;
     int n_free_proton,n_true_neutron,n_tagged_neutron_exp[11][100],n_true_decayE;
     float expected_3ring_events_electron,expected_3ring_events_muon;
@@ -190,9 +193,12 @@ class OscNtupleManager
     void Process_subgev_multiring();
     void Process_subgev_onemulike();
     void Process_subgev_oneelike();
+    void Process_subgev_onedecaye();
     void Process_cosmic_muon();
     TLorentzVector GetTLorentzVectorVector(int index);
     TLorentzVector GetTLorentzVectorVector2(int index);
+    TLorentzVector GetTLorentzVectorVectorShift(int index);
+    TLorentzVector GetTLorentzVectorVector2Shift(int index);
     TLorentzVector GetTLorentzVectorRing(int index, int type);
     TVector3 GetTVectorVector(int index);
     TVector3 GetTVectorVector2(int index);
@@ -235,6 +241,7 @@ class OscNtupleManager
     float o_amom;
     int o_mode;
     int o_nring;
+    float o_weight;
     int o_nmulike;
     float o_total_mass;
     float o_total_mom;
@@ -327,6 +334,9 @@ class OscNtupleManager
   TypeWrapper<Float_t> prmslg;
   TypeWrapper<Float_t> probms;
   TypeWrapper<Float_t> Dlfct;
+  TypeWrapper<Float_t> Dlfct2;
+  TypeWrapper<Float_t> Dlfct3;
+  TypeWrapper<Float_t> Dlfct4;
   TypeWrapper<Float_t> dir;
   TypeWrapper<Float_t> dirv;
   TypeWrapper<Float_t> dirv2;
@@ -380,6 +390,8 @@ class OscNtupleManager
   int kSystNtag;
   int kCorrelatedDecay;
   int kEnergyScale;
+  int kNonUni;
+  int kPID;
 
   //Tau_NN related
   TypeWrapper<Double_t> NN_output;

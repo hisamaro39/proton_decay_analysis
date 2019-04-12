@@ -8,9 +8,11 @@ void add_signal_region(){
   int nring=1;//# of ring
   int nmulike=0;//# of mulike ring
   int nmichel=0;//# of michel electron
-  //string syst = "default";
   string syst = "default";
   //string syst = "energydown";
+  //string syst = "energyup";
+  //string syst = "nonunidown";
+  //string syst = "nonuniup";
 
   cout << "systematic is " << syst << endl;
   TH1 *this_hist,*this_hist_free;
