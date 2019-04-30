@@ -84,6 +84,14 @@ int main( int argc, char * argv[] )
    MasterCard->GetKey( "fermi_motion", kFermiMotion);
    int kOutsideSR = -1;
    MasterCard->GetKey( "outside_sr", kOutsideSR);
+   int kCR = -1;
+   MasterCard->GetKey( "use_cr", kCR);
+   int kTotalBox = -1;
+   MasterCard->GetKey( "only_total_box", kTotalBox);
+   int kLiveTime = -1;
+   MasterCard->GetKey( "use_live_time", kLiveTime);
+   int kAllWeight = -1;
+   MasterCard->GetKey( "use_all_weight", kAllWeight);
    int kSystNtag = -1;
    MasterCard->GetKey( "syst_ntag", kSystNtag);
    int kEnergyScale = -1;
@@ -102,26 +110,49 @@ int main( int argc, char * argv[] )
    //else {
    if(use_batch) output_file = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode;
    else output_file = "output/" + input + "." + sk_era + "." + "mode_" + mode;
+   if(use_batch) output_ntuple = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode;
+   else output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode;
    if(kCorrelatedDecay==0) output_file += "_cddown";
    if(kCorrelatedDecay==2) output_file += "_cdup";
    if(kFermiMotion) output_file += "_fermigas";
    if(kOutsideSR) output_file += "_outsideSR";
+   if(kCR) output_file += "_CR";
+   if(kCR) output_ntuple += "_CR";
+   if(kTotalBox) output_ntuple += "_total_box";
    stringstream iteration;
    iteration << kSystNtag;
    if(kSystNtag) output_file += "_syst_ntag_it" + iteration.str();
-   if(kEnergyScale==0) output_file += "_energydown";
-   if(kEnergyScale==2) output_file += "_energyup";
-   if(kNonUni==0) output_file += "_nonunidown";
-   if(kNonUni==2) output_file += "_nonuniup";
-   if(kPID==0) output_file += "_piddown";
-   if(kPID==2) output_file += "_pidup";
+   if(kEnergyScale==1) output_file += "_energydown_sk1";
+   if(kEnergyScale==2) output_file += "_energyup_sk1";
+   if(kEnergyScale==3) output_file += "_energydown_sk2";
+   if(kEnergyScale==4) output_file += "_energyup_sk2";
+   if(kEnergyScale==5) output_file += "_energydown_sk3";
+   if(kEnergyScale==6) output_file += "_energyup_sk3";
+   if(kEnergyScale==7) output_file += "_energydown_sk4";
+   if(kEnergyScale==8) output_file += "_energyup_sk4";
+   if(kNonUni==1) output_file += "_nonunidown_sk1";
+   if(kNonUni==2) output_file += "_nonuniup_sk1";
+   if(kNonUni==3) output_file += "_nonunidown_sk2";
+   if(kNonUni==4) output_file += "_nonuniup_sk2";
+   if(kNonUni==5) output_file += "_nonunidown_sk3";
+   if(kNonUni==6) output_file += "_nonuniup_sk3";
+   if(kNonUni==7) output_file += "_nonunidown_sk4";
+   if(kNonUni==8) output_file += "_nonuniup_sk4";
+   if(kPID==1) output_file += "_pid_sk1";
+   if(kPID==2) output_file += "_pid_sk2";
+   if(kPID==3) output_file += "_pid_sk3";
+   if(kPID==4) output_file += "_pid_sk4";
    if(!kAllHist) output_file += "_validation";
    if(kCheckBkg) output_file += "_check_bkg";
+   if(!kLiveTime) output_file += "_wo_livetime";
+   if(!kAllWeight) output_file += "_wo_weight";
    if(use_batch) output_file += "." + this_cpu_str + ".root";
    else output_file += ".root";
+   if(use_batch) output_ntuple += "_tree." + this_cpu_str + ".root";
+   else output_ntuple += "_tree.root";
    if(kDebugMode || kMakeNtuple) output_file = "output/temp.root";
-   if(use_batch) output_ntuple = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "_tree." + this_cpu_str + ".root";
-   else output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
+   //if(use_batch) output_ntuple = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "_tree." + this_cpu_str + ".root";
+   //else output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
 
 
    std::cout << "output file is " << output_file << std::endl;
@@ -130,7 +161,7 @@ int main( int argc, char * argv[] )
    float live_time_fcmc=-1, live_time_fcdt=-1;
    MasterCard->GetKey( "live_time_fcmc", live_time_fcmc);
    MasterCard->GetKey( "live_time_fcdt", live_time_fcdt);
-   float weight_live_time = (input=="fcmc")? live_time_fcdt / live_time_fcmc : 1.;
+   float weight_live_time = (input.find("fcmc")!=std::string::npos)? live_time_fcdt / live_time_fcmc : 1.;
    std::cout << "Live Time fcdt/fcmc/weight=" 
      << live_time_fcdt << "/" << live_time_fcmc << "/" << weight_live_time<< std::endl;
 
@@ -184,11 +215,14 @@ int main( int argc, char * argv[] )
    om->CorrelatedDecay(kCorrelatedDecay );
    om->FermiMotion(kFermiMotion );
    om->OutsideSR(kOutsideSR );
+   om->UseCR(kCR );
+   om->TotalBox(kTotalBox );
+   om->UseLiveTime(kLiveTime );
+   om->UseAllWeight(kAllWeight );
    om->SystNtag(kSystNtag );
    om->EnergyScale(kEnergyScale );
    om->NonUni(kNonUni );
    om->PID(kPID );
-
 
    // automatically add suffix to  
    // specified output file string in case 
@@ -211,5 +245,3 @@ int main( int argc, char * argv[] )
 
    return 0;
 }
-
-

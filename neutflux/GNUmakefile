@@ -19,7 +19,7 @@ NEUTFLXVER = 5.4.0
 LIBBASE = neutflux
 LIBNAME = neutflux_${NEUTFLXVER}
 
-FLO = 	fnflufx.o fnhonfx03.o fnhonfx06.o neflux.o \
+FLO = 	fnflufx.o fnhonfx03.o fnhonfx03k.o fnhonfx06.o neflux.o \
 	fnflufx03.o fnhonfx_1d.o neflxgai.o nenauflx.o \
 	fngaifx.o neflxhon.o neprodhgt_h3d.o \
 	nernneut.o fnbarfx.o fnhdfxh_1d.o neflxhon_1d.o \
@@ -29,7 +29,7 @@ FLO = 	fnflufx.o fnhonfx03.o fnhonfx06.o neflux.o \
 	fnbsfxl.o fnhdfxm.o nebaseline_h3d.o nehonflx.o nerdhon.o \
 	fnbsfxm.o fnhdfxm_1d.o necardvc.o neleeflx.o nerdhon_1d.o \
 	fnfdfx.o fnhonfx.o neevrate.o nemake.o \
-	nerdlee.o \
+	nerdlee.o nebaseline_h3d2.o nebaseline_h3d2l.o \
 	fnfidmas.o fnhonfx01.o nefint.o nemkevnt.o nerdnau.o rnneue.o \
 	necardap.o nevectap.o \
 	rnpos_wtrtnk.o rnpos_wtr.o

@@ -83,6 +83,8 @@ void OscNtupleManager::Initialize()
   kCorrelatedDecay = -1;
   kFermiMotion = -1;
   kOutsideSR = -1;
+  kLiveTime = -1;
+  kAllWeight = -1;
   kSystNtag = -1;
   fsiweight     = 0 ;
 
@@ -138,6 +140,10 @@ void OscNtupleManager::CreateBranch(){
   ofile = new TFile(output_ntuple.c_str(),"recreate");
   otree = new TTree("osc_tuple", "tree build for SK osc analyses"); 
   otree->Branch("weight"   , &o_weight    , "weight/F"    );
+  otree->Branch("error"   , &o_error    , "error[30]/F"    );
+  otree->Branch("mc_weight"   , &o_mc_weight    , "mc_weight/F"    );
+  otree->Branch("osc_weight"   , &o_osc_weight    , "osc_weight/F"    );
+  otree->Branch("livetime_weight"   , &o_livetime_weight    , "livetime_weight/F"    );
   otree->Branch("ipnu"   , &o_ipnu    , "ipnu/I"    );
   otree->Branch("itype"   , &o_itype    , "itype/I"    );
   otree->Branch("pnu"   , &o_pnu    , "pnu/F"    );
@@ -156,9 +162,13 @@ void OscNtupleManager::CreateBranch(){
   otree->Branch("prmslg_e"    , &o_prmslg_e     , "prmslg_e[5]/F"  );
   otree->Branch("prmslg_mu"    , &o_prmslg_mu     , "prmslg_mu[5]/F"  );
   otree->Branch("mmom"    , &o_mmom     , "mmom[5]/F"  );
+  otree->Branch("emom"    , &o_emom     , "emom[5]/F"  );
   otree->Branch("dir_x"   , &o_dir_x    , "dir_x[5]/F"    );
   otree->Branch("dir_y"   , &o_dir_y    , "dir_y[5]/F"    );
   otree->Branch("dir_z"   , &o_dir_z    , "dir_z[5]/F"    );
+  otree->Branch("msdir_x"   , &o_msdir_x    , "msdir_x[5]/F"    );
+  otree->Branch("msdir_y"   , &o_msdir_y    , "msdir_y[5]/F"    );
+  otree->Branch("msdir_z"   , &o_msdir_z    , "msdir_z[5]/F"    );
   otree->Branch("ang"    , &o_ang     , "ang[5]/F"  );
   otree->Branch("ange"    , &o_ange     , "ange[5]/F"  );
   otree->Branch("angm"    , &o_angm     , "angm[5]/F"  );
@@ -175,7 +185,7 @@ void OscNtupleManager::CreateHist()
 {
 
   //oscillation plot
-  if(process_mode=="fcmc") {
+  if(process_mode.find("fcmc")!=std::string::npos) {
     for(int i=1;i<15;i++){//interacion type
       m_hSvc.create1D(Form("nRing_type%d",i),"",10,0,10);
       m_hSvc.create1D(Form("nRing_type%d_osc",i),"",10,0,10);
@@ -214,6 +224,12 @@ void OscNtupleManager::CreateHist()
       m_hSvc.create2D(Form("ring_counting_likelihood1_2_nring%d",r),"",100,-15,15,100,-15,15);
       m_hSvc.create2D(Form("ring_counting_likelihood2_3_nring%d",r),"",100,-15,15,100,-15,15);
       m_hSvc.create2D(Form("ring_counting_likelihood3_4_nring%d",r),"",100,-15,15,100,-15,15);
+      for(int t=0;t<2;t++){
+        m_hSvc.create1D(Form("ring_counting_likelihood_nring%d_reject%d",r,t),"",100,-15,15);
+        m_hSvc.create1D(Form("ring_counting_likelihood2_nring%d_reject%d",r,t),"",100,-15,15);
+        m_hSvc.create1D(Form("ring_counting_likelihood3_nring%d_reject%d",r,t),"",100,-15,15);
+        m_hSvc.create1D(Form("ring_counting_likelihood4_nring%d_reject%d",r,t),"",100,-15,15);
+      }
     }
     m_hSvc.create1D("true_dirx_lepton","",100,-1,1);
     m_hSvc.create1D("true_diry_lepton","",100,-1,1);
@@ -241,15 +257,18 @@ void OscNtupleManager::CreateHist()
       m_hSvc.create1D(Form("true_mom_muon_match_ring_angle_mulike_nring%d",r),"",40,0,800);
       m_hSvc.create1D(Form("true_mom_electron_match_ring_nring%d",r),"",40,0,800);
       m_hSvc.create1D(Form("true_mom_electron_match_ring_angle_elike_nring%d",r),"",40,0,800);
+      m_hSvc.create1D(Form("true_angle_min_mid_lepton_nring%d",r),"",36,0,180);
+      m_hSvc.create1D(Form("true_angle_min_max_lepton_nring%d",r),"",36,0,180);
+      m_hSvc.create1D(Form("true_angle_mid_max_lepton_nring%d",r),"",36,0,180);
       for(int m1=0;m1<4;m1++){
         m_hSvc.create1D(Form("true_mom_muon_nring%d_mulike%d",r,m1),"",40,0,800);
         for(int f=0;f<2;f++){
           m_hSvc.create1D(Form("total_mass_nring%d_mulike%d_fp%d",r,m1,f),"",50,750,1050);
           m_hSvc.create1D(Form("residual_total_mass_nring%d_mulike%d_fp%d",r,m1,f),"",80,-0.2,0.2);
-          m_hSvc.create1D(Form("diff_total_mass_nring%d_mulike%d_fp%d",r,m1,f),"",100,-100,100);
+          m_hSvc.create1D(Form("diff_total_mass_nring%d_mulike%d_fp%d",r,m1,f),"",100,-200,200);
           m_hSvc.create1D(Form("total_mom_nring%d_mulike%d_fp%d",r,m1,f),"",100,0,1000);
           m_hSvc.create1D(Form("residual_total_mom_nring%d_mulike%d_fp%d",r,m1,f),"",80,-0.2,0.2);
-          m_hSvc.create1D(Form("diff_total_mom_nring%d_mulike%d_fp%d",r,m1,f),"",100,-100,100);
+          m_hSvc.create1D(Form("diff_total_mom_nring%d_mulike%d_fp%d",r,m1,f),"",100,-200,200);
         }
       }
       for(int p=0;p<6;p++){
@@ -413,6 +432,7 @@ void OscNtupleManager::CreateHist()
             }
             m_hSvc.create1D(Form("n_true_neutron_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",15,0,15);
             m_hSvc.create1D(Form("interaction_mode_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",92,1,93);
+            m_hSvc.create1D(Form("potot_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",200,0,20000);
             m_hSvc.create1D(Form("distance_to_wall_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",36,0,1800);
             m_hSvc.create1D(Form("visible_energy_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,500);
             m_hSvc.create1D(Form("nhit_OD_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,100);
@@ -427,8 +447,12 @@ void OscNtupleManager::CreateHist()
             m_hSvc.create1D(Form("total_distance_up_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",50,0,1250);
             m_hSvc.create1D(Form("total_distance_down_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",50,0,1250);
             m_hSvc.create1D(Form("mass_proton_reco_momcut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",125,0,1250);
-            m_hSvc.create1D(Form("mom_proton_reco_masscut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,1000);
+            m_hSvc.create1D(Form("mom_proton_reco_masscut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,500);
+            m_hSvc.create1D(Form("mom_proton_reco_low_masscut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,95,105);
+            m_hSvc.create1D(Form("mom_proton_reco_high_masscut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",10,245,255);
             m_hSvc.create1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",125,0,1250);
+            m_hSvc.create1D(Form("mom_proton_reco_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,0,500);
+            m_hSvc.create1D(Form("mass_proton_reco_momcut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"",100,700,1150);
             m_hSvc.createGraph(Form("mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"");
             m_hSvc.createGraph(Form("mass_mom_proton_reco_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"");
             m_hSvc.createGraph(Form("all_ring_mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"");
@@ -440,7 +464,7 @@ void OscNtupleManager::CreateHist()
               m_hSvc.create1D(Form("nMulikeRing_pattern_nring%d_cut%d_nring%d_mulike%d_michel%d",n,c,r,mu,p),"",6,0,6);
             }
 
-            if(process_input=="fcmc" || process_input=="fcdt") continue;
+            if(process_input.find("fcmc")!=std::string::npos || process_input.find("fcdt")!=std::string::npos) continue;
 
             for(int f=0;f<2;f++){
               m_hSvc.create1D(Form("interaction_mode_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,f),"",92,1,93);
@@ -528,6 +552,7 @@ void OscNtupleManager::CreateHist()
 void OscNtupleManager::LoadWrappers()
 {
 
+  dm->Get("nrun", nrun );
   dm->Get("hstate"    , hstate     );
   dm->Get( "pnu"  , pnu    );
   dm->Get( "ndcy"  , ndcy    );
@@ -671,6 +696,9 @@ void OscNtupleManager::Process(int seed, int blossom )
   cout << "kCorrelatedDecay=" << kCorrelatedDecay << endl;
   cout << "kFermiMotion=" << kFermiMotion << endl;
   cout << "kOutsideSR=" << kOutsideSR << endl;
+  cout << "kCR=" << kCR << endl;
+  cout << "kLiveTime=" << kLiveTime << endl;
+  cout << "kAllWeight=" << kAllWeight << endl;
   cout << "kSystNtag=" << kSystNtag << endl;
   cout << "kEnergyScale=" << kEnergyScale << endl;
   cout << "kNonUni=" << kNonUni << endl;
@@ -686,17 +714,17 @@ void OscNtupleManager::Process(int seed, int blossom )
 
   //Systematic for Energy Scale
   float energy_scale = 0.;
-  if(skgen == SK1) energy_scale = 0.033;
-  if(skgen == SK2) energy_scale = 0.028;
-  if(skgen == SK3) energy_scale = 0.024;
-  if(skgen == SK4) energy_scale = 0.021;
+  if(kEnergyScale==1 || kEnergyScale==2) energy_scale = 0.033;//sk1
+  if(kEnergyScale==3 || kEnergyScale==4) energy_scale = 0.028;//sk2
+  if(kEnergyScale==5 || kEnergyScale==6) energy_scale = 0.024;//sk3
+  if(kEnergyScale==7 || kEnergyScale==8) energy_scale = 0.021;//sk4
   total_mass_low = 800;
   total_mass_high = 1050;
   total_mom_low = 100;
   total_mom_high = 250;
   pi_mass_low = 85;
   pi_mass_high = 185;
-  if(kEnergyScale==0){//1 sigma down
+  if(kEnergyScale%2==1){//1 sigma down
     total_mass_low = total_mass_low * (1 - energy_scale);
     total_mass_high = total_mass_high * (1 - energy_scale);
     total_mom_low = total_mom_low * (1 - energy_scale);
@@ -704,7 +732,7 @@ void OscNtupleManager::Process(int seed, int blossom )
     pi_mass_low = pi_mass_low * (1 - energy_scale);
     pi_mass_high = pi_mass_high * (1 - energy_scale);
   }
-  if(kEnergyScale==2){//1 sigma up
+  if(kEnergyScale!=0 && kEnergyScale%2==0){//1 sigma up
     total_mass_low = total_mass_low * (1 + energy_scale);
     total_mass_high = total_mass_high * (1 + energy_scale);
     total_mom_low = total_mom_low * (1 + energy_scale);
@@ -712,31 +740,28 @@ void OscNtupleManager::Process(int seed, int blossom )
     pi_mass_low = pi_mass_low * (1 + energy_scale);
     pi_mass_high = pi_mass_high * (1 + energy_scale);
   }
+  cout << "Error for Energy Scale is " << energy_scale << "%" << endl;
 
   //Systematic for Detector non-uniformity
   float nonuni_scale = 0.;
-  if(skgen == SK1) nonuni_scale = 0.006;
-  if(skgen == SK2) nonuni_scale = 0.006;
-  if(skgen == SK3) nonuni_scale = 0.013;
-  if(skgen == SK4) nonuni_scale = 0.004;
-  if(kNonUni==0){//1 sigma down
+  if(kNonUni==1 || kNonUni==2) nonuni_scale = 0.006;//sk1
+  if(kNonUni==3 || kNonUni==4) nonuni_scale = 0.006;//sk2
+  if(kNonUni==5 || kNonUni==6) nonuni_scale = 0.013;//sk3
+  if(kNonUni==7 || kNonUni==8) nonuni_scale = 0.004;//sk4
+  if(kNonUni%2==1){//1 sigma down
     total_mom_low = total_mom_low * (1 - nonuni_scale*2);
     total_mom_high = total_mom_high * (1 - nonuni_scale*2);
   }
-  if(kNonUni==2){//1 sigma up
+  if(kNonUni!=0 && kNonUni%2==0){//1 sigma up
     total_mom_low = total_mom_low * (1 + nonuni_scale*2);
     total_mom_high = total_mom_high * (1 + nonuni_scale*2);
   }
+  cout << "Error for Detector Non-Uniformity is " << nonuni_scale << "%" << endl;
   cout << "pi mass box " << pi_mass_low << " < mass < " << pi_mass_high << endl;
   cout << "total mass box " << total_mass_low << " < mass < " << total_mass_high << endl;
   cout << "lower total momentum box " << 0 << " < momentum < " << total_mom_low << endl;
   cout << "higher total momentum box " << total_mom_low << " < momentum < " << total_mom_high << endl;
 
-  //Systematic for PID
-  pid_thr=0;
-  float pid_shift = 0.2;//calculated from chi2 method syst_pid.cc 
-  if(kPID==0) pid_thr = pid_thr - pid_shift;//PID down
-  if(kPID==2) pid_thr = pid_thr + pid_shift;//PID up
 
   for( int i = startEntry ; i < endEntry ; i ++ )
   {
@@ -759,18 +784,20 @@ void OscNtupleManager::Process(int seed, int blossom )
     mc_weight = 1.;
     osc_weight = 1.;
     true_mode=-1;
-    if(process_input=="fcmc" || process_input=="fcdt"){
+    if(process_input.find("fcmc")!=std::string::npos || process_input.find("fcdt")!=std::string::npos){
       bool sc1 = SetEventType(process_input,interaction_type);
       sc1 = SetTrueMode(true_mode); 
-      if(process_input=="fcmc") {
+      if(process_input.find("fcmc")!=std::string::npos) {
+        if(kNonUni!=0 || kEnergyScale!=0 || kLiveTime==0) live_time_weight=1;//for combining periods
         weight = live_time_weight;
         mc_weight = GetMCweight(); 
         //osc_weight = Oscillate();//3D calculation
         osc_weight = oscwgt(0);
         //weight *= weight*osc_weight;//osc_weight include mc_weight
         weight *= mc_weight;
+        if(kAllWeight==0) weight = 1.;
       }
-      if(process_mode=="fcmc"){
+      if(process_mode.find("fcmc")!=std::string::npos){
         MakeOscillationPlot();
         continue;
       }
@@ -804,7 +831,7 @@ void OscNtupleManager::Process(int seed, int blossom )
     event_num++;
     if(kDebugMode) {
       cout << "num sample/evt=" << sample_num << "/" << event_num << endl;
-      cout << "nsub/nev=" << nsub(0) << "/" << nev(0) << endl;
+      cout << "nrun/nsub/nev=" << nrun(0) << "/" << nsub(0) << "/" << nev(0) << endl;
       cout << "nsube/ndcy/ngate/nbye=" << nsube(0) << "/" << ndcy(0) << "/" << ngate(0) << "/" << nbye(0) << endl;
       cout << "event date " << date(0) << "/" << date(1) << "/" << date(2) << endl;
       cout << "event time " << time(0) << "/" << time(1) << "/" << time(2) << endl;
@@ -908,23 +935,27 @@ void OscNtupleManager::Process_pepi(){
 
   //apply selection here
 
-  if(process_input!="fcmc" && wallv(0)<200) return;
+  if(process_input.find("fcmc")==std::string::npos && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
     pass_cut[1][0]=true;
   }
+  else pass_all=false;
 
   //# of cherenkov ring
   if(nring(0)==2) pass_cut[2][0]=true;
   if(nring(0)==3) pass_cut[2][1]=true;
   if(nring(0)==2 || nring(0)==3) pass_cut[2][2]=true;
+  else pass_all=false;
 
   //# of mu-like ring
   if(n_mulike_pattern==0) pass_cut[3][0]=true;
+  else pass_all=false;
 
   // michel (decay) electron cut
   if(nDecayE==0) pass_cut[4][0]=true;
+  else pass_all=false;
 
   vector<TLorentzVector> egamma_cand;
   egamma_cand.clear();
@@ -949,6 +980,7 @@ void OscNtupleManager::Process_pepi(){
   }
 
   if(nRing==3 && closest_mass_pi0_reco>85 && closest_mass_pi0_reco<185) pass_cut[5][0]=true;
+  else pass_all=false;
   if(nRing==2) pass_cut[5][0]=true;
 
 
@@ -960,11 +992,13 @@ void OscNtupleManager::Process_pepi(){
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
+  else if(total_mass>800 && total_mass<1050 && total_mom>=100 && total_mom<250){//total mass & high momentum
     pass_cut[7][0]=true;
   }
+  else pass_all=false;
 
   if(nNeutron==0) pass_cut[8][0]=true;
+  else pass_all=false;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -984,7 +1018,7 @@ void OscNtupleManager::Process_pmupi(){
 
   //apply selection here
 
-  if(process_input!="fcmc" && wallv(0)<200) return;
+  if(process_input.find("fcmc")==std::string::npos && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
@@ -1039,7 +1073,7 @@ void OscNtupleManager::Process_pmupi(){
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>800 && total_mass<1050 && total_mom>100 && total_mom<250){//total mass & high momentum
+  if(total_mass>800 && total_mass<1050 && total_mom>=100 && total_mom<250){//total mass & high momentum
     pass_cut[7][0]=true;
   }
 
@@ -1063,28 +1097,33 @@ void OscNtupleManager::Process_peee(){
 
   //apply selection here
 
-  if(process_input!="fcmc" && wallv(0)<200) return;
+  //true dwall cut only for signal
+  if(process_input.find("fcmc")==std::string::npos && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
     pass_cut[1][0]=true;
   }
+  else pass_all = false;
 
   //# of cherenkov ring
   if(nring(0)==2) pass_cut[2][0]=true;
   if(nring(0)==3) pass_cut[2][1]=true;
+  else pass_all = false;
   if(nring(0)==2 || nring(0)==3) pass_cut[2][2]=true;
 
   //# of mu-like ring
   if(n_mulike_angle==0) pass_cut[3][0]=true;
+  else pass_all = false;
 
   // michel (decay) electron cut
   if(nDecayE==0) pass_cut[4][0]=true;
+  else pass_all = false;
 
   vector<TLorentzVector> e_cand;
   e_cand.clear();
   for(int r=0;r<nRing;r++)
-    if( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) < pid_thr) e_cand.push_back(GetTLorentzVectorRing(r,1));
+    if( prob_angle_ring[r] < 0) e_cand.push_back(GetTLorentzVectorRing(r,1));
 
   float min_diff=99999999;
   if(e_cand.size()==3){
@@ -1115,21 +1154,24 @@ void OscNtupleManager::Process_peee(){
   if(total_mass > total_mass_low && total_mass < total_mass_high && total_mom < total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
+  else if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
+  else pass_all = false;
 
   if(nNeutron==0) pass_cut[8][0]=true;
+  else pass_all = false;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
     TLorentzVector temp_vec = 
-    ( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) < pid_thr) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
+    ( prob_angle_ring[r] < 0) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
     all_ring_vec += temp_vec;
   }
   all_ring_mass = all_ring_vec.M();
   all_ring_mom = all_ring_vec.P();
 
+  if (kMakeNtuple) MakeNtuple();
   if(kAllHist) MakeCutFlow();
   else MakeValidationPlot();
 
@@ -1139,28 +1181,32 @@ void OscNtupleManager::Process_pmumumu(){
 
   //apply selection here
 
-  if(process_input!="fcmc" && wallv(0)<200) return;
+  if(process_input.find("fcmc")==std::string::npos && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
     pass_cut[1][0]=true;
   }
+  else pass_all=false;
 
   if(nring(0)==3) pass_cut[2][0]=true;
+  else pass_all=false;
 
   if(n_mulike_angle==3) pass_cut[3][0]=true;
+  else pass_all=false;
 
   // michel (decay) electron cut
   if(nDecayE==1) pass_cut[4][0]=true;
   if(nDecayE==2) pass_cut[4][1]=true;
   if(nDecayE==3) pass_cut[4][2]=true;
   if(nDecayE==2 || nDecayE==3) pass_cut[4][3]=true;
+  else pass_all=false;
   if(nDecayE==1 || nDecayE==2 || nDecayE==3) pass_cut[4][4]=true;
 
   vector<TLorentzVector> mu_cand;
   mu_cand.clear();
   for(int r=0;r<nRing;r++){
-    if( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) > pid_thr) mu_cand.push_back(GetTLorentzVectorRing(r,2));
+    if( prob_angle_ring[r] > 0) mu_cand.push_back(GetTLorentzVectorRing(r,2));
   }
 
   pass_cut[5][0]=true;//no pi0 mass cut
@@ -1174,16 +1220,18 @@ void OscNtupleManager::Process_pmumumu(){
   if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom<total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
+  else if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
+  else pass_all=false;
 
   if(nNeutron==0) pass_cut[8][0]=true;
+  else pass_all=false;
 
   TLorentzVector all_ring_vec,all_mulike_vec;
   for(int r=0;r<nRing;r++){
     TLorentzVector temp_vec = 
-      ( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) < pid_thr) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
+      ( prob_angle_ring[r] < 0) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
     all_ring_vec += temp_vec;
     all_mulike_vec += GetTLorentzVectorRing(r,2);
   }
@@ -1202,31 +1250,35 @@ void OscNtupleManager::Process_pemumu(){
 
   //apply selection here
 
-  if(process_input!="fcmc" && wallv(0)<200) return;
+  if(process_input.find("fcmc")==std::string::npos && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
     pass_cut[1][0]=true;
   }
+  else pass_all=false;
 
   //# of cherenkov ring
   if(nring(0)==2) pass_cut[2][0]=true;
   if(nring(0)==3) pass_cut[2][1]=true;
+  else pass_all=false;
   if(nring(0)==2 || nring(0)==3) pass_cut[2][2]=true;
 
   //#of mu-like ring
   if(n_mulike_angle==2) pass_cut[3][0]=true;
+  else pass_all=false;
 
   // michel (decay) electron cut
   if(nDecayE==1) pass_cut[4][0]=true;
   if(nDecayE==2) pass_cut[4][1]=true;
+  else pass_all=false;
   if(nDecayE==1 || nDecayE==2) pass_cut[4][2]=true;
 
   vector<TLorentzVector> mu_cand;
   TLorentzVector e_cand;
   mu_cand.clear();
   for(int r=0;r<nRing;r++){
-    if( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) < pid_thr) e_cand = GetTLorentzVectorRing(r,1);
+    if( prob_angle_ring[r] < 0) e_cand = GetTLorentzVectorRing(r,1);
     else mu_cand.push_back(GetTLorentzVectorRing(r,2));
   }
 
@@ -1240,21 +1292,24 @@ void OscNtupleManager::Process_pemumu(){
   if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom<total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
+  else if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
+  else pass_all=false;
 
   if(nNeutron==0) pass_cut[8][0]=true;
+  else pass_all=false;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
     TLorentzVector temp_vec = 
-    ( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) < pid_thr) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
+    ( prob_angle_ring[r] < 0) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
     all_ring_vec += temp_vec;
   }
   all_ring_mass = all_ring_vec.M();
   all_ring_mom = all_ring_vec.P();
 
+  if (kMakeNtuple) MakeNtuple();
   if(kAllHist) MakeCutFlow();
   else MakeValidationPlot();
 
@@ -1264,31 +1319,35 @@ void OscNtupleManager::Process_pmuee(){
 
   //apply selection here
 
-  if(process_input!="fcmc" && wallv(0)<200) return;
+  if(process_input.find("fcmc")==std::string::npos && wallv(0)<200) return;
 
   pass_cut[0][0]=true;
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
     pass_cut[1][0]=true;
   }
+  else pass_all=false;
 
   //# of cherenkov ring
   if(nring(0)==2) pass_cut[2][0]=true;
   if(nring(0)==3) pass_cut[2][1]=true;
+  else pass_all=false;
   if(nring(0)==2 || nring(0)==3) pass_cut[2][2]=true;
 
   //#of mu-like ring
   if(n_mulike_angle==1) pass_cut[3][0]=true;
+  else pass_all=false;
 
   // michel (decay) electron cut
   if(nDecayE==0) pass_cut[4][0]=true;
   if(nDecayE==1) pass_cut[4][1]=true;
+  else pass_all=false;
   if(nDecayE==0 || nDecayE==1) pass_cut[4][2]=true;
 
   vector<TLorentzVector> e_cand;
   TLorentzVector mu_cand;
   e_cand.clear();
   for(int r=0;r<nRing;r++){
-    if( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) < pid_thr) e_cand.push_back(GetTLorentzVectorRing(r,1));
+    if( prob_angle_ring[r] < 0) e_cand.push_back(GetTLorentzVectorRing(r,1));
     else mu_cand = GetTLorentzVectorRing(r,2);
   }
 
@@ -1303,6 +1362,7 @@ void OscNtupleManager::Process_pmuee(){
   closest_mass_pi0_reco = two_elike_vec.M();
   
   if(nRing==3 && (closest_mass_pi0_reco<pi_mass_low || closest_mass_pi0_reco>pi_mass_high) ) pass_cut[5][0]=true;
+  else pass_all=false;
   if(nRing==2) pass_cut[5][0]=true;
 
   //pass_cut[5][0]=true;//no pi0 mass cut
@@ -1311,21 +1371,24 @@ void OscNtupleManager::Process_pmuee(){
   if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom<total_mom_low){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
+  else if(total_mass>total_mass_low && total_mass<total_mass_high && total_mom>=total_mom_low && total_mom<total_mom_high){//total mass & high momentum
     pass_cut[7][0]=true;
   }
+  else pass_all=false;
 
   if(nNeutron==0) pass_cut[8][0]=true;
+  else pass_all=false;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
     TLorentzVector temp_vec = 
-    ( ( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) < pid_thr) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
+    ( prob_angle_ring[r] < 0) ? GetTLorentzVectorRing(r,0) : GetTLorentzVectorRing(r,2);
     all_ring_vec += temp_vec;
   }
   all_ring_mass = all_ring_vec.M();
   all_ring_mom = all_ring_vec.P();
 
+  if (kMakeNtuple) MakeNtuple();
   if(kAllHist) MakeCutFlow();
   else MakeValidationPlot();
 
@@ -1345,8 +1408,7 @@ void OscNtupleManager::Process_single(){
   float closest_angle=9999,closest_ring_prob_angle=9999;
   int closest_ring_id=-1;
   for(int r=0;r<nRing;r++){
-    float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
-    int pid_angle = (prob_angle<pid_thr)? 0 : 2;//e-like or mu-like
+    int pid_angle = (prob_angle_ring[r]<0)? 0 : 2;//e-like or mu-like
     TLorentzVector this_ring = GetTLorentzVectorRing(r,pid_angle);
     float angle_lep_ring = this_ring.Angle(this_lepton.Vect())*180./3.14159;
     m_hSvc.h1D("true_angle_lepton_and_ring","","")->Fill(angle_lep_ring);
@@ -1354,7 +1416,7 @@ void OscNtupleManager::Process_single(){
       if(angle_lep_ring<closest_angle){
         closest_angle = angle_lep_ring;
         closest_ring_id = r;
-        closest_ring_prob_angle = prob_angle;
+        closest_ring_prob_angle = prob_angle_ring[r];
       }
     }
   }
@@ -1368,11 +1430,11 @@ void OscNtupleManager::Process_single(){
     float residual_mmom = (amomm(closest_ring_id)-pmomv(0))/pmomv(0);
     if(ipv(0)==2 || ipv(0)==3){//electron
       m_hSvc.h1D("true_mom_electron_match_ring","","")->Fill(pmomv(0));
-      if(prob_angle<pid_thr) m_hSvc.h1D("true_mom_electron_match_ring_angle_elike","","")->Fill(pmomv(0));
+      if(prob_angle<0) m_hSvc.h1D("true_mom_electron_match_ring_angle_elike","","")->Fill(pmomv(0));
     }
     if(ipv(0)==5 || ipv(0)==6){//muon
       m_hSvc.h1D("true_mom_muon_match_ring","","")->Fill(pmomv(0));
-      if(prob_angle>pid_thr) m_hSvc.h1D("true_mom_muon_match_ring_angle_mulike","","")->Fill(pmomv(0));
+      if(prob_angle>0) m_hSvc.h1D("true_mom_muon_match_ring_angle_mulike","","")->Fill(pmomv(0));
     }
     for(int p=0;p<6;p++){
       if(pmomv(0)>100*p && pmomv(0)<100+100*p){
@@ -1468,30 +1530,29 @@ void OscNtupleManager::Process_subgev_multiring(){
     float min_mom=99999999, mid_mom=99999999, max_mom=99999999;
     float prob_angle_max=9999,prob_angle_mid=9999,prob_angle_min=9999;
     for(int r=0;r<nRing;r++){//loop for 3 leptons
-      float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
-      if(kMakeNtuple) o_prob_angle[r] = prob_angle;
-      m_hSvc.h1D(Form("prob_angle_nring%d",nRing),"","")->Fill(prob_angle,weight*osc_weight);
-      if(r==0) m_hSvc.h1D(Form("prob_angle_1st_nring%d",nRing),"","")->Fill(prob_angle,weight*osc_weight);
-      if(r==1) m_hSvc.h1D(Form("prob_angle_2nd_nring%d",nRing),"","")->Fill(prob_angle,weight*osc_weight);
-      if(r==2) m_hSvc.h1D(Form("prob_angle_3rd_nring%d",nRing),"","")->Fill(prob_angle,weight*osc_weight);
-      float momentum = (prob_angle<pid_thr)? amome(r) : amomm(r);
+      if(kMakeNtuple) o_prob_angle[r] = prob_angle_ring[r];
+      m_hSvc.h1D(Form("prob_angle_nring%d",nRing),"","")->Fill(prob_angle_ring[r],weight*osc_weight);
+      if(r==0) m_hSvc.h1D(Form("prob_angle_1st_nring%d",nRing),"","")->Fill(prob_angle_ring[r],weight*osc_weight);
+      if(r==1) m_hSvc.h1D(Form("prob_angle_2nd_nring%d",nRing),"","")->Fill(prob_angle_ring[r],weight*osc_weight);
+      if(r==2) m_hSvc.h1D(Form("prob_angle_3rd_nring%d",nRing),"","")->Fill(prob_angle_ring[r],weight*osc_weight);
+      float momentum = (prob_angle_ring[r]<0)? amome(r) : amomm(r);
       if(momentum<min_mom) {
         max_mom=mid_mom;
         mid_mom=min_mom;
         min_mom=momentum;
         prob_angle_max = prob_angle_mid;
         prob_angle_mid = prob_angle_min;
-        prob_angle_min = prob_angle;
+        prob_angle_min = prob_angle_ring[r];
       }
       else if(momentum<mid_mom) {
         max_mom=mid_mom;
         mid_mom=momentum;
         prob_angle_max = prob_angle_mid;
-        prob_angle_mid = prob_angle;
+        prob_angle_mid = prob_angle_ring[r];
       }
       else if(momentum<max_mom) {
         max_mom=momentum;
-        prob_angle_max = prob_angle;
+        prob_angle_max = prob_angle_ring[r];
       }
     }
     if(kDebugMode) {
@@ -1581,7 +1642,7 @@ void OscNtupleManager::ZeroStructure()
   nPar = npar(0);
   nPar2 = npar2(0);
   is_free_proton = (pmomv(0)>0.01)? 0 : 1;
-  if(process_input=="fcmc" || process_input=="fcdt") is_free_proton = 0;
+  if(process_input.find("fcmc")!=std::string::npos || process_input.find("fcdt")!=std::string::npos) is_free_proton = 0;
   closest_mass_pi0_reco=0.;
   total_mass=0.;
   total_mom=0.;
@@ -1591,17 +1652,77 @@ void OscNtupleManager::ZeroStructure()
   all_ring_mass=0.;
   all_ring_mom=0.;
 
+  //Calculate PID value
+  for(int r=0;r<5;r++){
+    float pid_scale=1;
+    float pid_shift=0;
+    if(r==1){
+      if(kPID==1){
+        pid_scale = 0.98;
+        pid_shift = 0.01;
+      }
+      if(kPID==2){
+        pid_scale = 1.04;
+        pid_shift = 0.04;
+      }
+      if(kPID==3){
+        pid_scale = 0.82;
+        pid_shift = -0.37;
+      }
+      if(kPID==4){
+        pid_scale = 0.96;
+        pid_shift = -0.04;
+      }
+    }
+    if(r==2){
+      if(kPID==1){
+        pid_scale = 1.02;
+        pid_shift = 0.08;
+      }
+      if(kPID==2){
+        pid_scale = 0.95;
+        pid_shift = 0.01;
+      }
+      if(kPID==3){
+        pid_scale = 1.08;
+        pid_shift = 0.18;
+      }
+      if(kPID==4){
+        pid_scale = 0.96;
+        pid_shift = 0.07;
+      }
+    }
+    if(r==3){
+      if(kPID==1){
+        pid_scale = 0.98;
+        pid_shift = -0.02;
+      }
+      if(kPID==2){
+        pid_scale = 1.04;
+        pid_shift = 0.35;
+      }
+      if(kPID==3){
+        pid_scale = 0.96;
+        pid_shift = 0;
+      }
+      if(kPID==4){
+        pid_scale = 0.96;
+        pid_shift = -0.03;
+      }
+    }
+    prob_angle_ring[r] = pid_scale*( sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2))) ) + pid_shift;
+  }
+
   //count e-like or mu-like ring
   float min_mom=99999999, mid_mom=99999999, max_mom=99999999;
   min_ring_id=-1;mid_ring_id=-1;max_ring_id=-1;
   n_elike=0;n_elike_pattern=0;n_elike_angle=0;
   n_mulike=0;n_mulike_pattern=0;n_mulike_angle=0;
   for(int r=0;r<nRing;r++){
-    float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
     float prob_pattern = prmslg(r,1) - prmslg(r,2);
     if(ip(r)==2) n_elike++;
     else if (ip(r)==3) n_mulike++;
-    if(prob_angle<pid_thr) n_elike_angle++;
+    if(prob_angle_ring[r]<0) n_elike_angle++;
     else n_mulike_angle++;
     if(prob_pattern<0) n_elike_pattern++;
     else n_mulike_pattern++;
@@ -1618,7 +1739,7 @@ void OscNtupleManager::ZeroStructure()
 
   //find the events with captured neutron
   n_true_neutron=0;
-  if(process_input=="fcmc"){
+  if(process_input.find("fcmc")!=std::string::npos){
     //cout << "# of secondary particle is " << nscndprt(0) << endl;
     for(int n=0;n<nscndprt(0);n++){
       //cout << "#/pid/ind=" << n << "/" << iprtscnd(n) << "/" << lmecscnd(n) << endl;
@@ -1653,6 +1774,9 @@ void OscNtupleManager::ZeroStructure()
     for(int c2=0;c2<5;c2++)
       pass_cut[c][c2]=false;
 
+  pass_all = true;
+
+  for(int er=0;er<30;er++) o_error[er]=0.;
 
   return;
 }
@@ -1665,7 +1789,7 @@ bool OscNtupleManager::SetEventType( std::string mode , int &type)
   if( loc != std::string::npos ) dataflag = 1; 
 
 
-  if( mode == "fcdt" || mode == "fcmc" )
+  if( mode.find("fcdt")!=std::string::npos || mode.find("fcmc")!=std::string::npos )
     return SetEventTypeFC( type );
 
   else 
@@ -1717,11 +1841,6 @@ bool OscNtupleManager::SetEventTypeFC( int &type)
 
   bool multi_gev_flag = false;
   if( evis(0) >= 1330.0 ) multi_gev_flag = true;
-
-  if( skgen == SK4 ){
-    //os->nn = ntag_nn(0);//temporal
-    //os->nn_mctruth=ntag_mctruth_nn(0);//temporal
-  }
 
   ///////////////////
   // Sub-GeV Single Ring Selection 
@@ -1847,6 +1966,9 @@ bool OscNtupleManager::SetEventTypeFC( int &type)
   // M.ost E.nergetic R.ing
   int mer_id = ( prmslg(mer,1) < prmslg(mer,2) ? 1 : 2 ); // 1:e 2:mu
 
+  //cout << "multigev=" << multi_gev_flag << endl;
+  //cout << "mer_id=" << mer_id << endl;
+  //cout << "evis/pmax=" << evis(0) << "/" << pmax << endl;
 
   // multi-ring mu-like sample
   if( mer_id  == 2 && nring(0) > 1) //mulike
@@ -2409,7 +2531,7 @@ void OscNtupleManager::FillNtuple(){
   if( type <  MultiRing_elike_nue  ){
     for( int i=0 ; i < 3 ; i++ ) o_dir[i] = dir(0,i);
     // are we an e-like type?
-    if( probms(0,1) - probms(0,2) > pid_thr ) o_amom = amome(0);
+    if( probms(0,1) - probms(0,2) > 0 ) o_amom = amome(0);
     else o_amom = amomm(0);
   }
 
@@ -2486,6 +2608,16 @@ void OscNtupleManager::MakeCutFlow(){
     if(total_mass>800 && total_mass<1050 && total_mom<250) return;
   }
 
+  if(kCR){//reject events inside the signal region only for p_eee
+    if(!pass_cut[1][0]) return;//FC&FV
+    if(!pass_cut[2][1]) return;//nring
+    if(!pass_cut[3][0]) return;//PID
+    if(!pass_cut[4][0]) return;//Deacy Electron
+    if(total_mass<750 || total_mass>900 || total_mom<450) return;
+  }
+
+  cout << "Control_Region nrun/nsub/nev=" << nrun(0) << "/" << nsub(0) << "/" << nev(0) << endl;
+
   for(int r=0;r<r_max;r++){// # of ring
     for(int mu=0;mu<mu_max;mu++){// # of mu-like ring
       for(int m=0;m<m_max;m++){//# of michel electron
@@ -2509,7 +2641,7 @@ void OscNtupleManager::MakeCutFlow(){
 
 void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, michel e cut, 
 
-  if(process_input!="fcdt" || total_mass<800 || total_mass>1050 || total_mom>250){//for blind analysis
+  if(kCR || process_input.find("fcdt")==std::string::npos || total_mass<800 || total_mass>1050 || total_mom>250){//for blind analysis
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d",r,mu,p),"","")->Fill(c,weight*osc_weight);
     m_hSvc.h1D(Form("cut_flow_nring%d_mulike%d_michel%d_fp%d",r,mu,p,is_free_proton),"","")->Fill(c,weight*osc_weight);
   }
@@ -2523,6 +2655,7 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
   m_hSvc.h1D(Form("n_true_neutron_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(n_true_neutron,weight*osc_weight);
   m_hSvc.h1D(Form("distance_to_wall_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(wall(0),weight*osc_weight);
   m_hSvc.h1D(Form("visible_energy_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(evis(0),weight*osc_weight);
+  m_hSvc.h1D(Form("potot_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(potot(0),weight*osc_weight);
   m_hSvc.h1D(Form("nhit_OD_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(nhitac(0),weight*osc_weight);
   m_hSvc.h1D(Form("nRing_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(nRing,weight*osc_weight);
   m_hSvc.h1D(Form("nElikeRing_angle_nring%d_cut%d_nring%d_mulike%d_michel%d",nRing,c,r,mu,p),"","")->Fill(n_elike_angle,weight*osc_weight);
@@ -2546,13 +2679,14 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
   m_hSvc.h1D(Form("n_michel_electron_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(nDecayE,weight*osc_weight);
   m_hSvc.h1D(Form("ntag_multiplicity_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(nNeutron,weight*osc_weight);
   m_hSvc.h1D(Form("mass_pi0_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
-  if(process_input!="fcdt" || total_mass<800 || total_mass>1050){//for blind analysis
+  if(kCR || process_input.find("fcdt")==std::string::npos || total_mass<800 || total_mass>1050){//for blind analysis
     m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mass,weight*osc_weight);
     m_hSvc.h1D(Form("total_distance_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_distance,weight*osc_weight);
     if(nNeutron==0) m_hSvc.h1D(Form("total_distance_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_distance,weight*osc_weight);
     if(nNeutron==0) m_hSvc.h1D(Form("total_distance_up_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_distance_up,weight*osc_weight);
     if(nNeutron==0) m_hSvc.h1D(Form("total_distance_down_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_distance_down,weight*osc_weight);
     if(total_mom<250) m_hSvc.h1D(Form("mass_proton_reco_momcut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mass,weight*osc_weight);
+    if(total_mom<250 && nNeutron==0) m_hSvc.h1D(Form("mass_proton_reco_momcut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mass,weight*osc_weight);
     m_hSvc.h1D(Form("mass_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mass,weight*osc_weight);
     if(total_mom<250) m_hSvc.h1D(Form("mass_proton_reco_momcut_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mass,weight*osc_weight);
     m_hSvc.h1D(Form("mass_two_elike_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(closest_mass_pi0_reco,weight*osc_weight);
@@ -2560,15 +2694,18 @@ void OscNtupleManager::MakeBasicPlot(int c, int r, int mu, int p){//cut #, miche
     m_hSvc.h1D(Form("mass_all_ring_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_ring_mass,weight*osc_weight);
     m_hSvc.h1D(Form("mass_all_mulike_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_mulike_mass,weight*osc_weight);
   }
-  if(process_input!="fcdt" || total_mom>250){//for blind analysis
+  if(kCR || process_input.find("fcdt")==std::string::npos || total_mom>250){//for blind analysis
     m_hSvc.h1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
-    if(total_mass>800 && total_mass<1050) m_hSvc.h1D(Form("mom_proton_reco_masscut_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
+    if(total_mass>800 && total_mass<1050 && nNeutron==0) m_hSvc.h1D(Form("mom_proton_reco_masscut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
+    if(total_mass>800 && total_mass<1050 && nNeutron==0) m_hSvc.h1D(Form("mom_proton_reco_low_masscut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
+    if(total_mass>800 && total_mass<1050 && nNeutron==0) m_hSvc.h1D(Form("mom_proton_reco_high_masscut_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
     m_hSvc.h1D(Form("mom_proton_reco_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mom,weight*osc_weight);
     if(total_mass>800 && total_mass<1050) m_hSvc.h1D(Form("mom_proton_reco_masscut_cut%d_nring%d_mulike%d_michel%d_fp%d",c,r,mu,p,is_free_proton),"","")->Fill(total_mom,weight*osc_weight);
+    if(nNeutron==0) m_hSvc.h1D(Form("mom_proton_reco_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->Fill(total_mom,weight*osc_weight);
     m_hSvc.h1D(Form("mom_all_ring_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_ring_mom,weight*osc_weight);
     m_hSvc.h1D(Form("mom_all_mulike_reco_nring%d_cut%d_nring%d_mulike%d_michel%d_fp%d",nRing,c,r,mu,p,is_free_proton),"","")->Fill(all_mulike_mom,weight*osc_weight);
   }
-  if(process_input!="fcdt" || total_mass<800 || total_mass>1050 || total_mom>250){//for blind analysis
+  if(kCR || process_input.find("fcdt")==std::string::npos || total_mass<800 || total_mass>1050 || total_mom>250){//for blind analysis
     m_hSvc.graph(Form("mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->SetPoint(graph_point_2,total_mass,total_mom);
     if(nNeutron==0) m_hSvc.graph(Form("mass_mom_proton_reco_ntag_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->SetPoint(graph_point_2,total_mass,total_mom);
     m_hSvc.graph(Form("all_ring_mass_mom_proton_reco_cut%d_nring%d_mulike%d_michel%d",c,r,mu,p),"","")->SetPoint(graph_point_2,all_ring_mass,all_ring_mom);
@@ -2613,7 +2750,7 @@ void OscNtupleManager::MakeValidationPlot(){
   if(kDebugMode) cout << "OscNtupleManager::MakeValidationPlot" << endl;
 
   float initial_pmom = 0.,initial_pdirx=0.,initial_pdiry=0.,initial_pdirz=0.;
-  if(process_input=="fcmc"){
+  if(process_input.find("fcmc")!=std::string::npos){
     if(ipv(1)==14) {
       initial_pmom = pmomv(1);
       initial_pdirx = dirv(1,0);
@@ -2627,7 +2764,7 @@ void OscNtupleManager::MakeValidationPlot(){
     initial_pdiry = dirv(0,1);
     initial_pdirz = dirv(0,2);
   }
-  if(process_input=="fcmc"){
+  if(process_input.find("fcmc")!=std::string::npos){
     if(initial_pmom>1e-2) {
       m_hSvc.h1D("fermi_momentum","","")->Fill(initial_pmom,weight);
       m_hSvc.h1D("fermi_dirx","","")->Fill(initial_pdirx,weight);
@@ -2643,7 +2780,7 @@ void OscNtupleManager::MakeValidationPlot(){
 
 
   //Basic plot
-  if(process_input!="fcmc" && process_input!="fcdt") m_hSvc.h1D("hstate","","")->Fill(hstate(0),weight);
+  if(process_input.find("fcmc")==std::string::npos && process_input.find("fcdt")==std::string::npos) m_hSvc.h1D("hstate","","")->Fill(hstate(0),weight);
   
 
   //truth&ring matching
@@ -2686,8 +2823,7 @@ void OscNtupleManager::MakeValidationPlot(){
     float closest_angle=9999,closest_ring_prob_angle=9999;
     int closest_ring_id=-1;
     for(int r=0;r<nRing;r++){
-      float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
-      int pid_angle = (prob_angle<pid_thr)? 0 : 2;//e-like or mu-like
+      int pid_angle = (prob_angle_ring[r]<0)? 0 : 2;//e-like or mu-like
       TLorentzVector this_ring = GetTLorentzVectorRing(r,pid_angle);
       float angle_lep_ring = this_ring.Angle(this_lepton.Vect())*180./3.14159;
       m_hSvc.h1D(Form("true_angle_lepton_and_ring_nring%d",nRing),"","")->Fill(angle_lep_ring);
@@ -2695,7 +2831,7 @@ void OscNtupleManager::MakeValidationPlot(){
         if(angle_lep_ring<closest_angle){
           closest_angle = angle_lep_ring;
           closest_ring_id = r;
-          closest_ring_prob_angle = prob_angle;
+          closest_ring_prob_angle = prob_angle_ring[r];
         }
       }
     }
@@ -2721,6 +2857,10 @@ void OscNtupleManager::MakeValidationPlot(){
   m_hSvc.h1D("true_angle_min_mid_lepton","","")->Fill(true_angle_min_mid_lepton,weight);
   m_hSvc.h1D("true_angle_min_max_lepton","","")->Fill(true_angle_min_max_lepton,weight);
   m_hSvc.h1D("true_angle_mid_max_lepton","","")->Fill(true_angle_mid_max_lepton,weight);
+  m_hSvc.h1D(Form("true_angle_min_mid_lepton_nring%d",nRing),"","")->Fill(true_angle_min_mid_lepton,weight);
+  m_hSvc.h1D(Form("true_angle_min_max_lepton_nring%d",nRing),"","")->Fill(true_angle_min_max_lepton,weight);
+  m_hSvc.h1D(Form("true_angle_mid_max_lepton_nring%d",nRing),"","")->Fill(true_angle_mid_max_lepton,weight);
+
 
   //make histgram
   m_hSvc.h1D("true_min_mom_lepton","","")->Fill(min_mom,weight);
@@ -2747,11 +2887,11 @@ void OscNtupleManager::MakeValidationPlot(){
       float residual_mmom = (amomm(matched_ring_id[c])-pmomv(c))/pmomv(c);
       if(ipv(c)==2 || ipv(c)==3){//electron
         m_hSvc.h1D(Form("true_mom_electron_match_ring_nring%d",nRing),"","")->Fill(pmomv(c));
-        if(matched_ring_prob_angle[c]<pid_thr) m_hSvc.h1D(Form("true_mom_electron_match_ring_angle_elike_nring%d",nRing),"","")->Fill(pmomv(c));
+        if(matched_ring_prob_angle[c]<0) m_hSvc.h1D(Form("true_mom_electron_match_ring_angle_elike_nring%d",nRing),"","")->Fill(pmomv(c));
       }
       if(ipv(c)==5 || ipv(c)==6){//muon
         m_hSvc.h1D(Form("true_mom_muon_match_ring_nring%d",nRing),"","")->Fill(pmomv(c));
-        if(matched_ring_prob_angle[c]>pid_thr) m_hSvc.h1D(Form("true_mom_muon_match_ring_angle_mulike_nring%d",nRing),"","")->Fill(pmomv(c));
+        if(matched_ring_prob_angle[c]>0) m_hSvc.h1D(Form("true_mom_muon_match_ring_angle_mulike_nring%d",nRing),"","")->Fill(pmomv(c));
       }
       for(int p=0;p<6;p++){
         if(pmomv(c)>100*p && pmomv(c)<100+100*p){
@@ -2798,25 +2938,46 @@ void OscNtupleManager::MakeValidationPlot(){
   m_hSvc.h1D(Form("residual_total_mass_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(residual_total_mass);
   m_hSvc.h1D(Form("diff_total_mass_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(diff_total_mass);
   m_hSvc.h1D(Form("diff_total_mom_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(diff_total_mom);
-  m_hSvc.h1D("ring_counting_likelihood","","")->Fill(Dlfct(0));
-  m_hSvc.h1D("ring_counting_likelihood2","","")->Fill(Dlfct2(0));
-  m_hSvc.h1D("ring_counting_likelihood3","","")->Fill(Dlfct3(0));
-  m_hSvc.h1D("ring_counting_likelihood4","","")->Fill(Dlfct4(0));
-  cout << "nRing=" << nRing << endl;
-  cout << "Dlfct 0/1/2/3=" << Dlfct(0) << "/" << Dlfct2(0) << "/" << Dlfct3(0) << "/" << Dlfct4(0) << endl;
-  m_hSvc.h1D(Form("ring_counting_likelihood_nring%d",nRing),"","")->Fill(Dlfct(0));
-  m_hSvc.h1D(Form("ring_counting_likelihood2_nring%d",nRing),"","")->Fill(Dlfct2(0));
-  m_hSvc.h1D(Form("ring_counting_likelihood3_nring%d",nRing),"","")->Fill(Dlfct3(0));
-  m_hSvc.h1D(Form("ring_counting_likelihood4_nring%d",nRing),"","")->Fill(Dlfct4(0));
-  m_hSvc.h1D(Form("diff_ring_counting_likelihood2_1_nring%d",nRing),"","")->Fill(Dlfct2(0)-Dlfct(0));
-  m_hSvc.h1D(Form("diff_ring_counting_likelihood3_2_nring%d",nRing),"","")->Fill(Dlfct3(0)-Dlfct2(0));
-  m_hSvc.h1D(Form("diff_ring_counting_likelihood4_3_nring%d",nRing),"","")->Fill(Dlfct4(0)-Dlfct3(0));
-  m_hSvc.h2D(Form("ring_counting_likelihood1_2_nring%d",nRing),"","")->Fill(Dlfct(0),Dlfct2(0));
-  m_hSvc.h2D(Form("ring_counting_likelihood2_3_nring%d",nRing),"","")->Fill(Dlfct2(0),Dlfct3(0));
-  m_hSvc.h2D(Form("ring_counting_likelihood3_4_nring%d",nRing),"","")->Fill(Dlfct3(0),Dlfct4(0));
+  if(process_input=="fcmc_rc" || process_input=="p_eee_final"){
+    m_hSvc.h1D("ring_counting_likelihood","","")->Fill(Dlfct(0));
+    m_hSvc.h1D("ring_counting_likelihood2","","")->Fill(Dlfct2(0));
+    m_hSvc.h1D("ring_counting_likelihood3","","")->Fill(Dlfct3(0));
+    m_hSvc.h1D("ring_counting_likelihood4","","")->Fill(Dlfct4(0));
+    //cout << "nRing=" << nRing << endl;
+    //cout << "Dlfct 0/1/2/3=" << Dlfct(0) << "/" << Dlfct2(0) << "/" << Dlfct3(0) << "/" << Dlfct4(0) << endl;
+    m_hSvc.h1D(Form("ring_counting_likelihood_nring%d",nRing),"","")->Fill(Dlfct(0));
+    m_hSvc.h1D(Form("ring_counting_likelihood2_nring%d",nRing),"","")->Fill(Dlfct2(0));
+    m_hSvc.h1D(Form("ring_counting_likelihood3_nring%d",nRing),"","")->Fill(Dlfct3(0));
+    m_hSvc.h1D(Form("ring_counting_likelihood4_nring%d",nRing),"","")->Fill(Dlfct4(0));
+    m_hSvc.h1D(Form("diff_ring_counting_likelihood2_1_nring%d",nRing),"","")->Fill(Dlfct2(0)-Dlfct(0));
+    m_hSvc.h1D(Form("diff_ring_counting_likelihood3_2_nring%d",nRing),"","")->Fill(Dlfct3(0)-Dlfct2(0));
+    m_hSvc.h1D(Form("diff_ring_counting_likelihood4_3_nring%d",nRing),"","")->Fill(Dlfct4(0)-Dlfct3(0));
+    m_hSvc.h2D(Form("ring_counting_likelihood1_2_nring%d",nRing),"","")->Fill(Dlfct(0),Dlfct2(0));
+    m_hSvc.h2D(Form("ring_counting_likelihood2_3_nring%d",nRing),"","")->Fill(Dlfct2(0),Dlfct3(0));
+    m_hSvc.h2D(Form("ring_counting_likelihood3_4_nring%d",nRing),"","")->Fill(Dlfct3(0),Dlfct4(0));
+    //Check Rejecting low energy ring by using true lepton
+    //refer atmpd/src/recon/aplib/apringcorr.F
+    int reject = 0;
+    if(min_mom_lepton.E()/total_true_vec.E()<0.05 && min_mom_lepton.E()<40) reject=1;
+    if(true_angle_min_mid_lepton<30 && min_mom_lepton.E()*sin(true_angle_min_mid_lepton*3.14159/180)<60 ) reject=1;
+    if(true_angle_min_max_lepton<30 && min_mom_lepton.E()*sin(true_angle_min_max_lepton*3.14159/180)<60 ) reject=1;
+    if(true_angle_mid_max_lepton<30 && mid_mom_lepton.E()*sin(true_angle_mid_max_lepton*3.14159/180)<60 ) reject=1;
+    cout << "energy total=" << total_true_vec.E() << endl;
+    cout << "energy min/mid/max=" << min_mom_lepton.E() << "/" << mid_mom_lepton.E() << "/" << max_mom_lepton.E() << endl;
+    cout << "fraction min/total=" << min_mom_lepton.E()/total_true_vec.E()  << endl;
+    cout << "angle min_mid/min_max/mid_max=" << true_angle_min_mid_lepton << "/" << true_angle_min_max_lepton << "/" << true_angle_mid_max_lepton << endl;
+    cout << "transmom min_mid/min_max/mid_max=" << min_mom_lepton.E()*sin(true_angle_min_mid_lepton*3.14159/180) 
+      << "/" << min_mom_lepton.E()*sin(true_angle_min_max_lepton*3.14159/180) 
+      << "/" << mid_mom_lepton.E()*sin(true_angle_mid_max_lepton*3.14159/180) << endl;
+    cout << "reject=" << reject << endl;
+    m_hSvc.h1D(Form("ring_counting_likelihood_nring%d_reject%d",nRing,reject),"","")->Fill(Dlfct(0));
+    m_hSvc.h1D(Form("ring_counting_likelihood2_nring%d_reject%d",nRing,reject),"","")->Fill(Dlfct2(0));
+    m_hSvc.h1D(Form("ring_counting_likelihood3_nring%d_reject%d",nRing,reject),"","")->Fill(Dlfct3(0));
+    m_hSvc.h1D(Form("ring_counting_likelihood4_nring%d_reject%d",nRing,reject),"","")->Fill(Dlfct4(0));
+  }
 
   //for PhD thesis
-  if(hstate(0)==0) {
+  /*if(hstate(0)==0) {
     m_hSvc.h1D("total_true_mass_free","","")->Fill(total_true_mass);
     m_hSvc.h1D("total_true_mom_free","","")->Fill(total_true_mom);
   }
@@ -2831,7 +2992,7 @@ void OscNtupleManager::MakeValidationPlot(){
   if(hstate(0)==4) {
     m_hSvc.h1D("total_true_mass_cor","","")->Fill(total_true_mass);
     m_hSvc.h1D("total_true_mom_cor","","")->Fill(total_true_mom);
-  }
+  }*/
 
   m_hSvc.h1D("nRing","","")->Fill(nRing);
 
@@ -2905,10 +3066,31 @@ void OscNtupleManager::MakeValidationPlot(){
 }
 
 void OscNtupleManager::MakeNtuple(){
+
+  if(kCR){//reject events inside the signal region only for p_eee
+    if(!pass_cut[1][0]) return;//FC&FV
+    if(!pass_cut[2][1]) return;//nring
+    if(!pass_cut[3][0]) return;//PID
+    if(!pass_cut[4][0]) return;//Deacy Electron
+    if(total_mass>600 && total_mass<1250 && total_mom<450) return;
+  }
+
+  if(kTotalBox) 
+    if(!pass_all) return;
+  
   if(kDebugMode) {
     cout << "MakeNtuple" << endl;
     cout << "nRing/nMulike=" << nRing << "/" << n_mulike_angle << endl;
   }
+  if(kTotalBox) ComputeErrorValue();//systematic for neutrino flux & cross section
+
+  o_weight = weight*osc_weight;
+  o_osc_weight = osc_weight;
+  o_mc_weight = mc_weight;
+  o_livetime_weight = live_time_weight;
+  o_mode = mode(0);
+  o_pnu  = pnu(0);
+  o_ipnu = ipnu(0);
   o_itype = 0 ;  
   o_nring = nRing;
   o_nmulike = n_mulike_angle;
@@ -2921,18 +3103,21 @@ void OscNtupleManager::MakeNtuple(){
   float min_mom=99999999, mid_mom=99999999, max_mom=99999999;
   for(int r=0;r<nRing;r++){
     //cout << "ring" << r << " amomm=" << amomm(r) << endl;
-    float prob_angle = sqrt(fabs(probms(r,1)))-sqrt(fabs(probms(r,2)));
     float prob_pattern = prmslg(r,1) - prmslg(r,2);
-    o_prob_angle[r] = prob_angle;
+    o_prob_angle[r] = prob_angle_ring[r];
     o_probms_e[r] = probms(r,1);
     o_probms_mu[r] = probms(r,2);
     o_prob_pattern[r] = prob_pattern;
     o_prmslg_e[r] = prmslg(r,1);
     o_prmslg_mu[r] = prmslg(r,2);
     o_mmom[r] = amomm(r);
+    o_emom[r] = amome(r);
     o_dir_x[r] = dir(r,0);
     o_dir_y[r] = dir(r,1);
     o_dir_z[r] = dir(r,2);
+    o_msdir_x[r] = msdir(r,0,1);
+    o_msdir_y[r] = msdir(r,1,1);
+    o_msdir_z[r] = msdir(r,2,1);
     o_ang[r] = ang(r);
     o_ange[r] = ange(r);
     o_angm[r] = angm(r);
@@ -3045,4 +3230,403 @@ float OscNtupleManager::CalcEnergyVector(int id){
   if(ipv(id)==5 || ipv(id)==6) mass = 105.7;//MeV
   float energy = sqrt(pmomv(id)*pmomv(id) + mass*mass);
   return energy;
+}
+
+extern "C" void fnhonfx03k_( Float_t* ,Float_t[], Int_t*, Float_t[]);
+
+void OscNtupleManager::ComputeErrorValue(){
+  float ud_b4e=0.1,ud_a4e=0.8,ud_mule = 0.7,ud_b4mnd=1.1,ud_a4mnd=1.7,ud_b4m=0.3,ud_a4m=0.5 ; 
+  float ud_mulm=0.2,ud_pc=0.2,ud_mlts=0.2,ud_mltm=0.2,ud_mlts_e=0.4,ud_mltm_e=0.3 ; 
+  float hv_b4e=0.1,hv_a4e=1.4,hv_mule=3.2,hv_b4mnd=0.3,hv_a4mnd=1.4,hv_b4m=0.1 ; 
+  float hv_a4m=1.9,hv_mulm=2.3,hv_pc=1.7,hv_mlts=1.3,hv_mltm=1.5,hv_mlts_e=1.4,hv_mltm_e=2.8 ; 
+
+  float factor=0.,flx=0.;
+  float neu_ene = pnu(0);//GeV
+  int neu_id = ipnu(0);
+  float zenith=9999,gen_p=9999;
+  GetZenithMom(zenith,gen_p);
+  //cout << "zenith/gen_p=" << zenith << "/" << gen_p << endl;
+  //abs_norm_E_lt_1GeV
+  if( neu_ene <= 1.0 ) o_error[0] = ( 0.07 - 0.18*log10(neu_ene) );
+  //abs_norm_E_gt_1GeV
+  if( neu_ene > 1.0  && neu_ene <= 10.  )  o_error[1] = 0.07;
+  if( neu_ene > 10.  && neu_ene <= 100. )  o_error[1] = 0.02 + 0.05*log10(neu_ene);
+  if( neu_ene > 100. && neu_ene <= 1.e3 )  o_error[1] = -0.04 + 0.08*log10(neu_ene);
+  //nu_nubar_ratio_E_lt_1GeV
+  if( neu_ene < 1.0 ){
+    if( abs(neu_id) == 12 ) o_error[2] = -0.01;    
+    if( abs(neu_id) == 14 ) o_error[2] =  0.01;     
+    if( abs(neu_id) == 16 ) o_error[2] =  0.01;     
+  }
+  //nu_nubar_ratio_1_E_10GeV
+  if( neu_ene >= 1.0 && neu_ene < 10.0 ){
+    if( abs(neu_id) == 12 ) o_error[3] = -0.015;    
+    if( abs(neu_id) == 14 ) o_error[3] =  0.015;   
+    if( abs(neu_id) == 16 ) o_error[3] =  0.015;   
+  }
+  //nu_nubar_ratio_E_gt_10GeV
+  if( neu_ene > 10.0 ){
+    factor =  (neu_ene < 30.0) ? 0.05 : 1. - (-0.162*log10(neu_ene)+1.176) ;
+    if( abs(neu_id) == 12 ) o_error[4] = -1. * factor /2.  ;    
+    if( abs(neu_id) == 14 ) o_error[4] =  1. * factor /2.  ;
+    if( abs(neu_id) == 16 ) o_error[4] =  1. * factor /2.  ;
+  }
+  //nuebar_nue_E_lt_1GeV
+  if( neu_ene < 1.0 && neu_id == -12 ) o_error[5] = -0.025 ;  
+  if( neu_ene < 1.0 && neu_id ==  12 ) o_error[5] =  0.025 ;  
+  //nuebar_nue_1_E_10GeV
+  if( neu_ene >= 1.0 && neu_ene <= 10.0 && neu_id == -12 ) o_error[6] = -0.025;  
+  if( neu_ene >= 1.0 && neu_ene <= 10.0 && neu_id ==  12 ) o_error[6] =  0.025;  
+  //nuebar_nue_E_gt_10GeV
+  factor = (neu_ene < 100.0) ? 0.08 : 1. - (-0.134*log10(neu_ene)+1.205) ;
+  if( neu_ene > 10.0 && neu_id == -12 ) o_error[7] = -1. * factor /2. ;  
+  if( neu_ene > 10.0 && neu_id ==  12 ) o_error[7] =  1. * factor /2. ;  
+  //numubar_numu_E_lt_1GeV
+  if( neu_ene < 1.0 && neu_id == -14 ) o_error[8] = -0.01;  
+  if( neu_ene < 1.0 && neu_id ==  14 ) o_error[8] =  0.01;  
+  if( neu_ene < 1.0 && neu_id == -16 ) o_error[8] = -0.01;  
+  if( neu_ene < 1.0 && neu_id ==  16 ) o_error[8] =  0.01;  
+  //numubar_numu_1_E_10GeV
+  if( neu_ene >= 1.0 && neu_ene < 10.0 && neu_id == -14 ) o_error[9] = -0.03 ;  
+  if( neu_ene >= 1.0 && neu_ene < 10.0 && neu_id ==  14 ) o_error[9] =  0.03;  
+  if( neu_ene <= 1.0 && neu_ene < 10.0 && neu_id == -16 ) o_error[9] = -0.03;  
+  if( neu_ene <= 1.0 && neu_ene < 10.0 && neu_id ==  16 ) o_error[9] =  0.03;  
+  //numubar_numu_E_gt_10GeV
+  factor = ( neu_ene < 50.0 ? 0.06 : 1. - (-0.210*log10(neu_ene)+1.245) );
+  if( neu_ene > 10.0 && neu_id == -14 ) o_error[10] = -1. * factor /2. ;  
+  if( neu_ene > 10.0 && neu_id ==  14 ) o_error[10] =  1. * factor /2. ;  
+  if( neu_ene > 10.0 && neu_id == -16 ) o_error[10] = -1. * factor /2. ;  
+  if( neu_ene > 10.0 && neu_id ==  16 ) o_error[10] =  1. * factor /2. ;  
+  //up down ratio
+   if(   (interaction_type >= SubGeV_elike_0dcy && interaction_type <= SubGeV_SingleRing_pi0like) 
+      ||  interaction_type == MultiGeV_elike_nue || interaction_type == MultiGeV_elike_nuebar || interaction_type == SubGeV_pi0like ) {
+      if( gen_p <  0.4              ) flx = ud_b4e  ;
+      if( gen_p >= 0.4  && gen_p < 1.33 ) flx = ud_a4e  ;
+      if( gen_p >= 1.33 )             flx = ud_mule ; 
+   }   
+   if( (interaction_type >= SubGeV_mulike_1dcy && interaction_type <= SubGeV_mulike_2dcy ) 
+      ||  interaction_type == MultiGeV_mulike) {
+      if( gen_p <  0.4              ) flx = ud_b4m  ;
+      if( gen_p >= 0.4  && gen_p < 1.33 ) flx = ud_a4m  ;
+      if( gen_p >= 1.33 )             flx = ud_mulm ; 
+   }
+   if( interaction_type == MultiRing_mulike ){
+      if( gen_p <  1.33 ) flx = ud_mlts  ;
+      if( gen_p >= 1.33 ) flx = ud_mltm  ; 
+   }
+   if( interaction_type == MultiRing_elike_nue  || interaction_type == MultiRing_elike_nuebar ){
+      if( gen_p <  1.33 ) flx = ud_mlts_e  ;
+      if( gen_p >= 1.33 ) flx = ud_mltm_e  ; 
+   }
+   if( interaction_type == MultiRingOther_1  || interaction_type == MultiRingOther_2 ){
+      if( gen_p <  1.33 ) flx = ud_mlts_e  ;
+      if( gen_p >= 1.33 ) flx = ud_mltm_e  ; 
+   }
+   if( interaction_type == SubGeV_mulike_0dcy ) {
+      if( gen_p <  0.4              ) flx = ud_b4mnd  ;
+      if( gen_p >= 0.4  && gen_p < 1.33 ) flx = ud_a4mnd  ;
+   }
+   //cout << "flx=" << flx << endl;
+   o_error[11] = -1.2* zenith * (flx/0.6)*0.01;
+   //horizontal vertical ratio
+   flx = 0.;
+   if(   (interaction_type >= SubGeV_elike_0dcy && interaction_type <= SubGeV_SingleRing_pi0like) 
+      ||  interaction_type == MultiGeV_elike_nue  || interaction_type == MultiGeV_elike_nuebar || interaction_type == SubGeV_pi0like ) {
+      if( gen_p <  0.4              ) flx = hv_b4e  ;
+      if( gen_p >= 0.4  && gen_p < 1.33 ) flx = hv_a4e  ;
+      if( gen_p >= 1.33 )             flx = hv_mule ; 
+   }   
+   if( (interaction_type >= SubGeV_mulike_1dcy && interaction_type <= SubGeV_mulike_2dcy ) 
+      ||  interaction_type == MultiGeV_mulike ){
+      if( gen_p <  0.4              ) flx = hv_b4m  ;
+      if( gen_p >= 0.4  && gen_p < 1.33 ) flx = hv_a4m  ;
+      if( gen_p >= 1.33 )             flx = hv_mulm ; 
+   }
+   if( interaction_type == MultiRing_mulike ){
+      if( gen_p <  1.33 ) flx = hv_mlts  ;
+      if( gen_p >= 1.33 ) flx = hv_mltm  ; 
+   }
+   if( interaction_type == MultiRing_elike_nue || interaction_type == MultiRing_elike_nuebar){
+      if( gen_p <  1.33 ) flx = hv_mlts_e  ;
+      if( gen_p >= 1.33 ) flx = hv_mltm_e  ; 
+   }
+   if( interaction_type == MultiRingOther_1 || interaction_type == MultiRingOther_2 ){
+      if( gen_p <  1.33 ) flx = hv_mlts_e  ;
+      if( gen_p >= 1.33 ) flx = hv_mltm_e  ; 
+   }
+   if( interaction_type == SubGeV_mulike_0dcy ) {
+      if( gen_p <  0.4              ) flx = hv_b4mnd  ;
+      if( gen_p >= 0.4  && gen_p < 1.33 ) flx = hv_a4mnd  ;
+   }
+   float czfac=0.; 
+   if( zenith < 0.0 ) czfac  = 1.0 + 2.0*zenith; 
+   if( zenith >= 0.0 ) czfac  = 1.0 - 2.0*zenith; 
+   o_error[12] = czfac*flx*0.01;
+   //K_pi_ratio
+   Int_t    nu = ipnu(0); //neutrino flavor 
+   Float_t  fdir[3],flx2[2];
+   Float_t  Et = neu_ene;
+   if( neu_ene > 1.0e3 ) Et = 1.0e3;
+   fdir[0] = dirnu(0,0);
+   fdir[1] = dirnu(0,1);
+   fdir[2] = fabs(dirnu(0,2));
+   if( nu ==  16 ) nu =  14 ;
+   if( nu == -16 ) nu = -14 ;
+   fnhonfx03k_( &Et, fdir, &nu, flx2 );
+   if( neu_ene > 1.0e3 ) o_error[13] = 0.2;
+   if( neu_ene < 100.0 ) o_error[13] = 0.05;
+   if( neu_ene >= 100.0 && neu_ene < 1.0e3 ) o_error[13] = -0.25 + 0.15*log10(neu_ene);
+   //cout << "flx2[1]/flx2[0]=" << flx2[1] << "/" << flx2[0] << endl;
+   o_error[13] *= flx2[1]/flx2[0];
+   //nu_path
+   Float_t Pl = ComputeOscProb( 11 );
+   Float_t P0 = ComputeOscProb( 0 );
+   //cout << "Pl/P0=" << Pl << "/" << P0 << endl;
+   o_error[14] = -( P0  - Pl);   
+   //axial_mass_QE_and_1pi
+   Int_t mo = abs( mode(0) );
+   Float_t mass = 0.;
+   Float_t q2;
+   // compute q2 for this event
+   if( mo < 30 ){//CC
+      if( abs( ipnu(0) ) == 12   ) mass = 5.11e-4; // electron
+      if( abs( ipnu(0) ) == 14   ) mass = 0.10565; // muon
+      if( abs( ipnu(0) ) == 16   ) mass = 1.777  ; // tau 
+   }
+   Float_t lepP[3];
+   Float_t nuP[3];
+   for( int i = 0; i < 3 ; i++ ){
+      lepP[i] = pnu(2)*dirnu(2,i);  // lepton momentum vector
+      nuP [i] = pnu(0)*dirnu(0,i);  // neutrino vector 
+   }
+   Float_t lepE = sqrt( mass*mass + pnu(2)*pnu(2) );
+   q2  = ( lepE - pnu(0) ) * ( lepE - pnu(0) );
+   for( int i = 0; i < 3 ; i++ )
+      q2 -= (lepP[i] - nuP[i]) * (lepP[i] - nuP[i]); 
+   q2 *= -1.;
+   if( q2 > 2. ) q2 = 2.;
+   // Quasi-elastic modes
+   if( mo == 1 || mo == 51 || mo == 52 ){
+      // I have no idea where these numbers came from
+      // I merely extracted them from the previous version 
+      // of this code
+      o_error[15] = 1. - (0.989-0.1947*q2 + 0.04742*q2*q2);
+   } 
+   // Single-Pi modes CC and NC 
+   else if( ( mo >= 11 && mo <= 13 ) || 
+            ( mo >= 22 && mo <= 23 ) ||
+            ( mo >= 31 && mo <= 34 ) ||
+            ( mo >= 42 && mo <= 45 ) ||
+            ( mo == 17 || mo == 38   || mo == 39 ) ){
+      // I have no idea where these numbers came from
+      // I merely extracted them from the previous version 
+      // of this code
+      o_error[15] = 1. - (0.9924-0.2458*q2 + 0.06384*q2*q2);
+   }
+   if ( o_error[15] > 0.3 ) o_error[15] = 0.3 ;
+   //CCQE_xsec_ratio
+   Float_t E    = pnu(0);  // neutrino energy [GeV]
+   Float_t Enuc = pnu(1);  // energy of the nucleus   
+   Float_t QErate [6][2] = {  
+           0.25,  0.50,
+          -0.05, -0.05,
+          -0.20, -0.20,
+          -0.20, -0.20,
+          -0.15, -0.15,
+          -0.10, -0.10   };
+   Int_t index;
+   Int_t binE = (Int_t) ( floor( E/0.1 ) ); // 100 MeV  wide bins
+   if ( binE > 5 ) binE = 5;
+   if( abs( ipnu(0) ) == 12 ) index = 0;
+   if( abs( ipnu(0) ) == 14 ) index = 1;
+   if( abs( ipnu(0) ) == 16 ) index = 1;
+   o_error[16] = QErate[ binE ][ index ];
+   // Return nothing if we are not CCQE of some sort
+   if( mo != 1 && mo != 51 && mo != 52 ) o_error[16]=0.;
+   if( Enuc <= 0. ) o_error[16]=0.;
+   // Should be handled in tau_CC error
+   if( abs( ipnu(0) ) == 16 ) o_error[16]=0.;
+   //CCQE_nu_nubar_ratio
+   Float_t QErateHEL[6] = {  -0.50,  0.10, 0.15, 0.10, 0.05, -0.05 };
+   // Return nothing if we are not CCQE of some sort
+   if( ipnu(0) < 0 ) o_error[17] =  0.5 * QErateHEL[binE];
+   else              o_error[17] = -0.5 * QErateHEL[binE];
+   if( mo != 1 && mo != 51 && mo != 52 ) o_error[17]=0.;
+   if( Enuc <= 0. ) o_error[17]=0.;
+   //CCQE_numu_nue_ratio
+   Float_t QErateMuE[6] = { 0.50, 0.10, 0.00, -0.02, -0.02, -0.02 };
+   // throw out non-CCQE stuff
+   if( abs( ipnu(0) ) == 12 ) o_error[18] = -0.5 * QErateMuE[binE];
+   if( abs( ipnu(0) ) == 14 ) o_error[18] =  0.5 * QErateMuE[binE];
+   if( mo != 1 && mo != 51 && mo != 52 ) o_error[18]=0.;
+   if( Enuc <= 0. ) o_error[18]=0.;
+   //single_meson_xsec
+   if( ( mo >= 22 && mo <= 23 ) || ( mo >= 42 && mo <= 45 ) ||
+       ( mo == 17 || mo == 38   || mo == 39 ) ) o_error[19] = 0.20;
+   //pi0_qpi_ratio
+   if(  mo == 12 || mo == 31   || mo == 32  ) o_error[20] =  0.5 * 0.4;
+   if(  mo == 11 || mo == 13   || 
+        mo == 33 || mo == 34                ) o_error[20] = -0.5 * 0.4;
+   //nubar_nu_1pi_ratio
+   Float_t SinglePiRatio[4][7] = {
+           -0.50,  0.75,  0.90,  -0.50,   0.20,  -0.50,   0.20,
+           -0.05,  0.70,  0.90,  -0.20,   0.30,  -0.20,   0.30,
+            0.10,  0.30,  0.50,  -0.15,   0.30,  -0.15,   0.25,
+            0.10,  0.25,  0.25,  -0.05,   0.20,  -0.05,   0.20  };
+   Int_t   ModeIndex;
+   Int_t   EnergyBin;
+   ModeIndex = -1 ;
+   // ModeIndex [0,2]
+   if( 11 <= mo && mo <= 13 ) ModeIndex = (mo-11);  
+   if( mo == 31 ) ModeIndex = 5 ;
+   if( mo == 32 ) ModeIndex = 3 ;
+   if( mo == 33 ) ModeIndex = 6 ;
+   if( mo == 34 ) ModeIndex = 4 ;
+   if(            E <= 0.5 ) EnergyBin = 0;  
+   if( 0.5 < E && E <= 1.5 ) EnergyBin = 1;  
+   if( 1.5 < E && E <= 3.0 ) EnergyBin = 2;  
+   if( 3.0 < E             ) EnergyBin = 3;  
+   o_error[21] = SinglePiRatio[EnergyBin][ModeIndex] / 2.0 ;
+   if( mode(0) > 0 ) o_error[21] *= -1.;
+   if( ModeIndex < 0 || ModeIndex > 6 ) o_error[21]=0.;
+   //DIS_model_difference
+   EnergyBin = 0;
+   Float_t DisError[2][4] = {
+            0.30,  0.50, 0.10,  0.40,
+            0.05,  0.20, 0.05,  0.10
+          }; 
+   if(            E <= 2.0 ) EnergyBin = 0;  
+   if( 2.0 < E && E <= 3.0 ) EnergyBin = 1;  
+   if( 3.0 < E && E <= 5.0 ) EnergyBin = 2;  
+   if( 5.0 < E && E <=10.0 ) EnergyBin = 3;  
+   if( mode(0) > 0 ) o_error[22] = DisError[0][ EnergyBin ]; 
+   else o_error[22] = DisError[1][ EnergyBin ]; 
+   if ( E > 10.0 ) o_error[22]=0; 
+   // if we aren't CC and NC DIS modes
+   if( mo != 21 && mo != 26 && mo != 41 && mo != 46   ) o_error[22]=0;
+   //DIS_xsec
+   if( mo == 21 || mo == 26 || mo == 41 || mo == 46   ) o_error[23] = 0.05;
+   //coherent_pi_xsec
+   // CC nu_mu
+   if( mo == 16 && nu == 14 ) o_error[24] = 1.0;
+   if( mo == 16 && nu == 16 ) o_error[24] = 1.0;
+   // CC nu_e, why 0.5? rvw
+   if( mo == 16 && nu == 12 ) o_error[24] = 0.5;
+   // NC 
+   if( mo == 36 ) o_error[24] = 0.5;
+   //NC_CC_ratio
+   if( mo > 30 ) o_error[25] = 0.2;
+
+}
+
+void OscNtupleManager::GetZenithMom( float &zenith, float &gen_p)
+{
+
+  //cout << "interaction_type=" << interaction_type << endl;
+  if( interaction_type < 0 ) return;
+  int   type = interaction_type;
+  int   NuType[] = {12, 14};
+
+  if( type <  MultiRing_elike_nue  ){
+    zenith = -1.*dir(0,2);
+    if( probms(0,1) - probms(0,2) > 0 ) gen_p = amome(0);
+    else gen_p = amomm(0);
+  }
+
+  if( type == MultiRing_elike_nue || type == MultiRing_elike_nuebar || type == MultiRingOther_1 ){
+    zenith = -1.*dirtotmue(2);
+    gen_p = etotmue(0);
+  }  
+
+  if (type == MultiRing_mulike){
+    for( int j = 0 ; j < 3 ; j++ ) ptot[j] = 0.;
+    for( int i = 0 ; i < nring(0) ; i++ ){
+      float p = ( prmslg(i,1) < prmslg(i,2) ? amome(i) : amomm(i) );
+      for( int j = 0 ; j < 3 ; j++ ) ptot[j] += dir(i,j) * p;
+    }
+    float norm  = ptot[0]*ptot[0];
+    norm += ptot[1]*ptot[1];
+    norm += ptot[2]*ptot[2];
+    zenith = ptot[2]/sqrt(norm);
+    gen_p = evis(0);
+  }
+
+}
+
+extern "C" void nebaseline_h3d2_ ( Float_t [], Int_t&, Float_t&, Float_t&, Float_t&);
+extern "C" void nebaseline_h3d2l_( Float_t [], Int_t&, Float_t&, Float_t&, Float_t&);
+float OscNtupleManager::ComputeOscProb(Int_t flag)
+{
+   Float_t E  =      pnu(0);
+   Int_t   nu =     ipnu(0);
+   Int_t   mo =     mode(0);
+   Float_t cz = -1.*dirnu(0,2);
+   Float_t Ecopy = E;
+   Float_t SKh = 0.380;
+
+
+   // kill NC nutau
+   if( abs(nu) ==  16 && abs(mo) >= 30 ) return 0.0; 
+
+   // nu_e won't oscillate in this framework
+   if( abs(nu) == 12 ) return 1.0;
+
+
+   // nor do NC events...
+   if( abs(mo) >= 30 ) return 1.0;
+  
+   Int_t   nuf = nu;
+   // no tau in the flux table
+   if( nuf ==  16 ) nuf =  14;
+   if( nuf == -16 ) nuf = -14;
+
+   Float_t Path[20];
+
+   if( flag != 11 )  
+      nebaseline_h3d2_ ( Path, nuf , cz ,Ecopy, SKh );
+   else
+     nebaseline_h3d2l_( Path, nuf , cz ,Ecopy, SKh );
+
+
+   Float_t L = 0.;
+
+   // maximal mixing as per current SK knowledge
+// Float_t DM2 = 2.1e-3; // eV^2
+   Float_t DM2 = 2.1e-3; // eV^2
+   Float_t Sin2 = 1.0; 
+
+   Float_t Prob = 0.;
+
+   // for phase averaging
+   Float_t PhaseThreshold = 2.0;
+   Float_t PathCounter    = 0.0;
+
+   // oscillation phase
+   Float_t Phase  = ( 3.1415 * E)/( 1.267 *DM2 ); 
+
+   if ( abs( mo ) <= 30 &&  abs(nu) >= 14 ) 
+   {
+      Prob = 0.;
+      for (unsigned i = 0; i < 20 ; i++ )
+      {
+         L = (double) Path[i];  // in km
+         if ( L > 1.0  ){
+
+            if ( L /Phase  <= PhaseThreshold  )
+               Prob +=  Sin2 * sin( 1.267 * DM2*L/E ) *  sin( 1.267 * DM2*L/E );
+            if ( L /Phase  > PhaseThreshold )
+               Prob += (1.0 * 0.5)*Sin2; // average out ...
+
+            PathCounter += 1.0;
+         }
+      }//end of loop over paths
+
+      if ( PathCounter > 0.0 ) Prob /= PathCounter;
+   }//end of mode check
+
+ 
+   if( abs(nu) == 16 ) 
+      return Prob;
+
+   return (1.0-Prob);   
 }

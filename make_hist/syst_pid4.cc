@@ -1,16 +1,20 @@
 void syst_pid4(){
   //setup
-  bool calc_chi2 = true;
+  bool calc_chi2 = false;
   int ring_number = 3;
+  int period = 4;
 
   string str_ring;
   if(ring_number==1) str_ring = "1st";
   if(ring_number==2) str_ring = "2nd";
   if(ring_number==3) str_ring = "3rd";
 
-  TFile *input_mc = TFile::Open("../output/fcmc.sk4.mode_subgev_multiring_tree.root");
+  gROOT->SetStyle("Plain");
+  gStyle->SetOptStat(0);
+
+  TFile *input_mc = TFile::Open(Form("../output/fcmc_final.sk%d.mode_subgev_multiring_tree.root",period));
   TTree *tree_mc = (TTree*) input_mc->Get("osc_tuple");
-  TFile *input_data = TFile::Open("../output/fcdt.sk4.mode_subgev_multiring_tree.root");
+  TFile *input_data = TFile::Open(Form("../output/fcdt_final.sk%d.mode_subgev_multiring_tree.root",period));
   TTree *tree_data = (TTree*) input_data->Get("osc_tuple");
 
   int nring_data,nring_mc;
@@ -89,16 +93,58 @@ void syst_pid4(){
 
   float final_scale,final_shift;
   if(ring_number==1){
-    final_scale = 1.49;
-    final_shift = -0.49;
+    if(period==1){
+      final_scale = 0.98;
+      final_shift = 0.01;
+    }
+    if(period==2){
+      final_scale = 1.04;
+      final_shift = 0.04;
+    }
+    if(period==3){
+      final_scale = 0.82;
+      final_shift = -0.37;
+    }
+    if(period==4){
+      final_scale = 0.96;
+      final_shift = -0.04;
+    }
   }
   if(ring_number==2){
-    final_scale = 0.89;
-    final_shift = -0.08;
+    if(period==1){
+      final_scale = 1.02;
+      final_shift = 0.08;
+    }
+    if(period==2){
+      final_scale = 0.95;
+      final_shift = 0.01;
+    }
+    if(period==3){
+      final_scale = 1.08;
+      final_shift = 0.18;
+    }
+    if(period==4){
+      final_scale = 0.96;
+      final_shift = 0.07;
+    }
   }
   if(ring_number==3){
-    final_scale = 0.96;
-    final_shift = 0.04;
+    if(period==1){
+      final_scale = 0.98;
+      final_shift = -0.02;
+    }
+    if(period==2){
+      final_scale = 1.04;
+      final_shift = 0.35;
+    }
+    if(period==3){
+      final_scale = 0.96;
+      final_shift = 0;
+    }
+    if(period==4){
+      final_scale = 0.96;
+      final_shift = -0.03;
+    }
   }
   for (int e=0;e<tree_mc->GetEntries();e++){
     tree_mc->GetEntry(e);
@@ -107,8 +153,6 @@ void syst_pid4(){
   h_prob_angle_mc_best_fit->SetLineColor(4);
   h_prob_angle_mc_best_fit->SetLineWidth(2);
   h_prob_angle_mc_best_fit->Draw("same hist");
-  if(!calc_chi2) c->SaveAs(Form("hist/compare_data_mc_prob_angle_before_after_fit_subgev_multiring_%s.pdf",str_ring.c_str()));
+  if(!calc_chi2) c->SaveAs(Form("hist/compare_data_mc_prob_angle_before_after_fit_subgev_multiring_%s_sk%d.pdf",str_ring.c_str(),period));
 
 }
-
-

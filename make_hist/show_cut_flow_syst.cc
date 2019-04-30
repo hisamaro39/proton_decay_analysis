@@ -5,8 +5,8 @@ void show_cut_flow_syst(){
   //input & mode
   int input_type=12;
   int mode_type=2;
-  int period=4;
-  string syst = "pidup";
+  int period=5;//5:combine sk1-4
+  string syst = "energyup_sk4";
   int fp= (input_type<12)? 1 : 0;
   //cut pattern
   int nring=1;//# of ring
@@ -14,7 +14,9 @@ void show_cut_flow_syst(){
   int nmichel=0;//# of michel electron
 
   TH1 *this_hist,*this_hist_free;
-  TFile *input = TFile::Open(Form("../output/%s.sk%d.mode_%s_%s.root",type[input_type].c_str(),period,type[mode_type].c_str(),syst.c_str()));
+  TFile *input;
+  if(period==5) input = TFile::Open(Form("../output/%s.sk1_4.mode_%s_%s.root",type[input_type].c_str(),type[mode_type].c_str(),syst.c_str()));
+  else input = TFile::Open(Form("../output/%s.sk%d.mode_%s_%s.root",type[input_type].c_str(),period,type[mode_type].c_str(),syst.c_str()));
   this_hist = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d",nring,nmulike,nmichel));  
   if(fp==1) this_hist_free = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d_fp1",nring,nmulike,nmichel));  
   int nbins = this_hist->GetNbinsX();

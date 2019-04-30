@@ -12,7 +12,7 @@ void syst_ntag_3(){
 
   cout << "mode=" << mode << endl;
   TH1 *first_hist;
-  TFile *input_mc = TFile::Open(Form("../output/fcmc.sk4.mode_%s.root",mode.c_str()));//mc
+  TFile *input_mc = TFile::Open(Form("../output/fcmc_final.sk4.mode_%s.root",mode.c_str()));//mc
   TH1* h_n_neutron_true = (TH1*) input_mc->Get(Form("n_true_neutron_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
   TH1* h_n_neutron_tag = (TH1*) input_mc->Get(Form("ntag_multiplicity_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
   //TCanvas *c1 = new TCanvas("c1","",800,600);
@@ -39,7 +39,7 @@ void syst_ntag_3(){
   }
   //cout << "no ntag events detect/calc=" << n_no_tagged << "/" << n_no_tagged_calc << endl;
 
-  TFile *input = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it%d.root",mode.c_str(),iteration));//mc
+  TFile *input = TFile::Open(Form("../output/fcmc_final.sk4.mode_%s_syst_ntag_it%d.root",mode.c_str(),iteration));//mc
   TH1* h_n_neutron_true_final = (TH1*) input_mc->Get(Form("n_true_neutron_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
   float total_events = h_n_neutron_true_final->Integral();
   float total_err2 = 0.;
@@ -90,22 +90,22 @@ void syst_ntag_3(){
   float diff_down = (frac_nom - frac_down)/frac_nom; 
   cout << "difference up/down=" << diff_up << "/" << diff_down << endl;
 
-  TFile *input_it10 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it10.root",mode.c_str()));//mc
-  TFile *input_it30 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it30.root",mode.c_str()));//mc
-  TFile *input_it50 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it50.root",mode.c_str()));//mc
+  //TFile *input_it10 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it10.root",mode.c_str()));//mc
+  //TFile *input_it30 = TFile::Open(Form("../output/fcmc.sk4.mode_%s_syst_ntag_it30.root",mode.c_str()));//mc
+  TFile *input_it50 = TFile::Open(Form("../output/fcmc_final.sk4.mode_%s_syst_ntag_it50.root",mode.c_str()));//mc
   TCanvas *c3 = new TCanvas("c3","",800,600);
-  TH1* hist_eff20_it10 = (TH1*) input_it10->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
-  TH1* hist_eff20_it30 = (TH1*) input_it30->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
+  //TH1* hist_eff20_it10 = (TH1*) input_it10->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
+  //TH1* hist_eff20_it30 = (TH1*) input_it30->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
   TH1* hist_eff20_it50 = (TH1*) input_it50->Get(Form("n_tagged_neutron_exp_eff20_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
-  hist_eff20_it10->SetLineWidth(2);
-  hist_eff20_it30->SetLineWidth(2);
+  //hist_eff20_it10->SetLineWidth(2);
+  //hist_eff20_it30->SetLineWidth(2);
   hist_eff20_it50->SetLineWidth(2);
-  hist_eff20_it10->SetLineColor(2);
-  hist_eff20_it30->SetLineColor(3);
+  //hist_eff20_it10->SetLineColor(2);
+  //hist_eff20_it30->SetLineColor(3);
   hist_eff20_it50->SetLineColor(2);
-  h_n_neutron_tag->Draw("hist E0");
-  hist_eff20_it10->Scale(1./10);
-  hist_eff20_it30->Scale(1./30);
+  h_n_neutron_tag->Draw("E0");
+  //hist_eff20_it10->Scale(1./10);
+  //hist_eff20_it30->Scale(1./30);
   hist_eff20_it50->Scale(1./50);
   //hist_eff20_it10->Draw("hist same");
   //hist_eff20_it30->Draw("hist same");

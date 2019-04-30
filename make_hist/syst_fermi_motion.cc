@@ -1,7 +1,7 @@
 #include<vector>
 void syst_fermi_motion(){
   string period = "sk4";
-  string type[] = {"p_epi","p_mupi","p_eee","p_eee_def","p_eee_miura","p_mumumu_def","p_mumumu_miura","p_emumu_def","p_emumu_miura","p_muee_def","p_muee_miura","p_eemu","fcmc","fcdt","single_mu_def","single_mu_miura"};
+  string type[] = {"p_epi","p_mupi","p_eee","p_eee_final","p_eee_miura","p_mumumu_def","p_mumumu_miura","p_emumu_def","p_emumu_miura","p_muee_def","p_muee_miura","p_eemu","fcmc","fcdt","single_mu_def","single_mu_miura","fcmc_final"};
 
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
@@ -14,8 +14,8 @@ void syst_fermi_motion(){
 
   hist.push_back("fermi_momentum");
   hist.push_back("fermi_momentum");
-  input_type.push_back(4);input_type.push_back(12);
-  mode_type.push_back(4);mode_type.push_back(2);
+  input_type.push_back(3);input_type.push_back(16);
+  mode_type.push_back(3);mode_type.push_back(2);
   add_ratio.push_back(1);scale.push_back(1);use_validation.push_back(1);
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();

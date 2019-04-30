@@ -1,7 +1,5 @@
 #include <vector>
 void syst_fv_2(){
-  string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu","p_muee","fcmc","fcdt","subgev_multiring"};
-  int mode_id = 8;
   string sk_period = "sk3";
   bool add_signal = false;
   float signal_scale = 0.03;
@@ -18,8 +16,8 @@ void syst_fv_2(){
   hist_name.clear();
 
   TH1 *first_hist;
-  TFile *input_mc = TFile::Open(Form("../output/fcmc.%s.mode_subgev_multiring.root",sk_period.c_str()));//mc
-  TFile *input_data = TFile::Open(Form("../output/fcdt.%s.mode_subgev_multiring.root",sk_period.c_str()));//mc
+  TFile *input_mc = TFile::Open(Form("../output/fcmc_final.%s.mode_subgev_multiring.root",sk_period.c_str()));//mc
+  TFile *input_data = TFile::Open(Form("../output/fcdt_final.%s.mode_subgev_multiring.root",sk_period.c_str()));//mc
   TH1* hist_mc = (TH1*) input_mc->Get("distance_to_wall_thr50");
   TH1* hist_data = (TH1*) input_data->Get("distance_to_wall_thr50");
   hist_data->SetLineWidth(2);
@@ -109,13 +107,13 @@ void syst_fv_2(){
     sum_data += evt_data;
     sumerr_data += err_data*err_data;
   }
-  cout << "events in FV data =" << sum_data << endl;
+  cout << "events in FV data =" << sum_data << " +- " << sqrt(sum_data) << endl;
   //cout << "events in FV mc =" << sum_mc << " +- " << sqrt(sumerr_mc) << endl;
   cout << "events in FV mc_norm =" << sum_mc_norm << " +- " << sqrt(sumerr_mc_norm) << endl;
   float diff = sum_data - sum_mc_norm;
   float diff_err = sqrt(sumerr_mc_norm);
   float diff_ratio = diff / sum_data;
-  float diff_ratio_err = sqrt(sumerr_mc_norm) / sum_data;
+  float diff_ratio_err = diff_ratio * sqrt(sum_data)/sum_data;
   cout << "data - mc = " << diff << " +- " << diff_err << endl;
   cout << "diff / data = " << diff_ratio << " +- " << diff_ratio_err << endl; 
 }

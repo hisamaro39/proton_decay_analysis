@@ -9,9 +9,13 @@ my $OUTPUT_FILE = "/disk02/usr6/matanaka/proton_decay/proton_decay_analysis/outp
   if($refArray!=3) {
     print "./run_batch.pl [INPUT] [MODE] [skx]\n";
     exit;
+    
   }
-  my $RUN_NUM_BEGIN=2500;
-  my $RUN_NUM_END=3000;
+  #for MC
+  #my $RUN_NUM_BEGIN=2500;
+  #my $RUN_NUM_END=3000;
+  my $RUN_NUM_BEGIN=617;
+  my $RUN_NUM_END=780;
   my $INPUT=$ARGV[0];
   my $MODE=$ARGV[1];
   my $period=$ARGV[2];
@@ -38,7 +42,7 @@ my $OUTPUT_FILE = "/disk02/usr6/matanaka/proton_decay/proton_decay_analysis/outp
     my $Script=sprintf("$OUTPUT_FILE/${INPUT}_$MODE/${period}/script_one_by_one/script.%d.csh",$m);
     my $LogFile=sprintf("$OUTPUT_FILE/${INPUT}_$MODE/${period}/log_one_by_one/logfile.%d.log",$m);
     my $ErrFile=sprintf("$OUTPUT_FILE/${INPUT}_$MODE/${period}/err_one_by_one/errfile.%d.log",$m);
-    my $CARD_NAME="./output_batch/Card/18a_${period}.${m}.card";
+    my $CARD_NAME="./output_batch/Card/data/18a_${period}.${m}.card";
     WriteScriptFile($Script,$m,$INPUT,$MODE,$CARD_NAME,$RUN_NUM_END,$period);
     $cmd="qsub -q atmpd -o $LogFile -e $ErrFile $Script";
     system $cmd;

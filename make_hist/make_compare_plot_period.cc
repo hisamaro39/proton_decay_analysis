@@ -2,8 +2,8 @@
 #include "TGraphAsymmErrors.h"
 void make_compare_plot_period(){
   string type[] = {"p_epi","p_mupi","p_eee","p_eee_def","p_eee_miura",//4
-    "p_eee_take","p_mumumu_def","p_mumumu_miura","p_mumumu_take","p_emumu_def",//9
-    "p_emumu_miura","p_muee_def","p_muee_miura","p_eemu","fcmc",//14
+    "p_eee_final","p_mumumu","p_mumumu_final","p_mumumu_take","p_emumu",//9
+    "p_emumu_final","p_muee","p_muee_final","p_eemu","fcmc_final",//14
     "fcdt","single_mu_def","single_mu_miura","subgev_multiring"};
 
   gROOT->SetStyle("Plain");
@@ -15,10 +15,45 @@ void make_compare_plot_period(){
   hist.clear();hist_set.clear();scale.clear();dology.clear();input_type.clear();rebin.clear();input_period.clear();
   input_type_set.clear();add_ratio.clear();mode_type_set.clear();mode_type.clear();use_validation.clear();input_period_set.clear();
 
-  hist.push_back("mass_proton_reco_cut5_nring1_mulike0_michel0");
-  hist.push_back("mass_proton_reco_cut5_nring1_mulike0_michel0");
-  hist.push_back("mass_proton_reco_cut5_nring1_mulike0_michel0");
-  hist.push_back("mass_proton_reco_cut5_nring1_mulike0_michel0");
+  hist.push_back("potot_cut0_nring0_mulike0_michel0");
+  hist.push_back("potot_cut0_nring0_mulike0_michel0");
+  hist.push_back("potot_cut0_nring0_mulike0_michel0");
+  hist.push_back("potot_cut0_nring0_mulike0_michel0");
+  input_period.push_back(1);input_period.push_back(2);input_period.push_back(3);input_period.push_back(4);
+  input_type.push_back(7);input_type.push_back(7);input_type.push_back(7);input_type.push_back(7);
+  mode_type.push_back(7);mode_type.push_back(7);mode_type.push_back(7);mode_type.push_back(7);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(0);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(1);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+  input_period_set.push_back(input_period);input_period.clear();
+
+  /*hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  input_period.push_back(1);input_period.push_back(2);input_period.push_back(3);
+  input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);
+  mode_type.push_back(9);mode_type.push_back(9);mode_type.push_back(9);
+  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+  input_period_set.push_back(input_period);input_period.clear();
+
+  hist.push_back("nMulikeRing_angle_nring3_cut2_nring0_mulike0_michel3");
+  hist.push_back("nMulikeRing_angle_nring3_cut2_nring0_mulike0_michel3");
+  hist.push_back("nMulikeRing_angle_nring3_cut2_nring0_mulike0_michel3");
+  hist.push_back("nMulikeRing_angle_nring3_cut2_nring0_mulike0_michel3");
+  input_period.push_back(1);input_period.push_back(2);input_period.push_back(3);input_period.push_back(4);
+  input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);
+  mode_type.push_back(6);mode_type.push_back(6);mode_type.push_back(6);mode_type.push_back(6);
+  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+  input_period_set.push_back(input_period);input_period.clear();
+
+  hist.push_back("mass_proton_reco_momcut_cut5_nring1_mulike0_michel0");
+  hist.push_back("mass_proton_reco_momcut_cut5_nring1_mulike0_michel0");
+  hist.push_back("mass_proton_reco_momcut_cut5_nring1_mulike0_michel0");
+  hist.push_back("mass_proton_reco_momcut_cut5_nring1_mulike0_michel0");
   input_period.push_back(1);input_period.push_back(2);input_period.push_back(3);input_period.push_back(4);
   input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);
   mode_type.push_back(2);mode_type.push_back(2);mode_type.push_back(2);mode_type.push_back(2);
@@ -27,17 +62,17 @@ void make_compare_plot_period(){
   mode_type_set.push_back(mode_type);mode_type.clear();
   input_period_set.push_back(input_period);input_period.clear();
 
-  hist.push_back("mom_proton_reco_cut5_nring1_mulike0_michel0");
-  hist.push_back("mom_proton_reco_cut5_nring1_mulike0_michel0");
-  hist.push_back("mom_proton_reco_cut5_nring1_mulike0_michel0");
-  hist.push_back("mom_proton_reco_cut5_nring1_mulike0_michel0");
+  hist.push_back("mom_proton_reco_masscut_cut5_nring1_mulike0_michel0");
+  hist.push_back("mom_proton_reco_masscut_cut5_nring1_mulike0_michel0");
+  hist.push_back("mom_proton_reco_masscut_cut5_nring1_mulike0_michel0");
+  hist.push_back("mom_proton_reco_masscut_cut5_nring1_mulike0_michel0");
   input_period.push_back(1);input_period.push_back(2);input_period.push_back(3);input_period.push_back(4);
   input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);input_type.push_back(14);
   mode_type.push_back(2);mode_type.push_back(2);mode_type.push_back(2);mode_type.push_back(2);
-  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);rebin.push_back(5);
+  add_ratio.push_back(0);scale.push_back(0);use_validation.push_back(0);rebin.push_back(5);
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
-  input_period_set.push_back(input_period);input_period.clear();
+  input_period_set.push_back(input_period);input_period.clear();*/
 
   TFile *input;
   TH1 *first_hist;
@@ -48,6 +83,7 @@ void make_compare_plot_period(){
       if(use_validation[s]) input = TFile::Open(Form("../output/%s.sk%d.mode_%s_validation.root",type[input_type_set[s].at(ss)].c_str(),input_period_set[s].at(ss),type[mode_type_set[s].at(ss)].c_str()));
       else input = TFile::Open(Form("../output/%s.sk%d.mode_%s.root",type[input_type_set[s].at(ss)].c_str(),input_period_set[s].at(ss),type[mode_type_set[s].at(ss)].c_str()));
       TH1* temp_hist = (TH1*) input->Get(hist_set[s].at(ss).c_str());
+      cout << hist_set[s].at(ss).c_str() << endl;
       temp_hist->Rebin(rebin[s]);
       if(temp_hist->GetMaximum() > evtmax) evtmax = temp_hist->GetMaximum();
       if(temp_hist->GetEntries() && temp_hist->GetMaximum()/temp_hist->Integral() > evtmax_scale){ 

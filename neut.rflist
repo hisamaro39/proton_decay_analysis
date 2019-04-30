@@ -3,8 +3,8 @@
 62{{"/home/atmpd/skrep/11d/const/bartol03.dat",LOCAL,,RED,,,"form=formatted"}}
 63{{"/home/atmpd/skrep/11d/const/fluka03.dat",LOCAL,,RED,,,"form=formatted"}}
 64{{"/home/atmpd/skrep/11d/const/hkkm03mt.dat",LOCAL,,RED,,,"form=formatted"}}
-65{{"/net/sukatmd1/work22/raw/Development/atmpd-trunk/src/analysis/syserr.database/data.files/neut-kaon-flx.dat",LOCAL,,RED,,,"form=formatted"}}
-34{{"links/density.lo.d",LOCAL,,RED,,,"form=formatted"}}
+65{{"./neutflux/neut-kaon-flx.dat",LOCAL,,RED,,,"form=formatted"}}
+34{{"./neutflux/dist-low-0.90-aa.d",,,,,,"form=table status=old"}}
 77{{"/home/atmpd/skrep/11d/const/honda96low.dat",LOCAL,,RED,,,"form=formatted"}}
 78{{"/home/atmpd/skrep/11d/const/hkkm06mt.dat",,,,,,"form=formatted status=old"}}
 85{{"/home/atmpd/skrep/11d/const/hkkm11mt.dat",LOCAL,,RED,,,"form=formatted"}}

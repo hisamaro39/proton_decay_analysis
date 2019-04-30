@@ -71,10 +71,12 @@ class OscNtupleManager
     void SetOutputHist( std::string output ) { output_hist = output ; }
     void SetSKX( int sk ) {skgen = sk - 1;}
     void SetLiveTimeWeight(float w) {live_time_weight = w;}
+    float ComputeOscProb(Int_t flag);
 
     bool SetEventType( std::string mode , int &type);
 
     bool SetTrueMode( int &true_mode);
+    void ComputeErrorValue();
   
     //void WriteOutputFile();
     void WriteTree();
@@ -84,6 +86,7 @@ class OscNtupleManager
 
     float GetGeneralizedMomentum(){ return  os->amom  ; }
     float GetLeptonZenith()       { return -os->dir[2]; } 
+    void GetZenithMom( float &zenith, float &gen_p);
 
     float GetMGMRE()        { return llMGMRE       ; }
     float GetMGMREnue()     { return llMGMRENUE    ; }
@@ -113,11 +116,15 @@ class OscNtupleManager
     void    MakeNtuple( bool x )  { kMakeNtuple  = x ; }
     void    FermiMotion( bool x ) {kFermiMotion = x; }
     void    OutsideSR( bool x ) {kOutsideSR = x; }
+    void    UseCR( bool x ) {kCR = x; }
+    void    TotalBox( bool x ) {kTotalBox = x; }
+    void    UseLiveTime( bool x ) {kLiveTime = x; }
+    void    UseAllWeight( bool x ) {kAllWeight = x; }
+    void    PID( int x ) {kPID = x; }
     void    SystNtag( int x ) {kSystNtag = x; }
     void    CorrelatedDecay( int x ) {kCorrelatedDecay = x; }
     void    EnergyScale( int x ) {kEnergyScale = x; }
     void    NonUni( int x ) {kNonUni = x; }
-    void    PID( int x ) {kPID = x; }
 
     void FillNtuple();
     void MakeNtuple();
@@ -147,11 +154,13 @@ class OscNtupleManager
 
     int r_max,mu_max,m_max;
     bool pass_cut[11][5];
+    bool pass_all;
     int total_with_ntag[3][2][5];
     int lowerSR_without_ntag[3][2][5];
     int higherSR_without_ntag[3][2][5];
     int total;
-    float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom,total_distance,total_distance_up,total_distance_down,pid_thr;
+    float prob_angle_ring[5];
+    float closest_mass_pi0_reco,total_mass,two_elike_mass,total_mom,all_ring_mass,all_ring_mom,all_mulike_mass,all_mulike_mom,total_distance,total_distance_up,total_distance_down;
     float weight,mc_weight,osc_weight;
     int sample_num,event_num;
     int event_type,nPar,nPar2,nRing,n_elike,n_mulike,interaction_type,nNeutron,true_mode;
@@ -242,6 +251,10 @@ class OscNtupleManager
     int o_mode;
     int o_nring;
     float o_weight;
+    float o_error[30];//for neutrino flux and xsec systematic 
+    float o_osc_weight;
+    float o_mc_weight;
+    float o_livetime_weight;
     int o_nmulike;
     float o_total_mass;
     float o_total_mom;
@@ -256,9 +269,13 @@ class OscNtupleManager
     float o_prmslg_e[5];
     float o_prmslg_mu[5];
     float o_mmom[5];
+    float o_emom[5];
     float o_dir_x[5];
     float o_dir_y[5];
     float o_dir_z[5];
+    float o_msdir_x[5];
+    float o_msdir_y[5];
+    float o_msdir_z[5];
     float o_ang[5];
     float o_ange[5];
     float o_angm[5];
@@ -284,6 +301,7 @@ class OscNtupleManager
   //------------------------------
     
   TypeWrapper<Int_t>  nev;
+  TypeWrapper<UInt_t>  nrun;
   TypeWrapper<Int_t>  nsub;
   TypeWrapper<Int_t>  date;
   TypeWrapper<Int_t>  time;
@@ -387,11 +405,15 @@ class OscNtupleManager
   bool kMakeNtuple;
   bool kFermiMotion;
   bool kOutsideSR;
+  bool kCR;
+  bool kTotalBox;
+  bool kLiveTime;
+  bool kAllWeight;
+  int kPID;
   int kSystNtag;
   int kCorrelatedDecay;
   int kEnergyScale;
   int kNonUni;
-  int kPID;
 
   //Tau_NN related
   TypeWrapper<Double_t> NN_output;

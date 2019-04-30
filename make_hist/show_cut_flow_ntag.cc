@@ -1,23 +1,23 @@
 #include <vector>
 void show_cut_flow_ntag(){
-  string type[] = {"p_epi","p_mupi","p_eee","p_eee_miura","p_eee_take",//4
-    "p_mumumu","p_mumumu_miura","p_mumumu_take","p_emumu","p_emumu_miura",//9
-    "p_emumu_take","p_mumue","p_muee_def","p_muee_miura","p_muee_take",//14
-    "p_eemu","p_eee","p_muee","fcmc","fcdt"};
-  bool pi0cut = 0;
+  string type[] = {"p_epi","p_mupi","p_eee","p_eee_miura","p_eee_final",//4
+    "p_mumumu","p_mumumu_miura","p_mumumu_final","p_emumu","p_emumu_miura",//9
+    "p_emumu_final","p_mumue_final","p_muee","p_muee_miura","p_muee_final",//14
+    "p_eemu_final","p_eee","p_muee","fcmc","fcdt",//19
+    "fcmc_final"};
   //input & mode
-  int input_type=18;
-  int mode_type=2;
-  int period=4;
+  int input_type=20;
+  int mode_type=5;
+  int period=4;//5:combine sk1-4
   int fp= (input_type<18)? 1 : 0;
   //cut pattern
-  int nring=1;//# of ring
+  int nring=0;//# of ring
   int nmulike=0;//# of mulike ring
-  int nmichel=0;//# of michel electron
+  int nmichel=3;//# of michel electron
 
   TH1 *this_hist,*this_hist_free;
   TFile *input;
-  if(pi0cut) input = TFile::Open(Form("../output/%s.sk%d.mode_%s_pi0cut.root",type[input_type].c_str(),period,type[mode_type].c_str()));
+  if(period==5) input = TFile::Open(Form("../output/%s.sk1_4.mode_%s_wo_livetime.root",type[input_type].c_str(),type[mode_type].c_str()));
   else input = TFile::Open(Form("../output/%s.sk%d.mode_%s.root",type[input_type].c_str(),period,type[mode_type].c_str()));
   this_hist = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d",nring,nmulike,nmichel));  
   if(fp==1) this_hist_free = (TH1*) input->Get(Form("cut_flow_nring%d_mulike%d_michel%d_fp1",nring,nmulike,nmichel));  
