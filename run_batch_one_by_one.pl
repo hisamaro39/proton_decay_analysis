@@ -14,8 +14,16 @@ my $OUTPUT_FILE = "/disk02/usr6/matanaka/proton_decay/proton_decay_analysis/outp
   #for MC
   #my $RUN_NUM_BEGIN=2500;
   #my $RUN_NUM_END=3000;
-  my $RUN_NUM_BEGIN=617;
-  my $RUN_NUM_END=780;
+  #for Data
+  #SK1
+  #my $RUN_NUM_BEGIN=17;
+  #my $RUN_NUM_END=104;
+  #SK2
+  my $RUN_NUM_BEGIN=217;
+  my $RUN_NUM_END=258;
+  #SK4
+  #my $RUN_NUM_BEGIN=617;
+  #my $RUN_NUM_END=780;
   my $INPUT=$ARGV[0];
   my $MODE=$ARGV[1];
   my $period=$ARGV[2];

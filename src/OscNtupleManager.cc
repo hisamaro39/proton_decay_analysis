@@ -202,6 +202,7 @@ void OscNtupleManager::CreateHist()
 
   //validation plot
   if(!kAllHist){
+    m_hSvc.create1D("Fsivarwt","",200,0,2);;
     m_hSvc.create1D("hstate","",5,0,5);
     m_hSvc.create1D("fermi_momentum","",15,0,300);
     m_hSvc.create1D("fermi_dirx","",20,-1,1);
@@ -580,6 +581,7 @@ void OscNtupleManager::LoadWrappers()
   dm->Get("iprntprt" , iprntprt  );
   dm->Get("lmecscnd" , lmecscnd  );
   dm->Get("iprnttrk" , iprnttrk  );
+  dm->Get("Fsivarwt" , Fsivarwt  );
   dm->Get("Dlfct" , Dlfct  );
   dm->Get("Dlfct2" , Dlfct2  );
   dm->Get("Dlfct3" , Dlfct3  );
@@ -1009,6 +1011,7 @@ void OscNtupleManager::Process_pepi(){
   all_ring_mass = all_ring_vec.M();
   all_ring_mom = all_ring_vec.P();
 
+  if (kMakeNtuple) MakeNtuple();
   if(kAllHist) MakeCutFlow();
   else MakeValidationPlot();
 
@@ -1024,17 +1027,21 @@ void OscNtupleManager::Process_pmupi(){
   if ( evis(0) > 30.0 && wall(0) > 200.0 && nhitac(0) <  nhitac_cut[skgen] ){//FC & FV
     pass_cut[1][0]=true;
   }
+  else pass_all=false;
 
   //# of cherenkov ring
   if(nring(0)==2) pass_cut[2][0]=true;
   if(nring(0)==3) pass_cut[2][1]=true;
+  else pass_all=false;
   if(nring(0)==2 || nring(0)==3) pass_cut[2][2]=true;
 
   //# of mu-like ring
   if(n_mulike_pattern==1) pass_cut[3][0]=true;
+  else pass_all=false;
 
   // michel (decay) electron cut
   if(nDecayE==1) pass_cut[4][0]=true;
+  else pass_all=false;
 
   vector<TLorentzVector> gamma_cand;
   TLorentzVector mu_cand;
@@ -1062,6 +1069,7 @@ void OscNtupleManager::Process_pmupi(){
   }
 
   if(nRing==3 && closest_mass_pi0_reco>85 && closest_mass_pi0_reco<185) pass_cut[5][0]=true;
+  else pass_all=false;
   if(nRing==2) pass_cut[5][0]=true;
 
 
@@ -1073,11 +1081,13 @@ void OscNtupleManager::Process_pmupi(){
   if(total_mass>800 && total_mass<1050 && total_mom<100){//total mass & low momentum
     pass_cut[6][0]=true;
   }
-  if(total_mass>800 && total_mass<1050 && total_mom>=100 && total_mom<250){//total mass & high momentum
+  else if(total_mass>800 && total_mass<1050 && total_mom>=100 && total_mom<250){//total mass & high momentum
     pass_cut[7][0]=true;
   }
+  else pass_all=false;
 
   if(nNeutron==0) pass_cut[8][0]=true;
+  else pass_all=false;
 
   TLorentzVector all_ring_vec;
   for(int r=0;r<nRing;r++){
@@ -1088,6 +1098,7 @@ void OscNtupleManager::Process_pmupi(){
   all_ring_mass = all_ring_vec.M();
   all_ring_mom = all_ring_vec.P();
 
+  if (kMakeNtuple) MakeNtuple();
   if(kAllHist) MakeCutFlow();
   else MakeValidationPlot();
 
@@ -2608,15 +2619,17 @@ void OscNtupleManager::MakeCutFlow(){
     if(total_mass>800 && total_mass<1050 && total_mom<250) return;
   }
 
-  if(kCR){//reject events inside the signal region only for p_eee
-    if(!pass_cut[1][0]) return;//FC&FV
-    if(!pass_cut[2][1]) return;//nring
-    if(!pass_cut[3][0]) return;//PID
-    if(!pass_cut[4][0]) return;//Deacy Electron
-    if(total_mass<750 || total_mass>900 || total_mom<450) return;
-  }
-
+  //for checking data excess in p_eee mode
+  if(!pass_cut[1][0]) return;//FC&FV
+  if(!pass_cut[2][1]) return;//nring
+  if(!pass_cut[3][0]) return;//PID
+  if(!pass_cut[4][0]) return;//Deacy Electron
+  if(total_mass<750 || total_mass>900 || total_mom<450) return;
   cout << "Control_Region nrun/nsub/nev=" << nrun(0) << "/" << nsub(0) << "/" << nev(0) << endl;
+  cout << "total_mass/total_mom=" << total_mass << "/" << total_mom << endl;
+
+  if(kCR)
+    if(total_mass>600 && total_mass<1250 && total_mom<450) return;
 
   for(int r=0;r<r_max;r++){// # of ring
     for(int mu=0;mu<mu_max;mu++){// # of mu-like ring
@@ -2938,6 +2951,12 @@ void OscNtupleManager::MakeValidationPlot(){
   m_hSvc.h1D(Form("residual_total_mass_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(residual_total_mass);
   m_hSvc.h1D(Form("diff_total_mass_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(diff_total_mass);
   m_hSvc.h1D(Form("diff_total_mom_nring%d_mulike%d_fp%d",nRing,n_mulike_angle,is_free_proton),"","")->Fill(diff_total_mom);
+  if(process_input=="fcmc_fsi"){
+    for(int f=0;f<24;f++){
+      m_hSvc.h1D("Fsivarwt","","")->Fill(Fsivarwt(f));
+      cout << f << " " << Fsivarwt(f) << endl;
+    }
+  }
   if(process_input=="fcmc_rc" || process_input=="p_eee_final"){
     m_hSvc.h1D("ring_counting_likelihood","","")->Fill(Dlfct(0));
     m_hSvc.h1D("ring_counting_likelihood2","","")->Fill(Dlfct2(0));

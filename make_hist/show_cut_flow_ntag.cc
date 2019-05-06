@@ -3,10 +3,10 @@ void show_cut_flow_ntag(){
   string type[] = {"p_epi","p_mupi","p_eee","p_eee_miura","p_eee_final",//4
     "p_mumumu","p_mumumu_miura","p_mumumu_final","p_emumu","p_emumu_miura",//9
     "p_emumu_final","p_mumue_final","p_muee","p_muee_miura","p_muee_final",//14
-    "p_eemu_final","p_eee","p_muee","fcmc","fcdt",//19
+    "p_eemu_final","p_eee","p_muee","fcmc_real","fcdt",//19
     "fcmc_final"};
   //input & mode
-  int input_type=20;
+  int input_type=18;
   int mode_type=5;
   int period=4;//5:combine sk1-4
   int fp= (input_type<18)? 1 : 0;

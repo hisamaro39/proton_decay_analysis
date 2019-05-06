@@ -35,7 +35,7 @@ void check_cr(){
   dology.push_back(0);dorebin.push_back(1);
 
   hist_name.push_back(Form("mass_proton_reco_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
-  dology.push_back(0);dorebin.push_back(2);
+  dology.push_back(0);dorebin.push_back(5);
 
   hist_name.push_back(Form("mom_proton_reco_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
   dology.push_back(0);dorebin.push_back(5);
@@ -44,11 +44,11 @@ void check_cr(){
   TFile *input_data,*input_mc;
   if(period==5){
     input_data = TFile::Open(Form("../output/fcdt_final.sk1_4.mode_%s_CR.root",mode.c_str()));//data
-    input_mc = TFile::Open(Form("../output/fcmc_final.sk1_4.mode_%s_CR.root",mode.c_str()));//mc
+    input_mc = TFile::Open(Form("../output/fcmc_real.sk1_4.mode_%s_CR.root",mode.c_str()));//mc
   }
   else{
     input_data = TFile::Open(Form("../output/fcdt_final.sk%d.mode_%s_CR.root",period,mode.c_str()));//data
-    input_mc = TFile::Open(Form("../output/fcmc_final.sk%d.mode_%s_CR.root",period,mode.c_str()));//mc
+    input_mc = TFile::Open(Form("../output/fcmc_real.sk%d.mode_%s_CR.root",period,mode.c_str()));//mc
   }
   for(int s=0;s<hist_name.size();s++){
     TCanvas *c = new TCanvas(Form("canvas%d",s),"",800,600);

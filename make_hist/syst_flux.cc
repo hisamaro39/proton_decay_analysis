@@ -1,6 +1,6 @@
 void syst_flux(){
   //refer atmpd/src/analysis/syserror.database/Systematic.cc
-  string mode_name = "p_mumumu";
+  string mode_name = "p_epi";
   int period = 4;//5:sk1-4
 
   TChain *ch_mc = new TChain("osc_tuple");

@@ -351,6 +351,7 @@ class OscNtupleManager
   TypeWrapper<Float_t> amomm;
   TypeWrapper<Float_t> prmslg;
   TypeWrapper<Float_t> probms;
+  TypeWrapper<Float_t> Fsivarwt;
   TypeWrapper<Float_t> Dlfct;
   TypeWrapper<Float_t> Dlfct2;
   TypeWrapper<Float_t> Dlfct3;
