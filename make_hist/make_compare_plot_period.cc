@@ -15,7 +15,19 @@ void make_compare_plot_period(){
   hist.clear();hist_set.clear();scale.clear();dology.clear();input_type.clear();rebin.clear();input_period.clear();
   input_type_set.clear();add_ratio.clear();mode_type_set.clear();mode_type.clear();use_validation.clear();input_period_set.clear();
 
-  hist.push_back("potot_cut0_nring0_mulike0_michel0");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  input_period.push_back(1);input_period.push_back(2);input_period.push_back(3);input_period.push_back(4);
+  input_type.push_back(12);input_type.push_back(12);input_type.push_back(12);input_type.push_back(12);
+  mode_type.push_back(12);mode_type.push_back(12);mode_type.push_back(12);mode_type.push_back(12);
+  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+  input_period_set.push_back(input_period);input_period.clear();
+
+  /*hist.push_back("potot_cut0_nring0_mulike0_michel0");
   hist.push_back("potot_cut0_nring0_mulike0_michel0");
   hist.push_back("potot_cut0_nring0_mulike0_michel0");
   hist.push_back("potot_cut0_nring0_mulike0_michel0");
@@ -27,7 +39,7 @@ void make_compare_plot_period(){
   mode_type_set.push_back(mode_type);mode_type.clear();
   input_period_set.push_back(input_period);input_period.clear();
 
-  /*hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
   hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
   hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
   input_period.push_back(1);input_period.push_back(2);input_period.push_back(3);

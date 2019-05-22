@@ -224,7 +224,7 @@ class OscNtupleManager
     LikelihoodManager * llm;
 //  Pi0Likelihood   * llpi0;
 
-    TArrayF * fsiweight;
+    //TArrayF * fsiweight;
 
     // mode related
     std::string process_mode;
@@ -251,7 +251,13 @@ class OscNtupleManager
     int o_mode;
     int o_nring;
     float o_weight;
-    float o_error[30];//for neutrino flux and xsec systematic 
+    float o_rc1;
+    float o_rc2;
+    float o_rc3;
+    float o_rc4;
+    float o_error[30];//for neutrino flux and xsec systematic by myself 
+    float o_syst[160];//for neutrino flux and xsec systematic 
+    float o_fsi[17];//for pion FSI/SI 
     float o_osc_weight;
     float o_mc_weight;
     float o_livetime_weight;
@@ -290,8 +296,7 @@ class OscNtupleManager
   unsigned int ehit_cut_1[4];
   unsigned int ehit_cut_2[4];
   float potot_cut[4];
-  int graph_point,graph_point_2;
- 
+  int graph_point,graph_point_2,point[10][5][5][5],point_ntag[10][5][5][5];
 
   // Private Access to tree elements
 
@@ -315,6 +320,7 @@ class OscNtupleManager
   TypeWrapper<Float_t> pmomv2;
   TypeWrapper<Int_t>   numnu;
   TypeWrapper<Int_t>   nring;
+  TypeWrapper<Int_t>   nring2;
   TypeWrapper<Int_t>   npar;
   TypeWrapper<Int_t>   npar2;
   TypeWrapper<Int_t>   Iflvc;
@@ -423,6 +429,9 @@ class OscNtupleManager
   //friend file related
   TypeWrapper<Float_t> ErmsHax;
   TypeWrapper<Int_t> nEAveHax;
+  TypeWrapper<Float_t> SystErrorValue;
+  TypeWrapper<Float_t> TotalOscAnalysisWeight;
+  TypeWrapper<Float_t> fsiweight;
 
   int Good;
   int Bad;

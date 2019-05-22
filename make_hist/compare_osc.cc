@@ -1,9 +1,9 @@
 #include <vector>
-void check_cr(){
-  string mode = "p_mumumu";
-  int nring=0;
+void compare_osc(){
+  string mode = "p_eee";
+  int nring=1;
   int mulike=0;
-  int michel=3;
+  int michel=0;
   int period = 5;//5:sk1-4
   float mc_error = 0.3;//systematic error for background
 
@@ -16,7 +16,7 @@ void check_cr(){
   vector<string> hist_name;
   hist_name.clear();
 
-  hist_name.push_back(Form("nRing_cut1_nring%d_mulike%d_michel%d",nring,mulike,michel));
+  /*hist_name.push_back(Form("nRing_cut1_nring%d_mulike%d_michel%d",nring,mulike,michel));
   dology.push_back(0);dorebin.push_back(1);
 
   hist_name.push_back(Form("nElikeRing_angle_nring3_cut2_nring%d_mulike%d_michel%d",nring,mulike,michel));
@@ -32,7 +32,7 @@ void check_cr(){
   dology.push_back(0);dorebin.push_back(5);
 
   hist_name.push_back(Form("ntag_multiplicity_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
-  dology.push_back(0);dorebin.push_back(1);
+  dology.push_back(0);dorebin.push_back(1);*/
 
   hist_name.push_back(Form("mass_proton_reco_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
   dology.push_back(0);dorebin.push_back(5);
@@ -41,38 +41,37 @@ void check_cr(){
   dology.push_back(0);dorebin.push_back(5);
 
   TH1 *first_hist;
-  TFile *input_data,*input_mc;
+  TFile *input_data,*input_mc_2f,*input_mc_3f;
   if(period==5){
     input_data = TFile::Open(Form("../output/fcdt_final.sk1_4.mode_%s_CR.root",mode.c_str()));//data
-    input_mc = TFile::Open(Form("../output/fcmc_real.sk1_4.mode_%s_CR.root",mode.c_str()));//mc
-    //input_data = TFile::Open(Form("../output/fcdt_final.sk1_4.mode_%s_CR_subgev.root",mode.c_str()));//data
-    //input_mc = TFile::Open(Form("../output/fcmc_real.sk1_4.mode_%s_CR_subgev.root",mode.c_str()));//mc
+    input_mc_3f = TFile::Open(Form("../output/fcmc_real.sk1_4.mode_%s_CR.root",mode.c_str()));//mc
+    input_mc_2f = TFile::Open(Form("../output/fcmc_real.sk1_4.mode_%s_CR_two_flavor.root",mode.c_str()));//mc
   }
   else{
     input_data = TFile::Open(Form("../output/fcdt_final.sk%d.mode_%s_CR.root",period,mode.c_str()));//data
-    input_mc = TFile::Open(Form("../output/fcmc_real.sk%d.mode_%s_CR.root",period,mode.c_str()));//mc
+    input_mc_3f = TFile::Open(Form("../output/fcmc_real.sk%d.mode_%s_CR.root",period,mode.c_str()));//mc
+    input_mc_2f = TFile::Open(Form("../output/fcmc_real.sk%d.mode_%s_CR_two_flavor.root",period,mode.c_str()));//mc
   }
   for(int s=0;s<hist_name.size();s++){
     TCanvas *c = new TCanvas(Form("canvas%d",s),"",800,600);
     TH1* hist_data = (TH1*) input_data->Get(hist_name[s].c_str());
-    TH1* hist_mc = (TH1*) input_mc->Get(hist_name[s].c_str());
-    hist_mc->Rebin(dorebin[s]);
-    TH1 *hist_mc_error = (TH1*) hist_mc->Clone("hist_mc_error");
-    for(int b=0;b<hist_mc_error->GetNbinsX();b++){
-      float error = hist_mc_error->GetBinContent(b+1)*mc_error;
-      hist_mc_error->SetBinError(b+1,error);
-    }
+    TH1* hist_mc_2f= (TH1*) input_mc_2f->Get(hist_name[s].c_str());
+    TH1* hist_mc_3f= (TH1*) input_mc_3f->Get(hist_name[s].c_str());
+    hist_mc_2f->Rebin(dorebin[s]);
+    hist_mc_3f->Rebin(dorebin[s]);
     hist_data->Rebin(dorebin[s]);
     int max = hist_data->GetMaximum()*1.5;
-    hist_mc->SetMaximum(max);
-    hist_mc->SetLineWidth(2);
+    hist_mc_2f->SetMaximum(max);
+    hist_mc_2f->SetLineWidth(2);
+    hist_mc_2f->SetLineColor(2);
+    hist_mc_3f->SetMaximum(max);
+    hist_mc_3f->SetLineWidth(2);
+    hist_mc_3f->SetLineColor(4);
     hist_data->SetLineWidth(2);
-    hist_mc_error->SetFillColor(1);
-    hist_mc_error->SetFillStyle(3003);
-    hist_mc->Draw("hist");
-    //hist_mc_error->Draw("same E2");
+    hist_mc_2f->Draw("hist");
+    hist_mc_3f->Draw("hist same");
     hist_data->Draw("same E0");
-    c->SaveAs(Form("hist/check_cr_new_%s_%s_sk%d.pdf",hist_name[s].c_str(),mode.c_str(),period));
+    //c->SaveAs(Form("hist/check_cr_new_%s_%s_sk%d.pdf",hist_name[s].c_str(),mode.c_str(),period));
   }
 
 }

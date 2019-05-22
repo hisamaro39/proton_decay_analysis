@@ -3,8 +3,8 @@
 void make_compare_plot_th1(){
   string period = "sk4";
   string type[] = {"p_epi","p_mupi","p_eee","p_eee_def","p_eee_miura",//4
-    "p_eee_take","p_mumumu_def","p_mumumu_miura","p_mumumu_take","p_emumu_def",//9
-    "p_emumu_miura","p_muee_def","p_muee_miura","p_eemu","fcmc",//14
+    "p_eee_take","p_mumumu_def","p_mumumu_miura","p_mumumu_take","p_emumu_final",//9
+    "p_mumue_final","p_muee_final","p_eemu_final","p_eemu","fcmc",//14
     "fcdt","single_mu_def","single_mu_miura","subgev_multiring","fcmc_rc"};
 
   gROOT->SetStyle("Plain");
@@ -16,7 +16,15 @@ void make_compare_plot_th1(){
   hist.clear();hist_set.clear();scale.clear();dology.clear();input_type.clear();rebin.clear();
   input_type_set.clear();add_ratio.clear();mode_type_set.clear();mode_type.clear();use_validation.clear();
 
-  hist.push_back("ring_counting_likelihood4_nring4");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  hist.push_back("n_michel_electron_cut3_nring1_mulike0_michel1");
+  input_type.push_back(9);input_type.push_back(10);
+  mode_type.push_back(9);mode_type.push_back(10);
+  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(0);rebin.push_back(1);
+  hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
+  mode_type_set.push_back(mode_type);mode_type.clear();
+
+  /*hist.push_back("ring_counting_likelihood4_nring4");
   hist.push_back("ring_counting_likelihood4_nring5");
   input_type.push_back(19);input_type.push_back(19);
   mode_type.push_back(2);mode_type.push_back(2);
@@ -24,7 +32,7 @@ void make_compare_plot_th1(){
   hist_set.push_back(hist);dology.push_back(1);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
-  /*hist.push_back("total_true_mass_fp1");
+  hist.push_back("total_true_mass_fp1");
   hist.push_back("total_true_mass_shift_fp1");
   input_type.push_back(4);input_type.push_back(4);
   mode_type.push_back(4);mode_type.push_back(4);

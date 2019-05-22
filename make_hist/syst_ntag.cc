@@ -1,16 +1,19 @@
 #include <vector>
 void syst_ntag(){
-  string mode = "p_eee";
+  string mode = "p_mumumu";
+  int nring=0;
+  int mulike=0;
+  int michel=3;
 
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
 
   cout << "mode=" << mode << endl;
   TH1 *first_hist;
-  TFile *input_mc = TFile::Open(Form("../output/fcmc.sk4.mode_%s_outsideSR.root",mode.c_str()));//mc
-  TFile *input_data = TFile::Open(Form("../output/fcdt.sk4.mode_%s_outsideSR.root",mode.c_str()));//mc
-  TH1* hist_mc = (TH1*) input_mc->Get("ntag_multiplicity_cut5_nring1_mulike0_michel0");
-  TH1* hist_data = (TH1*) input_data->Get("ntag_multiplicity_cut5_nring1_mulike0_michel0");
+  TFile *input_mc = TFile::Open(Form("../output/fcmc_final.sk4.mode_%s_outsideSR.root",mode.c_str()));//mc
+  TFile *input_data = TFile::Open(Form("../output/fcdt_final.sk4.mode_%s_outsideSR.root",mode.c_str()));//mc
+  TH1* hist_mc = (TH1*) input_mc->Get(Form("ntag_multiplicity_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
+  TH1* hist_data = (TH1*) input_data->Get(Form("ntag_multiplicity_cut5_nring%d_mulike%d_michel%d",nring,mulike,michel));
   hist_data->SetLineWidth(2);
   hist_mc->SetLineWidth(2);
   cout << "entries data/mc=" << hist_data->GetEntries() << "/" << hist_mc->GetEntries() << endl;
@@ -90,13 +93,12 @@ void syst_ntag(){
   float zero_ntag_mc_norm = hist_mc_norm->GetBinContent(1);
   float err_zero_ntag_mc_norm = hist_mc_norm->GetBinError(1);
   cout << "total events data/scale_mc=" << evt_data << "/" << evt_mc_norm << endl;
-  cout << "zero ntag ecvents data=" << zero_ntag_data << endl;
+  cout << "zero ntag ecvents data=" << zero_ntag_data << sqrt(zero_ntag_data) << endl;
   cout << "zero ntag ecvents norm_mc=" << zero_ntag_mc_norm << " +- " << err_zero_ntag_mc_norm << endl;
   float diff = zero_ntag_data - zero_ntag_mc_norm;
-  float diff_err = err_zero_ntag_mc_norm;
   float diff_ratio = diff / zero_ntag_data;
-  float diff_ratio_err = err_zero_ntag_mc_norm / zero_ntag_data; 
-  cout << "data - mc = " << diff << " +- " << diff_err << endl;
-  cout << "diff / data = " << diff_ratio << " +- " << diff_ratio_err << endl; 
+  float err = 1./sqrt(zero_ntag_data);
+  cout << "data - mc = " << diff << " +- " << diff*err << endl;
+  cout << "diff / data = " << diff_ratio << " +- " << diff_ratio*err << endl; 
 
 }

@@ -119,6 +119,7 @@ int main( int argc, char * argv[] )
    if(kCR) output_file += "_CR";
    if(kCR) output_ntuple += "_CR";
    if(kTotalBox) output_ntuple += "_total_box";
+   if(kTotalBox) output_file += "_total_box";
    stringstream iteration;
    iteration << kSystNtag;
    if(kSystNtag) output_file += "_syst_ntag_it" + iteration.str();
@@ -154,7 +155,6 @@ int main( int argc, char * argv[] )
    //if(use_batch) output_ntuple = "output_batch/" + input + "_" + mode + "/" + sk_era + "/file/" + input + "." + sk_era + "." + "mode_" + mode + "_tree." + this_cpu_str + ".root";
    //else output_ntuple = "output/" + input + "." + sk_era + "." + "mode_" + mode + "_tree.root";
 
-
    std::cout << "output file is " << output_file << std::endl;
    std::cout << "output ntuple is " << output_ntuple << std::endl;
 
@@ -172,14 +172,13 @@ int main( int argc, char * argv[] )
    std::cout << "nEntries=" << nEntries << std::endl;
 
    //SKEventParser *Parser  =new SKEventParser();
-   
+
    // Establish how many entries in the tree should be used 
    // per instance of the program (useful for batch mode)
    seed = this_cpu * int( nEntries / tot_cpus );
    blossom = ( seed+ int( nEntries / tot_cpus ) >= nEntries ? 
                      nEntries : seed + int( nEntries / tot_cpus ) );
    if ( this_cpu == tot_cpus - 1 ) blossom = nEntries;
-
    
    // Use DataManager to automagically read 
    // in and load all of the Branch information 
@@ -236,7 +235,6 @@ int main( int argc, char * argv[] )
      ss << ".root" ;
 
    std::cout << " Output will be written to: " << ss.str() << std::endl;
-
 
    // now we can loop over the input tree (or chain)
    std::cout << " Will process entries [" << seed << " , " << blossom << ") "	<< std::endl;

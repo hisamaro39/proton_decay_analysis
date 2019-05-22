@@ -2,8 +2,8 @@
 void compare_data_mc(){
   string type[] = {"p_epi","p_mupi","p_eee","p_mumumu","p_emumu",//4
     "p_muee","fcmc","fcdt","subgev_multiring","subgev_onemulike"};
-  int mode_id = 2;
-  string sk_period = "sk4";
+  int mode_id = 3;
+  string sk_period = "sk1_4";
   bool add_signal = false;
   float signal_scale = 0.03;
 
@@ -72,19 +72,19 @@ void compare_data_mc(){
   hist_name.push_back("ntag_multiplicity_cut5_nring0_mulike0_michel0");
   add_ratio.push_back(1);scale.push_back(0);dology.push_back(1);dorebin.push_back(0);*/
 
-  hist_name.push_back("mom_proton_reco_cut6_nring0_mulike0_michel0");
-  add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);dorebin.push_back(5);
+  hist_name.push_back("mom_proton_reco_masscut_ntag_cut5_nring0_mulike0_michel3");
+  add_ratio.push_back(0);scale.push_back(0);dology.push_back(1);dorebin.push_back(10);
 
-  hist_name.push_back("mass_proton_reco_cut6_nring0_mulike0_michel0");
-  add_ratio.push_back(0);scale.push_back(0);dology.push_back(0);dorebin.push_back(5);
+  hist_name.push_back("mass_proton_reco_momcut_ntag_cut5_nring0_mulike0_michel3");
+  add_ratio.push_back(0);scale.push_back(0);dology.push_back(1);dorebin.push_back(10);
 
   TH1 *first_hist;
   TFile *input;
   for(int s=0;s<hist_name.size();s++){
     float evtmax=0,evtmax_scale=0,ratio_max=0,ratio_min=99999;
     for(int ss=0;ss<2;ss++){//decide max event of the hist
-      if(ss==0) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[7].c_str(),sk_period.c_str(),type[mode_id].c_str()));//data
-      if(ss==1) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[6].c_str(),sk_period.c_str(),type[mode_id].c_str()));//MC
+      if(ss==0) input = TFile::Open(Form("../output/fcdt_final.%s.mode_%s.root",sk_period.c_str(),type[mode_id].c_str()));//data
+      if(ss==1) input = TFile::Open(Form("../output/fcmc_real.%s.mode_%s.root",sk_period.c_str(),type[mode_id].c_str()));//MC
       //TH1* temp_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
       TH1* temp_hist = (TH1*) input->Get(hist_name[s].c_str());
       if(dorebin[s]) temp_hist->Rebin(dorebin[s]);
@@ -123,8 +123,8 @@ void compare_data_mc(){
     save_name = "hist/compare_data_mc_";
     for(int h=0;h<4;h++){
       if(!add_signal && h==2) break;
-      if(h==0) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[7].c_str(),sk_period.c_str(),type[mode_id].c_str()));//data
-      else if(h==1) input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[6].c_str(),sk_period.c_str(),type[mode_id].c_str()));//MC
+      if(h==0) input = TFile::Open(Form("../output/fcdt_final.%s.mode_%s.root",sk_period.c_str(),type[mode_id].c_str()));//data
+      else if(h==1) input = TFile::Open(Form("../output/fcmc_real.%s.mode_%s.root",sk_period.c_str(),type[mode_id].c_str()));//MC
       else input = TFile::Open(Form("../output/%s.%s.mode_%s.root",type[mode_id].c_str(),sk_period.c_str(),type[mode_id].c_str()));//signal
       //TH1 *this_hist = (TH1*) input->Get(Form("%s_fp0",hist_name[s].c_str()));
       TH1 *this_hist = (TH1*) input->Get(hist_name[s].c_str());
@@ -136,14 +136,14 @@ void compare_data_mc(){
       if(h==0){
         if(scale[s]) this_hist->GetYaxis()->SetRangeUser(0,evtmax_scale*1.2);
         else this_hist->GetYaxis()->SetRangeUser(0,evtmax*1.2);
-        if(dology[s]) this_hist->GetYaxis()->SetRangeUser(1,evtmax*1.2);
+        if(dology[s]) this_hist->GetYaxis()->SetRangeUser(0.1,evtmax*1.2);
         this_hist->SetLineStyle(0);
         this_hist->SetMarkerStyle(8);
         this_hist->Draw();
         first_hist = this_hist;
       }
       else{
-        if(h==1) this_hist->SetLineColor(2);
+        if(h==1) this_hist->SetLineColor(1);
         else {
           this_hist->Scale(signal_scale);
           this_hist->SetLineStyle(2);

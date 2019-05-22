@@ -279,25 +279,30 @@ TChain * FileRecord::CheckAndBuildChain( CardReader * MasterCard, std::string mo
    //// need to account for the possibility of 
    ///  friend trees, this is relevant for the sk1 tau processing
    ///   build them next
-   TChain * friends[10];   
+   TChain *friends[10],*fsifriends[10];   
    unsigned nFriends = 0 ;
 
    // Get the list of friends files from 
    // CardReader
-   std::map< std::string, std::string > friends_list;
+   std::map< std::string, std::string > friends_list,fsi_friends_list;
    ss.str(""); ss << "friend_" << mode ;
    MasterCard->BuildListOfStrings( ss.str().c_str() , friends_list );
+   ss.str(""); ss << "fsi_" << mode ;
+   MasterCard->BuildListOfStrings( ss.str().c_str() , fsi_friends_list );
 
    // Get the name of the tree for our friends
    std::string friendTreeName;
-   std::map< std::string, std::string > friendtree_list;
+   std::map< std::string, std::string > friendtree_list,fsi_friendtree_list;
    ss.str(""); ss << "friendtree_" << mode ;
    MasterCard->BuildListOfStrings( ss.str().c_str() , friendtree_list );
+   ss.str(""); ss << "fsitree_" << mode ;
+   MasterCard->BuildListOfStrings( ss.str().c_str() , fsi_friendtree_list );
 
    TString finder;
    std::string friendTreeKey;
 
    // now we loop over all of the existing friends
+   std::cout << "size of friends_list is " << friends_list.size() << std::endl;
    for( item = friends_list.begin() ; item != friends_list.end() ; item ++ )
    {
       
@@ -323,10 +328,42 @@ TChain * FileRecord::CheckAndBuildChain( CardReader * MasterCard, std::string mo
       std::cout << "   adding: "   << SR.Data() 
                 << "   as friend, " << count << " files , nFriends :" << nFriends <<std::endl; 
 
+      lchain->AddFriend( friends[ nFriends ] );
+      nFriends++;
+   }
+
+   std::cout << "size of fsi_friends_list is " << fsi_friends_list.size() << std::endl;
+   // now we loop over all of the existing FSI friends
+   nFriends = 0 ;
+   for( item = fsi_friends_list.begin() ; item != fsi_friends_list.end() ; item ++ )
+   {
+      
+      // get the Key
+      finder = item->first.c_str();
+      finder.ReplaceAll( "fsi_" , "fsitree_" ); 
+      friendTreeKey  = finder.Data();
+      friendTreeName = fsi_friendtree_list[ friendTreeKey ];
+      std::cout << "FSI friendTreeName :" << friendTreeName << ": friendTreeKey :"  <<friendTreeKey <<":" <<  std::endl;
+
+      fsifriends[ nFriends ] = new TChain( friendTreeName.c_str() );
+
+      SR = item->second.c_str() ;
+      if( instance !=  "-1" )
+      {
+          ss.str(""); ss << instance ;
+          SR.ReplaceAll( rep.c_str() , ss.str().c_str() ); 
+      }
+    
+
+      // now add all of the files to the chain 
+      count = fsifriends[ nFriends ]->Add( SR.Data() );
       std::cout << "   adding: "   << SR.Data() 
                 << "   as friend, " << count << " files , nFriends :" << nFriends <<std::endl; 
 
-      lchain->AddFriend( friends[ nFriends ] );
+      std::cout << "   adding: "   << SR.Data() 
+                << "   as friend, " << count << " files , nFriends :" << nFriends <<std::endl; 
+
+      lchain->AddFriend( fsifriends[ nFriends ] );
       nFriends++;
    }
 

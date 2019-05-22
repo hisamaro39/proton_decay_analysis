@@ -16,7 +16,7 @@ void syst_fermi_motion(){
   hist.push_back("fermi_momentum");
   input_type.push_back(3);input_type.push_back(16);
   mode_type.push_back(3);mode_type.push_back(2);
-  add_ratio.push_back(1);scale.push_back(1);use_validation.push_back(1);
+  add_ratio.push_back(0);scale.push_back(1);use_validation.push_back(1);
   hist_set.push_back(hist);dology.push_back(0);hist.clear();input_type_set.push_back(input_type);input_type.clear();
   mode_type_set.push_back(mode_type);mode_type.clear();
 
@@ -117,7 +117,7 @@ void syst_fermi_motion(){
       save_name += "_" + type[mode_type_set[s].at(h)] ;
     }
     save_name += "_" + period + ".pdf";
-    //c->SaveAs(save_name.c_str());
+    c->SaveAs(save_name.c_str());
     //c->SaveAs("hist/temp.pdf");
     TFile *output = new TFile("output/ratio_fermi_motion.root","recreate");
     output->Add(ratio_hist);

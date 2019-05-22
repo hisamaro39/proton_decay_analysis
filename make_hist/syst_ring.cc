@@ -3,13 +3,41 @@ void syst_ring(){
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
 
-  TFile *input_mc = TFile::Open("../output/fcmc.sk4.mode_subgev_multiring.root");//mc
-  TFile *input_data = TFile::Open("../output/fcdt.sk4.mode_subgev_multiring.root");//data
-  TH1* hist_mc = (TH1*) input_mc->Get("ring_counting_likelihood");
-  TH1* hist_data = (TH1*) input_data->Get("ring_counting_likelihood");
+  TFile *input_mc = TFile::Open("../output/fcmc_rc.sk4.mode_subgev_multiring.root");//mc
+  TFile *input_dt = TFile::Open("../output/fcdt_rc.sk4.mode_subgev_multiring.root");//data
+  TH1* hist_mc_rc23_nring2 = (TH1*) input_mc->Get("ring_counting_likelihood2_nring2");
+  TH1* hist_dt_rc23_nring2 = (TH1*) input_dt->Get("ring_counting_likelihood2_nring2");
+  TH1* hist_mc_rc23_nring3 = (TH1*) input_mc->Get("ring_counting_likelihood2_nring3");
+  TH1* hist_dt_rc23_nring3 = (TH1*) input_dt->Get("ring_counting_likelihood2_nring3");
+  TH1* hist_mc_rc34_nring3 = (TH1*) input_mc->Get("ring_counting_likelihood3_nring3");
+  TH1* hist_dt_rc34_nring3 = (TH1*) input_dt->Get("ring_counting_likelihood3_nring3");
+  TH1* hist_mc_rc34_nring4 = (TH1*) input_mc->Get("ring_counting_likelihood3_nring4");
+  TH1* hist_dt_rc34_nring4 = (TH1*) input_dt->Get("ring_counting_likelihood3_nring4");
+
+  TH1 *hist_mc_rc23_nring23 = (TH1*) hist_mc_rc23_nring2->Clone("hist_mc_rc23_nring23");
+  TH1 *hist_dt_rc23_nring23 = (TH1*) hist_dt_rc23_nring2->Clone("hist_dt_rc23_nring23");
+  hist_mc_rc23_nring23->Add(hist_mc_rc23_nring3);
+  hist_dt_rc23_nring23->Add(hist_dt_rc23_nring3);
+  //hist_mc_rc23_nring23->Rebin(2);
+  //hist_dt_rc23_nring23->Rebin(2);
+  TH1 *hist_mc_rc34_nring34 = (TH1*) hist_mc_rc34_nring3->Clone("hist_mc_rc34_nring34");
+  TH1 *hist_dt_rc34_nring34 = (TH1*) hist_dt_rc34_nring3->Clone("hist_dt_rc34_nring34");
+  hist_mc_rc34_nring34->Add(hist_mc_rc34_nring4);
+  hist_dt_rc34_nring34->Add(hist_dt_rc34_nring4);
+  //hist_mc_rc34_nring34->Rebin(2);
+  //hist_dt_rc34_nring34->Rebin(2);
+
+  //hist_mc_rc34_nring34->Draw("hist");
+  //hist_dt_rc34_nring34->Draw("same");
 
   TCanvas *c1 = new TCanvas("c1","",800,600);
-  TPad* p1 = new TPad("main","main",0.0,0.2,1.0,1.0,10,0,0);
+  hist_dt_rc23_nring23->SetLineWidth(2);
+  hist_mc_rc23_nring23->SetLineWidth(2);
+  hist_mc_rc23_nring23->SetLineColor(2);
+  hist_dt_rc23_nring23->Draw();
+  hist_mc_rc23_nring23->Draw("same hist");
+  c1->SaveAs("hist/compare_data_mc_ring_counting_likelihood_subgev.pdf");
+  /*TPad* p1 = new TPad("main","main",0.0,0.2,1.0,1.0,10,0,0);
   p1->SetNumber(1);
   p1->SetBottomMargin(0);
   p1->Draw();
@@ -19,11 +47,6 @@ void syst_ring(){
   p2->SetNumber(2);
   p2->Draw();
   c1->cd(1);
-  hist_data->SetLineWidth(2);
-  hist_mc->SetLineWidth(2);
-  hist_mc->SetLineColor(2);
-  hist_data->Draw();
-  hist_mc->Draw("same hist");
   TH1 *ratio_hist_data = (TH1*) hist_data->Clone("clone_hist_data");
   ratio_hist_data->Divide(hist_mc);
   float xmin = ratio_hist_data->GetBinLowEdge(1);
@@ -37,26 +60,25 @@ void syst_ring(){
   TLine *line = new TLine(xmin,1,xmax,1);
   line->SetLineStyle(2);
   line->SetLineWidth(2);
-  line->Draw();
-  c1->SaveAs("hist/compare_data_mc_ring_counting_likelihood_subgev.pdf");
+  line->Draw();*/
 
   //calculate chi2
-  int nbin = hist_data->GetNbinsX();
+  int nbin = hist_dt_rc23_nring23->GetNbinsX();
   cout << "# of bins " << nbin << endl;
   TGraph *graph = new TGraph();
   TGraph *graph2 = new TGraph();
   float total_min_chi2 = 999999,total_min_scale=0,total_min_shift=9999;
   for(int m=0;m<10;m++){//bin shift
-    int shift=-5+m; 
+    int shift=-0.5+0.1*m; 
     cout << "bin shift is " << shift << endl;
     float min_chi2 = 999999,min_scale=0,min_shift=9999;
-    for(int s=0;s<1000;s++){//scale
-      float scale = 0.5 + 0.001*s;
+    for(int s=0;s<10;s++){//scale
+      float scale = 0.5 + 0.1*s;
       //cout << "scale is " << scale << endl;
       float chi2=0.;
       for(int b=0;b<nbin;b++){
-        float event_data = hist_data->GetBinContent(b+1);
-        float event_mc = hist_mc->GetBinContent(b+1+shift)*scale;
+        float event_data = hist_dt_rc23_nring23->GetBinContent(b+1);
+        float event_mc = hist_mc_rc23_nring23->GetBinContent(b+1+shift)*scale;
         float sigma = sqrt(event_data);
         if(event_data==0) continue;
         float this_diff = pow((event_data-event_mc)/sigma,2);
@@ -83,7 +105,7 @@ void syst_ring(){
   }
   cout << "total minimum chi2/shift/scale=" << total_min_chi2 << "/" << total_min_shift << "/" << total_min_scale << endl;
 
-  TCanvas *c4 = new TCanvas("c4","",800,600);
+  /*TCanvas *c4 = new TCanvas("c4","",800,600);
   graph->SetLineWidth(2);
   graph->Draw("al");
   c4->SaveAs("hist/chi2_shift0_ring_counting_likelihood_subgev.pdf");
@@ -170,4 +192,5 @@ void syst_ring(){
   line2->SetLineWidth(2);
   line2->Draw();
   c3->SaveAs("hist/compare_data_mc_ring_counting_likelihood_bestfit_subgev.pdf");
+  */
 }

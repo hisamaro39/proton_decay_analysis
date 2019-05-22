@@ -1,6 +1,6 @@
 #include <vector>
 void syst_fv_2(){
-  string sk_period = "sk3";
+  string sk_period = "sk4";
   bool add_signal = false;
   float signal_scale = 0.03;
 

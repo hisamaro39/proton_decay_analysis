@@ -1,9 +1,9 @@
 void weight_average(){
 
-  float value[3] = {13.5,2.9,22.3};
-  float error[3] =  {2.6,0.7,10.0};
+  float value[4] = {3.3,2.9,0.9,2.6};
+  float error[4] =  {0.8,0.8,0.3,0.7};
   float bunsi=0,bunbo=0;
-  for(int i=0;i<3;i++){
+  for(int i=0;i<4;i++){
     bunsi += value[i]*pow(1./error[i],2);
     bunbo += pow(1./error[i],2);
   }

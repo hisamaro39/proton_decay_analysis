@@ -1,7 +1,7 @@
 #include "TGraphAsymmErrors.h"
 void make_compare_plot_th1_syst_single(){
   string period = "sk4";
-  string type[] = {"p_epi","p_mupi","p_eee_def","p_eee_miura","p_mumumu_def","p_mumumu_miura","p_emumu_def","p_emumu_miura","p_muee_def","p_muee_miura","p_eemu","fcmc","fcdt","single_mu_def","single_mu_miura"};
+  string type[] = {"p_epi","p_mupi","p_eee_final","p_eee_miura","p_mumumu_def","p_mumumu_miura","p_emumu_def","p_emumu_miura","p_muee_def","p_muee_miura","p_eemu","fcmc","fcdt","single_mu_def","single_mu_miura"};
   string syst = "fermigas";
 
   gROOT->SetStyle("Plain");
@@ -11,7 +11,7 @@ void make_compare_plot_th1_syst_single(){
   hist.clear();dology.clear();input_type.clear();scale.clear();rebin.clear();
   add_ratio.clear();mode_type.clear();use_validation.clear();
 
-  hist.push_back("total_true_mass_fp0");
+  /*hist.push_back("total_true_mass_fp0");
   input_type.push_back(3);mode_type.push_back(3);scale.push_back(1);
   use_validation.push_back(1);dology.push_back(1);add_ratio.push_back(1);rebin.push_back(1);
 
@@ -37,17 +37,17 @@ void make_compare_plot_th1_syst_single(){
 
   hist.push_back("ntag_multiplicity_cut4_nring1_mulike0_michel0");
   input_type.push_back(3);mode_type.push_back(3);scale.push_back(1);
-  use_validation.push_back(0);dology.push_back(0);add_ratio.push_back(1);rebin.push_back(1);
+  use_validation.push_back(0);dology.push_back(0);add_ratio.push_back(1);rebin.push_back(1);*/
 
-  hist.push_back("mass_proton_reco_cut4_nring1_mulike0_michel0");
-  input_type.push_back(3);mode_type.push_back(3);scale.push_back(1);
-  use_validation.push_back(0);dology.push_back(1);add_ratio.push_back(1);rebin.push_back(5);
+  //hist.push_back("mass_proton_reco_cut3_nring1_mulike0_michel0");
+  //input_type.push_back(3);mode_type.push_back(3);scale.push_back(1);
+  //use_validation.push_back(0);dology.push_back(1);add_ratio.push_back(1);rebin.push_back(5);
 
-  hist.push_back("mom_proton_reco_cut4_nring1_mulike0_michel0");
-  input_type.push_back(3);mode_type.push_back(3);scale.push_back(1);
-  use_validation.push_back(0);dology.push_back(1);add_ratio.push_back(1);rebin.push_back(5);
+  hist.push_back("mom_proton_reco_cut3_nring1_mulike0_michel0");
+  input_type.push_back(2);mode_type.push_back(2);scale.push_back(1);
+  use_validation.push_back(0);dology.push_back(0);add_ratio.push_back(0);rebin.push_back(5);
 
-  hist.push_back("true_angle_min_mid_lepton");
+  /*hist.push_back("true_angle_min_mid_lepton");
   input_type.push_back(3);mode_type.push_back(3);scale.push_back(1);
   use_validation.push_back(1);dology.push_back(0);add_ratio.push_back(1);rebin.push_back(1);
 
@@ -81,7 +81,7 @@ void make_compare_plot_th1_syst_single(){
 
   hist.push_back("true_max_mom_lepton_fp0");
   input_type.push_back(3);mode_type.push_back(3);scale.push_back(1);
-  use_validation.push_back(1);dology.push_back(1);add_ratio.push_back(1);rebin.push_back(1);
+  use_validation.push_back(1);dology.push_back(1);add_ratio.push_back(1);rebin.push_back(1);*/
 
   TFile *input_def,*input_up;
   TH1 *first_hist;
@@ -124,7 +124,7 @@ void make_compare_plot_th1_syst_single(){
     hist_def->SetLineWidth(2);
     hist_up->SetLineWidth(2);
     hist_up->SetLineColor(2);
-    hist_up->GetYaxis()->SetRangeUser(0,maximum*1.2);
+    hist_def->GetYaxis()->SetRangeUser(0,maximum*1.2);
     if(dology[h]) {
       if(scale[h]) hist_up->GetYaxis()->SetRangeUser(1./default_integral_def, maximum*1.2);
       else hist_up->GetYaxis()->SetRangeUser(1, maximum*1.2);

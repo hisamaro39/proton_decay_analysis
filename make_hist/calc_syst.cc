@@ -1,15 +1,15 @@
 #include <vector>
 void calc_syst(){
   //input & mode
-  string input_type="fcmc_final";
-  string mode_type="p_eee";
-  string syst = "energydown_sk4";
-  int period=5;//5:sk1-4
+  string input_type="p_eemu_final";
+  string mode_type="p_eemu_final";
+  string syst = "pid_sk4";
+  int period=4;//5:sk1-4
   int live=1;//0:w/o live time weight
   //cut pattern
   int nring=1;//# of ring
   int nmulike=0;//# of mulike ring
-  int nmichel=0;//# of michel electron
+  int nmichel=1;//# of michel electron
   cout << "input is " << input_type << endl;
   cout << "mode is " << mode_type << endl;
   cout << "systematic is " << syst << endl;

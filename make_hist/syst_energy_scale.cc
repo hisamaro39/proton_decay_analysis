@@ -1,10 +1,10 @@
 #include <vector>
 void syst_energy_scale(){
-  string mode = "p_eee";
+  string mode = "p_mumumu";
   int cut = 5;
-  int nring=1;
+  int nring=0;
   int mulike=0;
-  int michel=0;
+  int michel=3;
   int fit_max=600;
 
   gROOT->SetStyle("Plain");
@@ -12,7 +12,7 @@ void syst_energy_scale(){
 
   cout << "mode=" << mode << endl;
   TH1 *first_hist;
-  TFile *input = TFile::Open(Form("../output/fcmc.sk4.mode_%s.root",mode.c_str()));//mc
+  TFile *input = TFile::Open(Form("../output/fcmc_real.sk1_4.mode_%s_wo_livetime.root",mode.c_str()));//mc
   TH1* h_total_distance = (TH1*) input->Get(Form("total_distance_ntag_cut%d_nring%d_mulike%d_michel%d",cut,nring,mulike,michel));
   TCanvas *c1 = new TCanvas("c1","",800,600);
   h_total_distance->SetLineWidth(2);
@@ -33,7 +33,7 @@ void syst_energy_scale(){
   cout << "error par0/1/2=" << par0_err << "/" << par1_err << "/" << par2_err << endl;
   int num=1;
   //TCanvas *c2 = new TCanvas("c2","",800,600);
-  for(int a=0;a<2;a++){
+  /*for(int a=0;a<2;a++){
     for(int b=0;b<2;b++){
       for(int c=0;c<2;c++){
         TF1 *fix_func = new TF1(Form("fix_func%d",num),"exp([0]*x*x+[1]*x+[2])",0,fit_max);
@@ -52,11 +52,16 @@ void syst_energy_scale(){
         num++;
       }
     }
-  }
-  //fix_func->SetLineColor(4);
-  //fix_func->Draw("same");
+  }*/
+  
+  TF1 *fix_func = new TF1(Form("fix_func%d",num),"exp([0]*x*x+[1]*x+[2])",0,fit_max);
+  fix_func->FixParameter(0,par0);
+  fix_func->FixParameter(1,par1);
+  fix_func->FixParameter(2,par2);
+  fix_func->SetLineColor(4);
+  fix_func->Draw("same");
   //c->SaveAs(Form("hist/total_distance_ntag_cut%d_nring%d_mulike%d_michel%d_fit.pdf",cut,nring,mulike,michel));
-  /*double total_events = fix_func->Integral(0,125)/25;
+  double total_events = fix_func->Integral(0,125)/25;
   double total_events_up = fix_func->Integral(0,125*(1+0.021))/25;
   double total_events_down = fix_func->Integral(0,125*(1-0.021))/25;
   double diff_up = (total_events_up - total_events)/total_events;
@@ -67,6 +72,4 @@ void syst_energy_scale(){
   cout << "integral=" << h_total_distance->Integral(1,5) << " +- " << err << endl;
   cout << "total events def/up/down=" << total_events << "/" << total_events_up << "/" << total_events_down << endl;
   cout << "diff up/down=" << diff_up << "/" << diff_down << endl; 
-  */
-
 }
